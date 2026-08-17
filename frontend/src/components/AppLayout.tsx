@@ -6,11 +6,11 @@ import {
   Library,
   LogOut,
   RefreshCw,
-  Sparkles,
 } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 
 import { useAuth } from "../auth/AuthContext";
+import { PenguinMark } from "./PenguinMark";
 
 interface NavigationItem {
   to: string;
@@ -20,11 +20,11 @@ interface NavigationItem {
 }
 
 const navigation: NavigationItem[] = [
-  { to: "/app", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/app/learn", label: "Learn", icon: BookOpen },
-  { to: "/app/vocabulary", label: "My Vocabulary", icon: Library },
-  { to: "/app/review", label: "Review", icon: RefreshCw },
-  { to: "/app/practice", label: "Practice", icon: Dumbbell },
+  { to: "/app", label: "Trang chủ", icon: LayoutDashboard, end: true },
+  { to: "/app/learn", label: "Học từ vựng", icon: BookOpen },
+  { to: "/app/vocabulary", label: "Từ vựng của tôi", icon: Library },
+  { to: "/app/review", label: "Ôn tập", icon: RefreshCw },
+  { to: "/app/practice", label: "Luyện tập", icon: Dumbbell },
 ];
 
 function NavigationLinks({ mobile = false }: { mobile?: boolean }) {
@@ -53,17 +53,15 @@ export function AppLayout() {
   return (
     <div className="app-shell">
       <aside className="app-sidebar">
-        <NavLink className="wordmark" to="/app" aria-label="Mascot Dashboard">
-          <span className="wordmark-symbol" aria-hidden="true">
-            <Sparkles size={20} strokeWidth={2.2} />
-          </span>
+        <NavLink className="wordmark" to="/app" aria-label="Trang chủ Mascot">
+          <PenguinMark size={38} />
           <span>Mascot</span>
         </NavLink>
 
         <div className="sidebar-context">
-          <span>Current journey</span>
-          <strong>General English</strong>
-          <small>Build your vocabulary daily</small>
+          <span>Hành trình hiện tại</span>
+          <strong>Tiếng Anh tổng quát</strong>
+          <small>Xây dựng vốn từ mỗi ngày</small>
         </div>
 
         <nav className="app-navigation" aria-label="Điều hướng chính">
@@ -75,7 +73,7 @@ export function AppLayout() {
             {user?.email?.charAt(0).toUpperCase() ?? "M"}
           </div>
           <div className="account-copy">
-            <strong>Learner</strong>
+            <strong>Người học</strong>
             <span title={user?.email}>{user?.email}</span>
           </div>
           <button
@@ -93,9 +91,7 @@ export function AppLayout() {
 
       <header className="mobile-topbar">
         <NavLink className="wordmark" to="/app">
-          <span className="wordmark-symbol" aria-hidden="true">
-            <Sparkles size={18} />
-          </span>
+          <PenguinMark size={34} />
           <span>Mascot</span>
         </NavLink>
         <button

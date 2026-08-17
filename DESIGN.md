@@ -38,6 +38,12 @@ Primary direction:
 - dark navy primary text
 - muted gray secondary text
 
+Primary mascot identity:
+- a minimal geometric penguin inside a rounded-square indigo badge
+- dark navy body, white face/belly, soft lavender details, and one restrained sparkle
+- reusable as the sidebar mark, SVG favicon, authentication visual, learner-home support visual, empty state, and completion mark
+- friendly and intelligent without baby-like proportions, detailed cartoon styling, or clipart treatment
+
 AI-related features should have a subtle distinct identity using:
 - violet gradient
 - sparkle motif
@@ -240,6 +246,8 @@ Structure:
 - Practice CTA
 - recent vocabulary
 
+The learner-home hierarchy is intentionally limited to one dominant journey hero, three actionable next-step cards (Review, Practice, Add vocabulary), three lightweight progress numbers, and six recent vocabulary items in a balanced two-column layout. The hero keeps the penguin but removes any separate vocabulary-mastery box. Detailed status and attempt breakdown panels must not compete with the next action.
+
 Do not let metric cards dominate the page.
 
 Avoid complex business charts.
@@ -430,17 +438,35 @@ Completion state:
 Practice should feel like a focused learning session.
 
 Setup:
-- exercise type
-- number of questions
-- vocabulary source
-- AI generation action
+- Step 1 — vocabulary source selector: Recent words, By topic, or Custom selection
+- Step 2 — current supported exercise type
+- Step 3 — number of questions for Multiple Choice, or the fixed `1 passage · 4 blanks` summary for Fill in the Blank
+- Step 4 — Generate with AI
 
-Question screen:
-- Question X of Y
-- progress bar
-- large readable prompt
-- answer cards or fill-in input
-- Submit
+Show only controls relevant to the selected source mode. Recent words requires no checkboxes. By topic reuses the personal topic typeahead without topic mutation. Custom selection uses a scrollable checklist with Select All, Clear selection, and selected count.
+
+Always show a contextual source summary such as `Using 15 recent words`, `Work · 12 words available`, or `8 words selected`. Visually distinguish the vocabulary source-pool size from the output question count.
+
+Multiple Choice count defaults to 5 and accepts 1–15. Its controlled edit state must allow a temporary blank value while typing; validate on blur or generation instead of coercing every keystroke. Fill in the Blank hides/disables that count control and clearly states `1 passage · 4 blanks`.
+
+Select All means all eligible vocabulary becomes source material. It must never change the requested question count or imply one generated question per selected word. Four-option multiple choice should show a friendly minimum requirement of four distinct eligible words.
+
+The setup surface should remain mostly neutral/white. Reserve the violet gradient and sparkle treatment for the AI generation action rather than tinting the entire container.
+
+Multiple Choice screen:
+- Question X of Y and progress bar
+- one complete contextual English sentence with exactly one blank
+- four large A/B/C/D English vocabulary answer cards
+- Submit, then Correct/Not quite, correct option, concise explanation, and Next Question
+
+Fill in the Blank screen:
+- one coherent titled 4–5 line passage containing `(1) ______` through `(4) ______`
+- four numbered question groups below the passage
+- four A/B/C/D options for every blank
+- one final submission for all four answers; unanswered blanks prevent submission
+- after submission, show total score plus correct/incorrect state, correct option, and concise explanation for each blank
+
+Never present the primary V1 formats as definition-to-word multiple choice or as a one-sentence free-text blank.
 
 Feedback:
 - Correct / Incorrect
@@ -564,3 +590,13 @@ When rules conflict, prioritize:
 6. decoration
 
 Product consistency is more important than visual novelty.
+
+---
+
+## 23. Vietnamese Interface and Visual Composition
+
+The V1 product shell and all interface controls use natural professional Vietnamese. English remains only where it is the learning content itself, such as vocabulary, example sentences, exercise passages, CEFR labels, and answer options. Exercise explanations and feedback are Vietnamese.
+
+Main pages share one header rhythm: a visible purple uppercase eyebrow, a strong 34–48px title, concise supporting copy, consistent content width, and optional restrained learning illustration. Desktop keeps the white persistent sidebar against a light lavender-gray application background.
+
+The Learn page uses an illustrated discovery hero, a six-option CEFR selector, and compact topic cards with restrained purple, pink, teal, or amber accents. Practice uses a compact four-step setup, contextual current-session progress, and a completion surface with score, accuracy, correct/incorrect summary, and question review. Historical legacy exercises must never be merged into a newly generated active session.

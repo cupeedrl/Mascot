@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useState } from "react";
-import { ArrowRight, BookOpen, Compass, Search } from "lucide-react";
+import { ArrowRight, BookOpen, BriefcaseBusiness, Compass, GraduationCap, MessageCircle, Search, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import {
@@ -9,8 +9,15 @@ import {
   type VocabularySetListResponse,
 } from "../api/client";
 import { PageSkeleton } from "../components/PageSkeleton";
+import { LearningIllustration } from "../components/LearningIllustration";
+import { PageHeader } from "../components/PageHeader";
+import { PenguinMark } from "../components/PenguinMark";
 
 const LEVELS: CefrLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const LEVEL_LABELS: Record<CefrLevel, string> = {
+  A1: "Cơ bản", A2: "Sơ cấp", B1: "Trung cấp", B2: "Trên trung cấp", C1: "Nâng cao", C2: "Thành thạo",
+};
+const topicIcons = [BookOpen, Users, BriefcaseBusiness, GraduationCap, MessageCircle, Compass];
 
 function errorMessage(error: unknown): string {
   return error instanceof ApiError ? error.message : "Không thể tải thư viện từ vựng.";
@@ -51,17 +58,19 @@ export function LearnPage() {
   return (
     <section className="learn-page" aria-labelledby="learn-heading">
       <div className="learn-hero">
-        <div>
-          <div className="hero-icon"><Compass size={22} /></div>
-          <p className="eyebrow">MASCOT VOCABULARY LIBRARY</p>
-          <h1 id="learn-heading">Explore English your way.</h1>
-          <p>Chọn trình độ, khám phá chủ đề phù hợp và bắt đầu xây dựng vốn từ của riêng bạn.</p>
-        </div>
-        <dl className="track-card">
-          <div><dt>Ngôn ngữ</dt><dd>English</dd></div>
-          <div><dt>Learning track</dt><dd>General English</dd></div>
-          <div><dt>Framework</dt><dd>CEFR</dd></div>
-        </dl>
+        <PageHeader
+          className="learn-page-header"
+          icon={Compass}
+          eyebrow="Thư viện từ vựng Mascot"
+          title={<>Khám phá tiếng Anh <em>theo cách của bạn.</em></>}
+          description="Chọn trình độ, khám phá chủ đề phù hợp và bắt đầu xây dựng vốn từ của riêng bạn."
+          titleId="learn-heading"
+          aside={<div className="learn-hero-aside"><LearningIllustration variant="library" /><dl className="track-card">
+            <div><dt>Ngôn ngữ</dt><dd>Tiếng Anh</dd></div>
+            <div><dt>Lộ trình học</dt><dd>Tiếng Anh tổng quát</dd></div>
+            <div><dt>Khung trình độ</dt><dd>CEFR</dd></div>
+          </dl></div>}
+        />
       </div>
 
       <section className="level-section" aria-labelledby="level-heading">
@@ -85,7 +94,7 @@ export function LearnPage() {
                 setTopicDraft("");
               }}
             >
-              {item}
+              <strong>{item}</strong><small>{LEVEL_LABELS[item]}</small>
             </button>
           ))}
         </div>
@@ -114,10 +123,12 @@ export function LearnPage() {
           <PageSkeleton cards={3} />
         ) : result?.items.length ? (
           <div className="set-grid">
-            {result.items.map((set) => (
-              <article className="set-card" key={set.id}>
+            {result.items.map((set, index) => {
+              const TopicIcon = topicIcons[index % topicIcons.length];
+              const progress = set.entry_count ? Math.round((set.added_count / set.entry_count) * 100) : 0;
+              return <article className={`set-card topic-accent-${index % 4}`} key={set.id}>
                 <div className="set-card-topline">
-                  <span className="topic-visual" aria-hidden="true"><BookOpen size={21} /></span>
+                  <span className="topic-visual" aria-hidden="true"><TopicIcon size={22} /></span>
                   <span className="level-badge">{set.level_code}</span>
                   {set.import_status !== "none" && (
                     <span className={`library-status ${set.import_status}`}>
@@ -131,14 +142,16 @@ export function LearnPage() {
                   <span>{set.entry_count} từ</span>
                   <span>{set.added_count}/{set.entry_count} đã thêm</span>
                 </div>
+                <div className="progress-track"><span style={{ width: `${progress}%` }} /></div>
                 <Link className="primary-link" to={`/app/learn/sets/${set.id}`}>
-                  {set.import_status === "none" ? "Start topic" : "Continue"} <ArrowRight size={16} />
+                  {set.import_status === "none" ? "Bắt đầu học" : "Tiếp tục"} <ArrowRight size={16} />
                 </Link>
-              </article>
-            ))}
+              </article>;
+            })}
           </div>
         ) : (
           <div className="list-state">
+            <PenguinMark size={68} />
             <h2>Chưa có bộ demo cho {level}</h2>
             <p>Dữ liệu seed hiện chỉ mang tính đại diện và sẽ được mở rộng bằng nội dung được biên tập.</p>
           </div>

@@ -102,8 +102,8 @@ export function ManageTopicsModal({
           <div>
             <span className="modal-icon"><Tag size={20} /></span>
             <div>
-              <p className="eyebrow">My Vocabulary</p>
-              <h2 id="manage-topics-heading">Manage topics</h2>
+              <p className="eyebrow">TỪ VỰNG CỦA TÔI</p>
+              <h2 id="manage-topics-heading">Quản lý chủ đề</h2>
             </div>
           </div>
           <button className="icon-button" type="button" onClick={onClose} disabled={isMutating} aria-label="Đóng">

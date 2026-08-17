@@ -12,6 +12,8 @@ import {
   type VocabularyListResponse,
 } from "../api/client";
 import { PageSkeleton } from "../components/PageSkeleton";
+import { PageHeader } from "../components/PageHeader";
+import { PenguinMark } from "../components/PenguinMark";
 import { ManageTopicsModal } from "../components/ManageTopicsModal";
 import { TopicCombobox } from "../components/TopicCombobox";
 
@@ -125,16 +127,13 @@ export function VocabularyPage() {
 
   return (
     <section className="vocabulary-page" aria-labelledby="vocabulary-heading">
-      <div className="page-heading-row">
-        <div>
-          <p className="eyebrow">General English</p>
-          <h1 id="vocabulary-heading">My Vocabulary</h1>
-          <p>Từ bạn tự thêm và từ đang học từ thư viện Mascot.</p>
-        </div>
-        <Link className="primary-link compact-button" to="/app/vocabulary/new">
-          <Plus size={17} /> Add Vocabulary
-        </Link>
-      </div>
+      <PageHeader
+        eyebrow="Tiếng Anh tổng quát"
+        title="Từ vựng của tôi"
+        description="Từ bạn tự thêm và từ đang học từ thư viện Mascot."
+        titleId="vocabulary-heading"
+        aside={<Link className="primary-link compact-button" to="/app/vocabulary/new"><Plus size={17} /> Thêm từ vựng</Link>}
+      />
 
       {success && <div className="success-banner" role="status">{success}</div>}
       {pageError && <div className="form-error" role="alert">{pageError}</div>}
@@ -190,7 +189,7 @@ export function VocabularyPage() {
           <button className="primary-button compact-button" type="submit">Áp dụng</button>
           {hasFilters && <button className="text-button" type="button" onClick={clearFilters}>Xóa lọc</button>}
           <button className="text-button" type="button" onClick={() => setIsManagingTopics(true)}>
-            <Settings2 size={16} /> Manage topics
+            <Settings2 size={16} /> Quản lý chủ đề
           </button>
         </div>
       </form>
@@ -248,11 +247,12 @@ export function VocabularyPage() {
         </div>
       ) : (
         <div className="list-state">
+          {!hasFilters && <PenguinMark size={68} />}
           <h2>{hasFilters ? "Không tìm thấy kết quả" : "Kho từ vựng đang trống"}</h2>
           <p>
             {hasFilters
               ? "Hãy thử thay đổi từ khóa hoặc bộ lọc."
-              : "Thêm thủ công hoặc chọn một bộ từ trong trang Learn."}
+              : "Thêm thủ công hoặc chọn một bộ từ trong trang Học từ vựng."}
           </p>
           {!hasFilters && <Link className="primary-link" to="/app/learn">Khám phá thư viện</Link>}
         </div>

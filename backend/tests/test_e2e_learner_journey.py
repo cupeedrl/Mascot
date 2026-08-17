@@ -155,7 +155,7 @@ def test_complete_v1_learner_journey(
             "exercises": [
                 {
                     "exercise_type": "multiple_choice",
-                    "prompt": "The task was handled ____ by one person.",
+                    "prompt": "The task was handled _______ by one person.",
                     "options": [
                         {"id": "A", "text": "solely"},
                         {"id": "B", "text": "routine"},
@@ -164,7 +164,7 @@ def test_complete_v1_learner_journey(
                     ],
                     "correct_answer": "A",
                     "explanation": "Solely means only or exclusively.",
-                    "source_vocabulary_ids": [saved_ai_vocabulary.json()["id"]],
+                    "target_vocabulary_id": saved_ai_vocabulary.json()["id"],
                 }
             ]
         }

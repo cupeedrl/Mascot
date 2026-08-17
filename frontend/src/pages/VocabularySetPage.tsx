@@ -64,7 +64,7 @@ export function VocabularySetPage() {
     setSuccess("");
     try {
       const response = await importVocabularyEntries([...selectedIds]);
-      setSuccess(`Đã thêm ${response.created_count} từ vào My Vocabulary${response.skipped_count ? `, bỏ qua ${response.skipped_count} từ đã có` : ""}.`);
+      setSuccess(`Đã thêm ${response.created_count} từ vào Từ vựng của tôi${response.skipped_count ? `, bỏ qua ${response.skipped_count} từ đã có` : ""}.`);
       await loadDetail();
     } catch (caughtError) {
       setError(errorMessage(caughtError));
@@ -93,7 +93,7 @@ export function VocabularySetPage() {
 
   return (
     <section className="learn-page set-detail-page" aria-labelledby="set-heading">
-      <Link className="back-link" to="/app/learn"><ArrowLeft size={17} /> Quay lại Learn</Link>
+      <Link className="back-link" to="/app/learn"><ArrowLeft size={17} /> Quay lại Học từ vựng</Link>
       {error && <div className="form-error" role="alert">{error}</div>}
       {success && <div className="success-banner" role="status">{success}</div>}
 
@@ -106,7 +106,7 @@ export function VocabularySetPage() {
               <p>{detail.description}</p>
               <div className="set-progress">
                 <span>{detail.entry_count} từ</span>
-                <span>{detail.added_count}/{detail.entry_count} đã có trong My Vocabulary</span>
+                <span>{detail.added_count}/{detail.entry_count} đã có trong Từ vựng của tôi</span>
               </div>
               <div className="progress-track set-detail-progress" aria-label="Tiến độ bộ từ">
                 <span style={{ width: `${detail.entry_count ? (detail.added_count / detail.entry_count) * 100 : 0}%` }} />
@@ -170,7 +170,7 @@ export function VocabularySetPage() {
 
           {detail.added_count > 0 && (
             <div className="detail-footer">
-              <Link className="primary-link" to="/app/vocabulary">Xem My Vocabulary</Link>
+              <Link className="primary-link" to="/app/vocabulary">Xem Từ vựng của tôi</Link>
             </div>
           )}
         </>

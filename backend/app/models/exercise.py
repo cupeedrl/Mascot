@@ -82,14 +82,14 @@ class Exercise(Base):
     )
     exercise_type: Mapped[str] = mapped_column(String(32), nullable=False)
     prompt: Mapped[str] = mapped_column(Text, nullable=False)
-    options: Mapped[list[dict[str, str]] | None] = mapped_column(
+    options: Mapped[list[dict[str, object]] | None] = mapped_column(
         JSON(none_as_null=True).with_variant(
             JSONB(none_as_null=True), "postgresql"
         ),
         nullable=True,
     )
     correct_answer: Mapped[str] = mapped_column(Text, nullable=False)
-    accepted_answers: Mapped[list[str]] = mapped_column(
+    accepted_answers: Mapped[list[object]] = mapped_column(
         JSON().with_variant(JSONB, "postgresql"),
         nullable=False,
         default=list,

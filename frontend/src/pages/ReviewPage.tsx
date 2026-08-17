@@ -9,6 +9,8 @@ import {
   type ReviewQueueResponse,
 } from "../api/client";
 import { PageSkeleton } from "../components/PageSkeleton";
+import { PageHeader } from "../components/PageHeader";
+import { PenguinMark } from "../components/PenguinMark";
 
 function errorMessage(error: unknown): string {
   return error instanceof ApiError
@@ -73,13 +75,13 @@ export function ReviewPage() {
 
   return (
     <section className="review-page" aria-labelledby="review-heading">
-      <div className="review-heading">
-        <div>
-          <p className="eyebrow">Vocabulary Review</p>
-          <h1 id="review-heading">Ôn từ đến hạn.</h1>
-          <p>Tự kiểm tra trí nhớ, mở đáp án rồi chọn kết quả đúng với lần ôn của bạn.</p>
-        </div>
-        {queue && queue.items.length > 0 && !completed && (
+      <PageHeader
+        className="review-heading"
+        eyebrow="Ôn tập từ vựng"
+        title="Ôn từ đến hạn."
+        description="Tự kiểm tra trí nhớ, mở đáp án rồi chọn kết quả đúng với lần ôn của bạn."
+        titleId="review-heading"
+        aside={queue && queue.items.length > 0 && !completed ? (
           <div className="review-progress" aria-label="Tiến độ phiên ôn">
             <strong>{currentIndex + 1}/{queue.items.length}</strong>
             <span>{queue.total} từ đến hạn</span>
@@ -87,8 +89,8 @@ export function ReviewPage() {
               <span style={{ width: `${(currentIndex / queue.items.length) * 100}%` }} />
             </div>
           </div>
-        )}
-      </div>
+        ) : undefined}
+      />
 
       {error && <div className="form-error" role="alert">{error}</div>}
 
@@ -96,13 +98,14 @@ export function ReviewPage() {
         <PageSkeleton cards={1} />
       ) : completed && queue ? (
         <div className="review-complete" role="status">
+          <PenguinMark size={72} />
           <p className="eyebrow">Hoàn thành</p>
           <h2>Đã xong phiên ôn này.</h2>
           <div className="review-summary">
             <div><strong>{queue.items.length}</strong><span>Đã ôn</span></div>
             <div className="correct"><strong>{correctInSession}</strong><span>Đúng</span></div>
             <div className="incorrect"><strong>{incorrectInSession}</strong><span>Sai</span></div>
-            <div><strong>{sessionAccuracy}%</strong><span>Accuracy</span></div>
+            <div><strong>{sessionAccuracy}%</strong><span>Độ chính xác</span></div>
           </div>
           {queue.total > queue.items.length && (
             <p>Còn {queue.total - queue.items.length} từ ngoài giới hạn phiên hiện tại.</p>
@@ -111,17 +114,18 @@ export function ReviewPage() {
             <button className="primary-button" type="button" onClick={() => void loadQueue()}>
               <RefreshCw size={17} /> Kiểm tra lượt tiếp theo
             </button>
-            <Link className="secondary-link" to="/app"><LayoutDashboard size={17} /> Dashboard</Link>
-            <Link className="secondary-link" to="/app/practice"><Dumbbell size={17} /> Practice</Link>
+            <Link className="secondary-link" to="/app"><LayoutDashboard size={17} /> Trang chủ</Link>
+            <Link className="secondary-link" to="/app/practice"><Dumbbell size={17} /> Luyện tập</Link>
           </div>
         </div>
       ) : !currentItem ? (
         <div className="list-state review-empty">
+          <PenguinMark size={68} />
           <h2>Chưa có từ nào đến hạn.</h2>
-          <p>Từ mới trong My Vocabulary sẽ xuất hiện ở đây ngay; từ đã ôn sẽ quay lại theo lịch.</p>
+          <p>Từ mới trong Từ vựng của tôi sẽ xuất hiện ở đây ngay; từ đã ôn sẽ quay lại theo lịch.</p>
           <div className="review-complete-actions">
             <Link className="primary-link" to="/app/learn">Khám phá thư viện</Link>
-            <Link className="secondary-link" to="/app/vocabulary">My Vocabulary</Link>
+            <Link className="secondary-link" to="/app/vocabulary">Từ vựng của tôi</Link>
           </div>
         </div>
       ) : (
@@ -142,7 +146,7 @@ export function ReviewPage() {
               type="button"
               onClick={() => setRevealed(true)}
             >
-              <Eye size={18} /> Reveal Meaning
+              <Eye size={18} /> Xem nghĩa
             </button>
           ) : (
             <div className="review-answer" aria-live="polite">
@@ -159,7 +163,7 @@ export function ReviewPage() {
                   disabled={isSubmitting}
                   onClick={() => void recordResult(false)}
                 >
-                  <X size={18} /> Didn't Know
+                  <X size={18} /> Chưa nhớ
                   <small>Ôn lại sau 1 giờ</small>
                 </button>
                 <button
@@ -168,7 +172,7 @@ export function ReviewPage() {
                   disabled={isSubmitting}
                   onClick={() => void recordResult(true)}
                 >
-                  <Check size={18} /> Got It
+                  <Check size={18} /> Đã nhớ
                   <small>Tiến sang bước tiếp theo</small>
                 </button>
               </div>
@@ -179,8 +183,8 @@ export function ReviewPage() {
 
       <aside className="review-rule-note">
         <strong>Lịch V1</strong>
-        <span>Đúng: new → 1 ngày → learning → 3 ngày → review → mastered.</span>
-        <span>Sai: quay về learning và ôn lại sau 1 giờ.</span>
+        <span>Đúng: Mới → 1 ngày → Đang học → 3 ngày → Cần ôn → Đã thuộc.</span>
+        <span>Sai: quay về Đang học và ôn lại sau 1 giờ.</span>
       </aside>
     </section>
   );

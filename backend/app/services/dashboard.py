@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.models.exercise_attempt import ExerciseAttempt
 from app.models.vocabulary import Vocabulary
 
-RECENT_VOCABULARY_LIMIT = 5
+RECENT_VOCABULARY_LIMIT = 6
 
 
 @dataclass(frozen=True)

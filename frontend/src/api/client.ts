@@ -232,6 +232,20 @@ export function listVocabularies(
   return request<VocabularyListResponse>(`/vocabularies?${query.toString()}`);
 }
 
+export async function listAllVocabularies(): Promise<Vocabulary[]> {
+  const firstPage = await listVocabularies({ page: 1, pageSize: 100 });
+  if (firstPage.total_pages <= 1) return firstPage.items;
+  const remainingPages = await Promise.all(
+    Array.from({ length: firstPage.total_pages - 1 }, (_, index) =>
+      listVocabularies({ page: index + 2, pageSize: 100 }),
+    ),
+  );
+  return [
+    ...firstPage.items,
+    ...remainingPages.flatMap((page) => page.items),
+  ];
+}
+
 export function createVocabulary(payload: VocabularyInput): Promise<Vocabulary> {
   return request<Vocabulary>("/vocabularies", {
     method: "POST",
@@ -350,12 +364,17 @@ export interface ExerciseOption {
   text: string;
 }
 
+export interface ExerciseClozeBlank {
+  number: number;
+  options: ExerciseOption[];
+}
+
 export interface Exercise {
   id: string;
   learning_track_id: string;
   exercise_type: ExerciseType;
   prompt: string;
-  options: ExerciseOption[] | null;
+  options: ExerciseOption[] | ExerciseClozeBlank[] | null;
   source: "manual" | "ai";
   created_at: string;
 }
@@ -376,11 +395,32 @@ export interface ExerciseAttemptResult {
   correct_answer: string;
   explanation: string | null;
   completed_at: string;
+  correct_count: number | null;
+  total: number | null;
+  score_percent: number | null;
+  results: ExerciseBlankResult[];
+}
+
+export interface ExerciseBlankResult {
+  number: number;
+  is_correct: boolean;
+  correct_answer: string;
+  explanation: string | null;
 }
 
 export interface AIExerciseGenerationResponse {
   items: Exercise[];
   created_count: number;
+}
+
+export type ExerciseSourceMode = "recent" | "topic" | "custom";
+
+export interface AIExerciseGenerationInput {
+  source_mode: ExerciseSourceMode;
+  topic?: string;
+  vocabulary_ids?: string[];
+  exercise_type: ExerciseType;
+  count: number;
 }
 
 export function listExercises(pageSize = 100): Promise<ExerciseListResponse> {
@@ -389,26 +429,22 @@ export function listExercises(pageSize = 100): Promise<ExerciseListResponse> {
 
 export function submitExerciseAttempt(
   exerciseId: string,
-  answer: string,
+  response: string | Record<string, string>,
 ): Promise<ExerciseAttemptResult> {
   return request<ExerciseAttemptResult>(`/exercises/${exerciseId}/attempts`, {
     method: "POST",
-    body: JSON.stringify({ answer }),
+    body: JSON.stringify(
+      typeof response === "string" ? { answer: response } : { answers: response },
+    ),
   });
 }
 
 export function generateAIExercises(
-  vocabularyIds: string[],
-  exerciseType: ExerciseType,
-  count: number,
+  input: AIExerciseGenerationInput,
 ): Promise<AIExerciseGenerationResponse> {
   return request<AIExerciseGenerationResponse>("/ai/exercises/generate", {
     method: "POST",
-    body: JSON.stringify({
-      vocabulary_ids: vocabularyIds,
-      exercise_type: exerciseType,
-      count,
-    }),
+    body: JSON.stringify(input),
   });
 }
 

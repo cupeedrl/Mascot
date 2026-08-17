@@ -199,7 +199,7 @@ export function VocabularyEditorPage() {
 
   return (
     <section className="vocabulary-page editor-page" aria-labelledby="editor-heading">
-      <Link className="back-link" to="/app/vocabulary"><ArrowLeft size={17} /> Quay lại My Vocabulary</Link>
+      <Link className="back-link" to="/app/vocabulary"><ArrowLeft size={17} /> Quay lại Từ vựng của tôi</Link>
       <div className="page-heading-row">
         <div>
           <p className="eyebrow">{isEditing ? "Chỉnh sửa" : "Thêm thủ công hoặc dùng AI"}</p>
@@ -213,7 +213,7 @@ export function VocabularyEditorPage() {
       <section className="vocabulary-form-card">
         <form className="vocabulary-form" onSubmit={handleSubmit}>
           <label>
-            Learning track
+            Lộ trình học
             <select
               value={form.learningTrackId}
               onChange={(event) => setForm({ ...form, learningTrackId: event.target.value })}
@@ -243,7 +243,7 @@ export function VocabularyEditorPage() {
                 disabled={isGenerating || isSaving}
                 onClick={() => void handleAIGeneration()}
               >
-                <Sparkles size={17} /> {isGenerating ? "Đang tạo gợi ý…" : "Generate with AI"}
+                <Sparkles size={17} /> {isGenerating ? "Đang tạo gợi ý…" : "Tạo gợi ý với AI"}
               </button>
               <small>AI đưa ra bản nháp; chưa có dữ liệu nào được lưu.</small>
             </div>

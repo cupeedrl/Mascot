@@ -341,4 +341,4 @@ def test_demo_seed_is_deterministic_idempotent_and_links_vocabulary(
         }
         assert {item.source for item in exercises} == {"manual"}
         links = list(db.execute(select(exercise_vocabularies)).all())
-        assert len(links) == 5
+        assert len(links) == 8

@@ -15,7 +15,8 @@ Mascot V1 is a multi-user, AI-assisted learning management application for **Gen
 - Vocabulary metadata: word, part of speech, meaning, translation, one optional example sentence, level, topic, learning status, language/track context, and timestamps.
 - A simple self-assessed vocabulary review flow with deterministic counters, status progression, and due dates.
 - An AI vocabulary preview workflow: generate, validate, preview/edit, then explicitly save through the normal vocabulary API.
-- Multiple-choice and fill-in-the-blank exercises based on the authenticated user's vocabulary.
+- Contextual sentence-cloze multiple-choice exercises and four-blank passage-cloze exercises based on the authenticated user's vocabulary.
+- Practice setup with owner-scoped Recent words, By topic, and Custom selection source modes. The source pool is independent from output size: multiple choice defaults to 5 and accepts 1–15 questions; fill in the blank always creates one passage with four scored blanks.
 - Deterministic exercise grading in backend code and stored attempt history.
 - A dashboard calculated from PostgreSQL data, not by an LLM.
 - A responsive React UI, a versioned FastAPI REST API, PostgreSQL migrations, local Docker Compose development, tests, and setup documentation.
@@ -142,7 +143,7 @@ No `user_vocabulary_sets` table is required in V1. Whole-set and partial progres
 
 ### Exercises
 
-An exercise is a user-owned, persistable question in a learning track. V1 supports `multiple_choice` and `fill_in_blank`. It stores enough canonical answer data for deterministic backend grading. The public read schema must omit the answer key until an attempt is graded.
+An exercise is a user-owned, persistable question in a learning track. V1 `multiple_choice` means one complete contextual English sentence, exactly one blank, and exactly four A/B/C/D English vocabulary options. V1 `fill_in_blank` means one coherent 4–5 line passage with exactly four numbered blanks and four A/B/C/D choices per blank. One passage is one exercise but contains four scored answers. Both formats store canonical answer data for deterministic backend grading. The public read schema omits all answer keys and explanations until an attempt is graded.
 
 Exercises may be linked to one or more source vocabulary items through a join table. This preserves real foreign keys without putting ID arrays in JSON.
 
@@ -307,21 +308,21 @@ General conventions:
 | `user_id` | UUID | Required owner foreign key. |
 | `learning_track_id` | UUID | Required track foreign key. |
 | `exercise_type` | VARCHAR(32) | Required; `multiple_choice` or `fill_in_blank`. |
-| `prompt` | TEXT | Required question text. |
-| `options` | JSONB | Multiple-choice option objects; nullable for fill-in-the-blank. |
-| `correct_answer` | TEXT | Required canonical answer or option ID; internal only before grading. |
-| `acceptable_answers` | JSONB | Required array, default `[]`; optional normalized alternatives for fill-in-the-blank. |
-| `explanation` | TEXT | Optional answer explanation. |
+| `prompt` | TEXT | Required question text; passage cloze stores optional title plus passage. |
+| `options` | JSONB | MC stores four option objects; passage cloze stores four numbered objects, each containing four options. Legacy Phase 6 free-text rows may be null. |
+| `correct_answer` | TEXT | Internal canonical option ID for MC or JSON answer-key snapshot for passage cloze. |
+| `accepted_answers` | JSONB | Required array, default `[]`; retained for explicit compatibility with legacy free-text development exercises. |
+| `explanation` | TEXT | MC explanation or internal JSON map of four passage explanations. |
 | `source` | VARCHAR(20) | Required; `manual` for controlled demo content and `ai` for the later Phase 7 generator. |
 | `created_at` | TIMESTAMPTZ | Required. |
 | `updated_at` | TIMESTAMPTZ | Required. |
 
 - Primary key: `id`.
 - Foreign keys: `user_id -> users.id`; `learning_track_id -> learning_tracks.id`, delete restricted.
-- Checks: allowed exercise types and sources; required text is nonblank; JSON values are arrays; multiple-choice exercises require a bounded option array and a correct option ID (structural and membership validation is primarily Pydantic/service logic); fill-in-the-blank requires a canonical answer.
+- Checks: allowed exercise types and sources; required text is nonblank; JSON values are arrays. Strict Pydantic/service validation enforces the MC sentence/blank/options contract and the passage's four placeholders, numbered option groups, target ownership, and answer membership before persistence.
 - Indexes: (`user_id`, `learning_track_id`, `created_at DESC`) and (`user_id`, `exercise_type`).
 - Relationships: belongs to a user and track; links to vocabulary rows; has many attempts.
-- Public response schemas must not expose `correct_answer` or `acceptable_answers` before a submission is graded.
+- Public response schemas must not expose `correct_answer` or `accepted_answers` before a submission is graded.
 
 ### `exercise_vocabularies`
 
@@ -512,7 +513,7 @@ The Phase 4 scheduling policy is deterministic and self-assessed. Any non-master
 | `POST` | `/exercises/{exercise_id}/attempts` | Submit an answer, grade it in backend code, store the immutable attempt, then return correctness, canonical answer, and explanation. | Yes |
 | `GET` | `/exercise-attempts` | List the current user's attempt history, optionally filtered by exercise/track. | Yes |
 
-For multiple choice, the submitted stable option ID is compared with the stored option ID. For fill-in-the-blank, backend normalization may trim whitespace and optionally compare case-insensitively against canonical/acceptable answers. The normalization policy must be documented and unit-tested; the LLM is never called to grade these types.
+For multiple choice, the submitted stable option ID is normalized and compared with the stored option ID. For a passage cloze, the client submits one A/B/C/D choice for each key `1`–`4`; backend code compares all four against the stored JSON answer key and returns per-blank correctness, `correct_count`, total four, and a percentage. `is_correct` is true only for 4/4. Legacy Phase 6 free-text development rows retain their documented normalized-text grading path rather than being silently reinterpreted. The LLM is never called to grade any type.
 
 ### Dashboard
 
@@ -527,7 +528,7 @@ All numbers come from SQL/backend calculations. Empty denominators return a defi
 | Method | Path | Purpose | Authentication |
 |---|---|---|---|
 | `POST` | `/ai/vocabulary` | Accept one word, request structured vocabulary data, validate it, and return an unsaved preview. | Yes |
-| `POST` | `/ai/exercises/generate` | Accept owned vocabulary IDs, track, exercise types, and a bounded count; generate and validate exercises, persist them as owned records, and return public exercise schemas without answer keys. | Yes |
+| `POST` | `/ai/exercises/generate` | Accept an owner-scoped `recent`, `topic`, or `custom` vocabulary source plus exercise type and 1–15 output count; generate and validate exercises, persist them as owned records, and return public exercise schemas without answer keys. | Yes |
 
 AI endpoints require authentication for ownership, abuse control, and cost attribution. They should enforce request-size/count limits, provider timeouts, and safe provider error mapping (for example `502`/`503` rather than leaking provider details).
 
@@ -768,23 +769,31 @@ Testing and documentation should be added within each phase; Phase 9 is a cross-
 - Added exercise, vocabulary-link, and immutable attempt migration/models without duplicating language identity; language remains derived through the learning track.
 - Implemented owner-scoped learner-safe reads, pagination/filtering, deterministic option/text grading, answer snapshots, attempt persistence, and attempt history.
 - Added an idempotent development seed script based on existing owned vocabulary; Phase 6 does not call an AI provider.
-- Built the Practice session UI for multiple-choice and fill-in-the-blank with loading, empty, error, feedback, progression, and summary states.
+- Built the Practice session UI for contextual multiple-choice and a single four-blank passage cloze, with loading, empty, error, feedback, progression, and summary states.
 - Tests cover answer-key non-disclosure, both grading paths, normalization/accepted answers, snapshot persistence, and cross-user isolation.
 
 ### Phase 7 — AI Exercise Generator — Implemented
 
-- Added authenticated `POST /api/v1/ai/exercises/generate` for batches of 1–10 multiple-choice or fill-in-the-blank exercises from at most 20 explicitly selected My Vocabulary records.
+- Added authenticated `POST /api/v1/ai/exercises/generate` for 1–15 contextual sentence-cloze questions or one four-blank passage cloze generated from My Vocabulary.
 - Reused the Phase 5 Groq/OpenAI-compatible provider adapter, backend-only key/model/timeout configuration, provider error mapping, and centralized prompts; only vocabulary UUID, word, part of speech, meaning, and examples leave the backend.
-- Added strict type-specific Pydantic output schemas plus business validation for exact count/type, four unique A–D options, valid answer membership, deterministic blanks, selected/owned source UUIDs, one learning track, and source-word consistency.
+- Added strict type-specific Pydantic output schemas plus business validation for one MC blank, four unique A–D options, one passage with exactly four numbered blanks and four choices each, valid answer membership, selected/owned target UUIDs, one learning track, and target-word consistency.
 - Persisted an entire valid batch atomically with `source = 'ai'` and `exercise_vocabularies` associations. Any malformed candidate rejects the whole batch.
 - Kept pre-submit responses learner-safe and reused Phase 6 deterministic grading without any LLM call during answer submission.
 - Integrated bounded vocabulary selection, exercise type/count controls, loading/error/success states, duplicate-click protection, immediate practice, and session summary into Practice.
 - Tests inject a fake exercise provider and cover generation, validation failures, ownership isolation, atomicity, persistence/associations, answer non-disclosure, and existing deterministic grading.
 
+### Product Refinement Batch B — Practice setup sources — Implemented
+
+- Practice source modes are `recent`, `topic`, and `custom`. Recent and topic pools are resolved by the backend from `current_user.id`; custom IDs are revalidated against the same owner scope.
+- Multiple-choice count defaults to 5 and accepts 1–15. It is the requested output size, not the source vocabulary pool size, so 16 selected words may validly produce 5 or 10 questions. Fill in the blank ignores that count and is normalized to one passage with four blanks.
+- Custom “Select All” selects all currently eligible personal vocabulary as source material and never changes the question count.
+- Four-option multiple choice requires at least four distinct eligible words in the resolved source pool, regardless of requested question count. Fill-in-the-blank has no equivalent four-word minimum.
+- The backend keeps provider context bounded and deterministic while allowing more than one distinct question to draw from the same source pool; duplicate generated prompts are rejected atomically.
+
 ### Phase 8 — Learning dashboard — Implemented
 
 - Added authenticated `GET /api/v1/dashboard`, with every aggregate and recent query scoped by `current_user.id`.
-- Implemented one vocabulary aggregate query, one exercise-attempt aggregate query, and one ordered `LIMIT 5` recent-vocabulary query; no analytics table, migration, or AI call was added.
+- Implemented one vocabulary aggregate query, one exercise-attempt aggregate query, and one ordered `LIMIT 6` recent-vocabulary query; no analytics table, migration, or AI call was added.
 - Defined `exercises_completed` as the number of submitted exercise attempts. Accuracy is `correct attempts / all attempts × 100`, rounded to one decimal; an account with no attempts receives `0.0`.
 - Counted a vocabulary item as due when it is not mastered and `next_review_at` is null or at/past the current time, matching the Phase 4 queue rule.
 - Replaced the Home placeholder with metric cards, status/attempt breakdowns, recent vocabulary, shortcut actions, and loading/error/empty states.
@@ -901,7 +910,7 @@ The following should be confirmed before the relevant implementation phase:
 9. **Topic model — resolved in Product Refinement Batch A:** Topics remain strings with database-backed personal typeahead suggestions plus owner-scoped rename/remove behavior; a first-class topics table remains deferred.
 10. **Exercise generation workflow:** The plan validates and saves generated exercises immediately, unlike vocabulary previews. Confirm whether exercises also require a preview/edit/explicit-save step.
 11. **Exercise grading:** Approve case, punctuation, whitespace, Unicode, and acceptable-answer normalization for fill-in-the-blank exercises.
-12. **Attempts and dashboard semantics — resolved in Phase 8:** “Exercises completed” counts attempts, repeat attempts contribute independently to accuracy, and “recently added” means the five newest owned vocabulary rows by `created_at DESC, id DESC`.
+12. **Attempts and dashboard semantics — resolved in Phase 8:** “Exercises completed” counts attempts, repeat attempts contribute independently to accuracy, and “recently added” means the six newest owned vocabulary rows by `created_at DESC, id DESC`.
 13. **Deletion/history:** Vocabulary deletion is hard delete while exercise links cascade and exercises/attempts remain. Confirm whether archival/soft deletion is preferable.
 14. **Future optional Tutor:** If Basic AI Tutor returns to scope after V1, decide whether it remains stateless, accepts a bounded recent message window, or persists chat history.
 15. **AI production controls:** Phase 5 defaults to Groq's OpenAI-compatible Responses API with `openai/gpt-oss-20b`, a 20-second timeout, no SDK retries, and an 800-token output cap. Groq Free Plan limits are external and not guaranteed capacity. Before public launch, still decide provider data-retention settings, per-user/edge rate limits, monitoring, and a fallback/budget policy.

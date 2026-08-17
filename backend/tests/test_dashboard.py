@@ -168,13 +168,14 @@ def test_recent_vocabulary_is_newest_first_limited_and_minimal(
         "recently_added_vocabulary"
     ]
 
-    assert len(recent) == 5
+    assert len(recent) == 6
     assert [item["word"] for item in recent] == [
         "Recent 5",
         "Recent 4",
         "Recent 3",
         "Recent 2",
         "Recent 1",
+        "Recent 0",
     ]
     assert set(recent[0]) == {
         "id",

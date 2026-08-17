@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import unicodedata
 import uuid
 from dataclasses import dataclass
@@ -17,6 +18,10 @@ class ExerciseNotFoundError(Exception):
 
 
 class InvalidStoredExerciseError(Exception):
+    pass
+
+
+class InvalidAttemptFormatError(Exception):
     pass
 
 
@@ -41,6 +46,18 @@ class AttemptPage:
 @dataclass(frozen=True)
 class GradedAttempt:
     attempt: ExerciseAttempt
+    explanation: str | None
+    correct_count: int | None = None
+    total: int | None = None
+    score_percent: int | None = None
+    results: list["BlankGrade"] | None = None
+
+
+@dataclass(frozen=True)
+class BlankGrade:
+    number: int
+    is_correct: bool
+    correct_answer: str
     explanation: str | None
 
 
@@ -125,31 +142,143 @@ def _grade_fill_in_blank(exercise: Exercise, answer: str) -> bool:
     return _normalize_text_answer(answer) in normalized_answers
 
 
+def _is_passage_cloze(exercise: Exercise) -> bool:
+    return (
+        exercise.exercise_type == "fill_in_blank"
+        and isinstance(exercise.options, list)
+        and len(exercise.options) == 4
+        and all(
+            isinstance(blank, dict)
+            and isinstance(blank.get("number"), int)
+            and isinstance(blank.get("options"), list)
+            for blank in exercise.options
+        )
+    )
+
+
+def _passage_answer_key(exercise: Exercise) -> dict[str, str]:
+    try:
+        raw = json.loads(exercise.correct_answer)
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise InvalidStoredExerciseError from exc
+    if not isinstance(raw, dict) or set(raw) != {"1", "2", "3", "4"}:
+        raise InvalidStoredExerciseError
+    answer_key = {
+        str(key): _normalize_option_id(str(value)) for key, value in raw.items()
+    }
+    if any(value not in {"A", "B", "C", "D"} for value in answer_key.values()):
+        raise InvalidStoredExerciseError
+
+    for index, blank in enumerate(exercise.options or [], start=1):
+        if not isinstance(blank, dict) or blank.get("number") != index:
+            raise InvalidStoredExerciseError
+        options = blank.get("options")
+        if not isinstance(options, list) or len(options) != 4:
+            raise InvalidStoredExerciseError
+        option_ids = {
+            _normalize_option_id(str(option.get("id", "")))
+            for option in options
+            if isinstance(option, dict)
+        }
+        if option_ids != {"A", "B", "C", "D"} or answer_key[str(index)] not in option_ids:
+            raise InvalidStoredExerciseError
+    return answer_key
+
+
+def _passage_explanations(exercise: Exercise) -> dict[str, str | None]:
+    if not exercise.explanation:
+        return {str(number): None for number in range(1, 5)}
+    try:
+        raw = json.loads(exercise.explanation)
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise InvalidStoredExerciseError from exc
+    if not isinstance(raw, dict):
+        raise InvalidStoredExerciseError
+    return {
+        str(number): (
+            str(raw[str(number)]).strip() if raw.get(str(number)) else None
+        )
+        for number in range(1, 5)
+    }
+
+
+def _grade_passage_cloze(
+    exercise: Exercise, answers: dict[str, str]
+) -> tuple[list[BlankGrade], int]:
+    answer_key = _passage_answer_key(exercise)
+    explanations = _passage_explanations(exercise)
+    results = [
+        BlankGrade(
+            number=number,
+            is_correct=_normalize_option_id(answers[str(number)])
+            == answer_key[str(number)],
+            correct_answer=answer_key[str(number)],
+            explanation=explanations[str(number)],
+        )
+        for number in range(1, 5)
+    ]
+    return results, sum(result.is_correct for result in results)
+
+
 def submit_attempt(
     db: Session,
     user_id: uuid.UUID,
     exercise_id: uuid.UUID,
-    answer: str,
+    answer: str | None,
+    answers: dict[str, str] | None = None,
 ) -> GradedAttempt:
     exercise = get_owned_exercise(db, user_id, exercise_id)
     if exercise.exercise_type == "multiple_choice":
+        if answer is None or answers is not None:
+            raise InvalidAttemptFormatError
         is_correct = _grade_multiple_choice(exercise, answer)
+        stored_user_answer = answer.strip()
+        results = None
+        correct_count = total = score_percent = None
+        response_explanation = exercise.explanation
     elif exercise.exercise_type == "fill_in_blank":
-        is_correct = _grade_fill_in_blank(exercise, answer)
+        if _is_passage_cloze(exercise):
+            if answers is None or answer is not None:
+                raise InvalidAttemptFormatError
+            results, correct_count = _grade_passage_cloze(exercise, answers)
+            total = 4
+            score_percent = round(correct_count / total * 100)
+            is_correct = correct_count == total
+            stored_user_answer = json.dumps(
+                {str(number): _normalize_option_id(answers[str(number)]) for number in range(1, 5)},
+                sort_keys=True,
+            )
+            response_explanation = None
+        else:
+            # Explicit compatibility path for Phase 6 development exercises.
+            if answer is None or answers is not None:
+                raise InvalidAttemptFormatError
+            is_correct = _grade_fill_in_blank(exercise, answer)
+            stored_user_answer = answer.strip()
+            results = None
+            correct_count = total = score_percent = None
+            response_explanation = exercise.explanation
     else:
         raise InvalidStoredExerciseError
 
     attempt = ExerciseAttempt(
         user_id=user_id,
         exercise_id=exercise.id,
-        user_answer=answer.strip(),
+        user_answer=stored_user_answer,
         correct_answer=exercise.correct_answer,
         is_correct=is_correct,
     )
     db.add(attempt)
     db.commit()
     db.refresh(attempt)
-    return GradedAttempt(attempt=attempt, explanation=exercise.explanation)
+    return GradedAttempt(
+        attempt=attempt,
+        explanation=response_explanation,
+        correct_count=correct_count,
+        total=total,
+        score_percent=score_percent,
+        results=results,
+    )
 
 
 def list_owned_attempts(

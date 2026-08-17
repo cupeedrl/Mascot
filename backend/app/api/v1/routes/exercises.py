@@ -19,6 +19,7 @@ from app.schemas.exercise import (
 )
 from app.services.exercise import (
     ExerciseNotFoundError,
+    InvalidAttemptFormatError,
     InvalidStoredExerciseError,
     get_owned_exercise,
     list_owned_attempts,
@@ -82,13 +83,24 @@ def create_attempt(
     db: Annotated[Session, Depends(get_db)],
 ) -> ExerciseAttemptResult:
     try:
-        result = submit_attempt(db, current_user.id, exercise_id, payload.answer)
+        result = submit_attempt(
+            db,
+            current_user.id,
+            exercise_id,
+            payload.answer,
+            payload.answers,
+        )
     except ExerciseNotFoundError as exc:
         raise _not_found() from exc
     except InvalidStoredExerciseError as exc:
         raise HTTPException(
             status_code=409,
             detail="Exercise answer configuration is invalid",
+        ) from exc
+    except InvalidAttemptFormatError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail="Answer format does not match this exercise",
         ) from exc
 
     return ExerciseAttemptResult(
@@ -99,6 +111,18 @@ def create_attempt(
         correct_answer=result.attempt.correct_answer,
         explanation=result.explanation,
         completed_at=result.attempt.completed_at,
+        correct_count=result.correct_count,
+        total=result.total,
+        score_percent=result.score_percent,
+        results=[
+            {
+                "number": item.number,
+                "is_correct": item.is_correct,
+                "correct_answer": item.correct_answer,
+                "explanation": item.explanation,
+            }
+            for item in (result.results or [])
+        ],
     )
 
 

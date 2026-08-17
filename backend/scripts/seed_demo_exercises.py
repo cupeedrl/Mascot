@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
@@ -18,20 +17,6 @@ from sqlalchemy import select
 
 from app.db.session import SessionLocal
 from app.models import Exercise, User, Vocabulary
-
-
-def _fill_prompt(vocabulary: Vocabulary) -> str:
-    for example in vocabulary.example_sentences:
-        replaced, count = re.subn(
-            rf"(?<!\w){re.escape(vocabulary.word)}(?!\w)",
-            "______",
-            example,
-            count=1,
-            flags=re.IGNORECASE,
-        )
-        if count:
-            return replaced
-    return f'The English word meaning "{vocabulary.meaning}" is ______.'
 
 
 def _add_if_missing(db, exercise: Exercise) -> bool:
@@ -63,32 +48,53 @@ def seed_for_user(db, user: User) -> int:
     if not vocabularies:
         return 0
 
-    target = vocabularies[0]
+    by_word = {item.normalized_word: item for item in vocabularies}
+    required_words = ["solely", "revenue", "efficient", "negotiate"]
+    if any(word not in by_word for word in required_words):
+        return 0
+    choices = [by_word[word] for word in required_words]
+    target = choices[0]
     created = 0
     fill = Exercise(
         user_id=user.id,
         learning_track_id=target.learning_track_id,
         exercise_type="fill_in_blank",
-        prompt=_fill_prompt(target),
-        options=None,
-        correct_answer=target.word,
-        accepted_answers=[target.normalized_word],
-        explanation=f'{target.word} means "{target.meaning}".',
+        prompt=(
+            "WORKPLACE LANGUAGE PRACTICE\n\n"
+            "The finance team focused (1) ______ on essential costs.\n"
+            "It also compared monthly (2) ______ with last year's income.\n"
+            "Managers wanted a more (3) ______ process for routine work.\n"
+            "Before signing, both sides agreed to (4) ______ again."
+        ),
+        options=[
+            {
+                "number": number,
+                "options": [
+                    {"id": option_id, "text": item.word}
+                    for option_id, item in zip("ABCD", choices, strict=True)
+                ],
+            }
+            for number in range(1, 5)
+        ],
+        correct_answer='{"1": "A", "2": "B", "3": "C", "4": "D"}',
+        accepted_answers=[],
+        explanation=(
+            '{"1":"Solely means only or exclusively.",'
+            '"2":"Revenue is income received by a business.",'
+            '"3":"Efficient means working well without waste.",'
+            '"4":"Negotiate means discuss terms to reach agreement."}'
+        ),
         source="manual",
-        vocabularies=[target],
+        vocabularies=choices,
     )
     created += int(_add_if_missing(db, fill))
 
-    same_track = [
-        item for item in vocabularies if item.learning_track_id == target.learning_track_id
-    ]
-    if len(same_track) >= 4:
-        choices = same_track[:4]
+    if len(choices) == 4:
         multiple_choice = Exercise(
             user_id=user.id,
             learning_track_id=target.learning_track_id,
             exercise_type="multiple_choice",
-            prompt=f'Which word best matches this definition: "{target.meaning}"?',
+            prompt="The budget committee focused _______ on essential costs.",
             options=[
                 {"id": option_id, "text": item.word}
                 for option_id, item in zip("ABCD", choices, strict=True)

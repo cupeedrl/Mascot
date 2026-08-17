@@ -150,6 +150,7 @@ def test_ai_exercise_context_is_bounded_and_contains_no_user_metadata() -> None:
         word="bounded",
         part_of_speech="adjective",
         meaning="m" * 1500,
+        level_code="B1",
         example_sentences=["a" * 500, "b" * 500, "c" * 500],
     )
 
@@ -160,6 +161,7 @@ def test_ai_exercise_context_is_bounded_and_contains_no_user_metadata() -> None:
         "word",
         "part_of_speech",
         "meaning",
+        "cefr_level",
         "example_sentences",
     }
     assert len(context["meaning"]) == 1000

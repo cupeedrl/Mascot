@@ -29,6 +29,7 @@ from app.services.ai_exercise import (
     InsufficientVocabularyError,
     InvalidAIExerciseResponseError,
     VocabularySelectionNotFoundError,
+    VocabularySourceEmptyError,
     VocabularyTrackMismatchError,
     generate_and_store_exercises,
 )
@@ -55,6 +56,11 @@ def generate_exercises(
             status_code=404,
             detail="Không tìm thấy một hoặc nhiều từ vựng đã chọn.",
         ) from exc
+    except VocabularySourceEmptyError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail="Không có từ vựng phù hợp trong nguồn bạn đã chọn.",
+        ) from exc
     except VocabularyTrackMismatchError as exc:
         raise HTTPException(
             status_code=422,
@@ -63,7 +69,7 @@ def generate_exercises(
     except InsufficientVocabularyError as exc:
         raise HTTPException(
             status_code=422,
-            detail="Multiple choice cần ít nhất 4 từ khác nhau.",
+            detail="Bạn cần ít nhất 4 từ khác nhau để tạo bài tập trắc nghiệm.",
         ) from exc
     except AIProviderNotConfiguredError as exc:
         raise HTTPException(status_code=503, detail="AI chưa được cấu hình trên máy chủ.") from exc

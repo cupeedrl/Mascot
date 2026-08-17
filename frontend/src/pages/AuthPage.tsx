@@ -1,9 +1,10 @@
 import { type FormEvent, useState } from "react";
-import { BookOpenCheck, BrainCircuit, Sparkles } from "lucide-react";
+import { BookOpenCheck, BrainCircuit } from "lucide-react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { ApiError } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
+import { PenguinMark } from "../components/PenguinMark";
 
 interface AuthPageProps {
   mode: "login" | "register";
@@ -64,30 +65,30 @@ export function AuthPage({ mode }: AuthPageProps) {
     <main className="auth-layout">
       <section className="brand-panel" aria-labelledby="brand-heading">
         <div className="auth-wordmark">
-          <span className="wordmark-symbol"><Sparkles size={20} /></span>
+          <PenguinMark size={42} />
           <strong>Mascot</strong>
         </div>
-        <p className="eyebrow">AI-POWERED ENGLISH LEARNING</p>
-        <h1 id="brand-heading">Learn smarter, one word at a time.</h1>
+        <p className="eyebrow">HỌC TIẾNG ANH CÙNG AI</p>
+        <h1 id="brand-heading">Học thông minh hơn, từng từ một.</h1>
         <p>
           Xây dựng vốn từ theo lộ trình rõ ràng, ôn đúng lúc và luyện tập với AI
           trong một không gian học tập thực sự thuộc về bạn.
         </p>
         <div className="auth-benefits" aria-label="Điểm nổi bật">
-          <span><BookOpenCheck size={18} /> Lộ trình General English theo CEFR</span>
+          <span><BookOpenCheck size={18} /> Lộ trình Tiếng Anh tổng quát theo CEFR</span>
           <span><BrainCircuit size={18} /> AI hỗ trợ, bạn luôn là người quyết định</span>
         </div>
-        <div className="brand-motif" aria-hidden="true">
-          <span><Sparkles size={30} /></span>
-          <span />
-          <span />
+        <div className="brand-mascot-visual" aria-hidden="true">
+          <span className="mascot-orbit mascot-orbit-one" />
+          <span className="mascot-orbit mascot-orbit-two" />
+          <PenguinMark size={170} />
         </div>
       </section>
 
       <section className="form-panel">
         <div className="auth-card">
-          <div className="mobile-auth-brand"><Sparkles size={18} /> Mascot</div>
-          <p className="eyebrow">{isRegister ? "START YOUR JOURNEY" : "WELCOME BACK"}</p>
+          <div className="mobile-auth-brand"><PenguinMark size={32} /> Mascot</div>
+          <p className="eyebrow">{isRegister ? "BẮT ĐẦU HÀNH TRÌNH" : "CHÀO MỪNG TRỞ LẠI"}</p>
           <h2>{isRegister ? "Tạo tài khoản" : "Đăng nhập"}</h2>
           <p className="form-intro">
             {isRegister
