@@ -1,0 +1,2 @@
+"""Mascot backend application package."""
+

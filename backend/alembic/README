@@ -1,0 +1,4 @@
+Alembic migration scripts for Mascot.
+
+Phase 2 adds the reviewed users-table revision under versions/. Future schema
+changes must continue through Alembic rather than manual table creation.
