@@ -361,7 +361,7 @@ AI-generated fields:
 - English definition
 - Vietnamese translation
 - CEFR estimate
-- example sentences
+- exactly one example sentence
 
 AI UI identity:
 - sparkle icon
@@ -371,6 +371,24 @@ AI UI identity:
 AI output must look editable and reviewable.
 
 Never visually imply that AI automatically saves data.
+
+---
+
+## 14.1 Topic and Duplicate Interactions
+
+Topic fields in Add Vocabulary, Edit Vocabulary, and relevant My Vocabulary filters use an accessible autocomplete/typeahead combobox.
+
+The combobox should:
+- show database-backed personal suggestions on focus
+- filter case-insensitively after a short debounce
+- prioritize prefix matches
+- support Arrow Up, Arrow Down, Enter, and Escape
+- provide loading and no-result states
+- allow `Create “topic”` in vocabulary forms when there is no exact match
+
+My Vocabulary includes a lightweight Manage Topics modal, not a separate administration page. It shows personal topic counts and supports inline rename plus a clear confirmation before removal. Removing a topic must explain that vocabulary remains and only its topic field is cleared.
+
+Duplicate-sense conflicts use a restrained warning state near the form actions. The message should explain that the word has the same or overlapping meaning and, when available, offer a clear `View existing word` action. Never overwrite an existing entry automatically.
 
 ---
 

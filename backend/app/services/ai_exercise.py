@@ -40,7 +40,7 @@ class AIExercisePersistenceError(Exception):
 
 AI_CONTEXT_MEANING_MAX_CHARS = 1000
 AI_CONTEXT_EXAMPLE_MAX_CHARS = 300
-AI_CONTEXT_EXAMPLE_LIMIT = 2
+AI_CONTEXT_EXAMPLE_LIMIT = 1
 
 
 def _normalized(value: str) -> str:

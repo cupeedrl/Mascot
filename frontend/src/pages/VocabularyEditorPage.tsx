@@ -16,6 +16,11 @@ import {
   type VocabularyInput,
 } from "../api/client";
 import { PageSkeleton } from "../components/PageSkeleton";
+import { TopicCombobox } from "../components/TopicCombobox";
+import {
+  getExistingVocabularyId,
+  getVocabularyEditRoute,
+} from "../features/vocabulary/duplicateConflict";
 
 const CEFR_LEVELS: CefrLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const STATUSES: Array<{ value: LearningStatus; label: string }> = [
@@ -31,7 +36,7 @@ interface FormState {
   partOfSpeech: string;
   meaning: string;
   translation: string;
-  examples: string;
+  example: string;
   level: CefrLevel;
   topic: string;
   status: LearningStatus;
@@ -44,7 +49,7 @@ function emptyForm(): FormState {
     partOfSpeech: "",
     meaning: "",
     translation: "",
-    examples: "",
+    example: "",
     level: "A1",
     topic: "",
     status: "new",
@@ -58,7 +63,7 @@ function fromVocabulary(item: Vocabulary): FormState {
     partOfSpeech: item.part_of_speech,
     meaning: item.meaning,
     translation: item.translation,
-    examples: item.example_sentences.join("\n"),
+    example: item.example_sentences[0] ?? "",
     level: item.level_code as CefrLevel,
     topic: item.topic ?? "",
     status: item.learning_status,
@@ -83,9 +88,13 @@ export function VocabularyEditorPage() {
   const [hasAIPreview, setHasAIPreview] = useState(false);
   const [aiError, setAIError] = useState("");
   const [error, setError] = useState("");
+  const [duplicateVocabularyId, setDuplicateVocabularyId] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
+    setIsLoading(true);
+    setError("");
+    setDuplicateVocabularyId(null);
     const itemRequest = vocabularyId
       ? getVocabulary(vocabularyId)
       : Promise.resolve(null);
@@ -123,7 +132,7 @@ export function VocabularyEditorPage() {
         partOfSpeech: candidate.part_of_speech,
         meaning: candidate.definition,
         translation: candidate.translation,
-        examples: candidate.examples.join("\n"),
+        example: candidate.examples[0] ?? "",
         level: candidate.cefr_level,
         status: "new",
       }));
@@ -148,6 +157,7 @@ export function VocabularyEditorPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    setDuplicateVocabularyId(null);
     if (!form.learningTrackId) {
       setError("Không tìm thấy learning track đang hoạt động.");
       return;
@@ -159,10 +169,7 @@ export function VocabularyEditorPage() {
       meaning: form.meaning,
       translation: form.translation,
       translation_language_code: "vi",
-      example_sentences: form.examples
-        .split("\n")
-        .map((value) => value.trim())
-        .filter(Boolean),
+      example_sentences: form.example.trim() ? [form.example.trim()] : [],
       level_code: form.level,
       topic: form.topic.trim() || null,
       learning_status: form.status,
@@ -179,6 +186,9 @@ export function VocabularyEditorPage() {
         state: { message: isEditing ? "Đã cập nhật từ vựng." : "Đã thêm từ vựng mới." },
       });
     } catch (caughtError) {
+      if (caughtError instanceof ApiError && caughtError.status === 409) {
+        setDuplicateVocabularyId(getExistingVocabularyId(caughtError.detail));
+      }
       setError(errorMessage(caughtError));
     } finally {
       setIsSaving(false);
@@ -263,8 +273,14 @@ export function VocabularyEditorPage() {
             <textarea value={form.translation} onChange={(event) => setForm({ ...form, translation: event.target.value })} required maxLength={2000} rows={2} />
           </label>
           <label className="wide-field">
-            Câu ví dụ (mỗi dòng một câu, tối đa 5)
-            <textarea value={form.examples} onChange={(event) => setForm({ ...form, examples: event.target.value })} rows={3} />
+            Câu ví dụ
+            <textarea
+              value={form.example}
+              onChange={(event) => setForm({ ...form, example: event.target.value })}
+              rows={3}
+              maxLength={500}
+              placeholder="The decision was based solely on cost."
+            />
           </label>
           <label>
             Trình độ CEFR
@@ -272,17 +288,32 @@ export function VocabularyEditorPage() {
               {CEFR_LEVELS.map((level) => <option key={level}>{level}</option>)}
             </select>
           </label>
-          <label>
-            Chủ đề
-            <input value={form.topic} onChange={(event) => setForm({ ...form, topic: event.target.value })} maxLength={120} />
-          </label>
+          <TopicCombobox
+            label="Chủ đề"
+            value={form.topic}
+            onChange={(topic) => setForm((current) => ({ ...current, topic }))}
+            placeholder="Work"
+          />
           <label>
             Trạng thái học
             <select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as LearningStatus })}>
               {STATUSES.map((status) => <option key={status.value} value={status.value}>{status.label}</option>)}
             </select>
           </label>
-          {error && <div className="form-error wide-field" role="alert">{error}</div>}
+          {error && (
+            <div className="form-error duplicate-warning wide-field" role="alert">
+              <span>{error}</span>
+              {duplicateVocabularyId && (
+                <button
+                  className="duplicate-edit-action"
+                  type="button"
+                  onClick={() => navigate(getVocabularyEditRoute(duplicateVocabularyId))}
+                >
+                  Chỉnh sửa từ hiện có
+                </button>
+              )}
+            </div>
+          )}
           <div className="form-actions wide-field">
             <Link className="secondary-link" to="/app/vocabulary">Hủy</Link>
             {hasAIPreview && !isEditing && (

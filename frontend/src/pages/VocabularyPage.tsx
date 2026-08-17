@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pencil, Plus, Search, Settings2, Trash2 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import {
@@ -12,6 +12,8 @@ import {
   type VocabularyListResponse,
 } from "../api/client";
 import { PageSkeleton } from "../components/PageSkeleton";
+import { ManageTopicsModal } from "../components/ManageTopicsModal";
+import { TopicCombobox } from "../components/TopicCombobox";
 
 const CEFR_LEVELS: CefrLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const STATUSES: Array<{ value: LearningStatus; label: string }> = [
@@ -45,6 +47,7 @@ export function VocabularyPage() {
   );
   const [refreshKey, setRefreshKey] = useState(0);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isManagingTopics, setIsManagingTopics] = useState(false);
 
   useEffect(() => {
     if ((location.state as { message?: string } | null)?.message) {
@@ -176,17 +179,19 @@ export function VocabularyPage() {
             {CEFR_LEVELS.map((level) => <option key={level}>{level}</option>)}
           </select>
         </label>
-        <label>
-          Chủ đề
-          <input
-            value={draftTopic}
-            onChange={(event) => setDraftTopic(event.target.value)}
-            placeholder="Work"
-          />
-        </label>
+        <TopicCombobox
+          label="Chủ đề"
+          value={draftTopic}
+          onChange={setDraftTopic}
+          placeholder="Work"
+          allowCreate={false}
+        />
         <div className="filter-actions">
           <button className="primary-button compact-button" type="submit">Áp dụng</button>
           {hasFilters && <button className="text-button" type="button" onClick={clearFilters}>Xóa lọc</button>}
+          <button className="text-button" type="button" onClick={() => setIsManagingTopics(true)}>
+            <Settings2 size={16} /> Manage topics
+          </button>
         </div>
       </form>
 
@@ -215,9 +220,7 @@ export function VocabularyPage() {
               </div>
               <p className="meaning">{item.meaning}</p>
               <p className="translation">{item.translation}</p>
-              {item.example_sentences.map((example) => (
-                <blockquote key={example}>{example}</blockquote>
-              ))}
+              {item.example_sentences[0] && <blockquote>{item.example_sentences[0]}</blockquote>}
               <div className="vocabulary-meta">
                 <span>{item.learning_track.name}</span>
                 {item.topic && <span>#{item.topic}</span>}
@@ -276,6 +279,16 @@ export function VocabularyPage() {
           </button>
         </nav>
       )}
+      <ManageTopicsModal
+        isOpen={isManagingTopics}
+        onClose={() => setIsManagingTopics(false)}
+        onTopicsChanged={() => {
+          setDraftTopic("");
+          setTopic("");
+          setPage(1);
+          setRefreshKey((value) => value + 1);
+        }}
+      />
     </section>
   );
 }

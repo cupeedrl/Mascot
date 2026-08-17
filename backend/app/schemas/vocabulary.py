@@ -7,6 +7,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.schemas.catalog import LearningTrackResponse
+from app.services.normalization import clean_topic
 
 CEFRLevel = Literal["A1", "A2", "B1", "B2", "C1", "C2"]
 LearningStatus = Literal["new", "learning", "review", "mastered"]
@@ -40,7 +41,7 @@ class VocabularyCreate(BaseModel):
     meaning: str = Field(min_length=1, max_length=4000)
     translation: str = Field(min_length=1, max_length=2000)
     translation_language_code: str = Field(default="vi", min_length=2, max_length=16)
-    example_sentences: list[str] = Field(default_factory=list, max_length=5)
+    example_sentences: list[str] = Field(default_factory=list, max_length=1)
     level_code: CEFRLevel
     topic: str | None = Field(default=None, max_length=120)
     learning_status: LearningStatus = "new"
@@ -68,7 +69,7 @@ class VocabularyCreate(BaseModel):
     def normalize_topic(cls, value: str | None) -> str | None:
         if value is None:
             return None
-        return value.strip() or None
+        return clean_topic(value)
 
 
 class VocabularyUpdate(BaseModel):
@@ -80,7 +81,7 @@ class VocabularyUpdate(BaseModel):
     meaning: str | None = Field(default=None, min_length=1, max_length=4000)
     translation: str | None = Field(default=None, min_length=1, max_length=2000)
     translation_language_code: str | None = Field(default=None, min_length=2, max_length=16)
-    example_sentences: list[str] | None = Field(default=None, max_length=5)
+    example_sentences: list[str] | None = Field(default=None, max_length=1)
     level_code: CEFRLevel | None = None
     topic: str | None = Field(default=None, max_length=120)
     learning_status: LearningStatus | None = None
@@ -118,7 +119,51 @@ class VocabularyUpdate(BaseModel):
     def normalize_optional_topic(cls, value: str | None) -> str | None:
         if value is None:
             return None
-        return value.strip() or None
+        return clean_topic(value)
+
+
+class TopicSuggestion(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    name: str
+    vocabulary_count: int
+
+
+class TopicSuggestionListResponse(BaseModel):
+    items: list[TopicSuggestion]
+
+
+class TopicRenameRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    old_topic: str = Field(min_length=1, max_length=120)
+    new_topic: str = Field(min_length=1, max_length=120)
+
+    @field_validator("old_topic", "new_topic")
+    @classmethod
+    def clean_topics(cls, value: str) -> str:
+        cleaned = clean_topic(value)
+        if cleaned is None:
+            raise ValueError("topic must not be blank")
+        return cleaned
+
+
+class TopicRemoveRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    topic: str = Field(min_length=1, max_length=120)
+
+    @field_validator("topic")
+    @classmethod
+    def clean_requested_topic(cls, value: str) -> str:
+        cleaned = clean_topic(value)
+        if cleaned is None:
+            raise ValueError("topic must not be blank")
+        return cleaned
+
+
+class TopicMutationResponse(BaseModel):
+    updated_count: int
 
 
 class VocabularySourceSetResponse(BaseModel):
@@ -162,6 +207,11 @@ class VocabularyResponse(BaseModel):
     next_review_at: datetime | None
     created_at: datetime
     updated_at: datetime
+
+    @field_validator("example_sentences")
+    @classmethod
+    def expose_at_most_one_example(cls, value: list[str]) -> list[str]:
+        return value[:1]
 
 
 class VocabularyListResponse(BaseModel):

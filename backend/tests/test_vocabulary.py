@@ -337,3 +337,205 @@ def test_user_cannot_delete_another_users_vocabulary(
         f"/api/v1/vocabularies/{item['id']}", headers=attacker_headers
     )
     assert response.status_code == 404
+
+
+def test_exact_duplicate_vocabulary_sense_is_rejected(
+    client: TestClient, general_english_track_id: uuid.UUID
+) -> None:
+    headers = authenticate(client)
+    existing = create_item(client, headers, general_english_track_id, word="hand")
+
+    response = client.post(
+        "/api/v1/vocabularies",
+        headers=headers,
+        json=vocabulary_payload(general_english_track_id, word="hand"),
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == {
+        "message": (
+            "This word already exists in My Vocabulary with the same or overlapping "
+            "meaning. Edit the existing entry or add a genuinely different sense."
+        ),
+        "existing_vocabulary_id": existing["id"],
+    }
+
+
+def test_duplicate_response_identifies_the_entry_that_caused_the_conflict(
+    client: TestClient, general_english_track_id: uuid.UUID
+) -> None:
+    headers = authenticate(client)
+    create_item(
+        client,
+        headers,
+        general_english_track_id,
+        word="bank",
+        meaning="The land beside a river.",
+        translation="bờ sông",
+    )
+    matching = create_item(
+        client,
+        headers,
+        general_english_track_id,
+        word="bank",
+        meaning="A business that keeps and lends money.",
+        translation="ngân hàng",
+    )
+
+    response = client.post(
+        "/api/v1/vocabularies",
+        headers=headers,
+        json=vocabulary_payload(
+            general_english_track_id,
+            word="BANK",
+            meaning="A financial institution.",
+            translation="ngân hàng",
+        ),
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"]["existing_vocabulary_id"] == matching["id"]
+
+
+def test_case_insensitive_word_duplicate_is_rejected(
+    client: TestClient, general_english_track_id: uuid.UUID
+) -> None:
+    headers = authenticate(client)
+    create_item(client, headers, general_english_track_id, word="  Hand  ")
+    response = client.post(
+        "/api/v1/vocabularies",
+        headers=headers,
+        json=vocabulary_payload(general_english_track_id, word="HAND"),
+    )
+    assert response.status_code == 409
+
+
+def test_part_of_speech_does_not_bypass_duplicate_rule(
+    client: TestClient, general_english_track_id: uuid.UUID
+) -> None:
+    headers = authenticate(client)
+    create_item(client, headers, general_english_track_id, word="hand", part_of_speech="noun")
+    response = client.post(
+        "/api/v1/vocabularies",
+        headers=headers,
+        json=vocabulary_payload(
+            general_english_track_id,
+            word="hand",
+            part_of_speech="verb",
+        ),
+    )
+    assert response.status_code == 409
+
+
+def test_same_translation_with_different_definition_is_rejected(
+    client: TestClient, general_english_track_id: uuid.UUID
+) -> None:
+    headers = authenticate(client)
+    create_item(
+        client,
+        headers,
+        general_english_track_id,
+        word="hand",
+        meaning="The body part at the end of an arm.",
+        translation="bàn tay",
+    )
+    response = client.post(
+        "/api/v1/vocabularies",
+        headers=headers,
+        json=vocabulary_payload(
+            general_english_track_id,
+            word="hand",
+            meaning="Help given to another person.",
+            translation="  BÀN   TAY  ",
+        ),
+    )
+    assert response.status_code == 409
+
+
+def test_same_definition_with_different_translation_is_rejected(
+    client: TestClient, general_english_track_id: uuid.UUID
+) -> None:
+    headers = authenticate(client)
+    create_item(
+        client,
+        headers,
+        general_english_track_id,
+        word="hand",
+        meaning="Help given to another person.",
+        translation="sự giúp đỡ",
+    )
+    response = client.post(
+        "/api/v1/vocabularies",
+        headers=headers,
+        json=vocabulary_payload(
+            general_english_track_id,
+            word="hand",
+            meaning="  HELP  given to another person. ",
+            translation="người làm thuê",
+        ),
+    )
+    assert response.status_code == 409
+
+
+def test_same_word_with_both_definition_and_translation_different_is_allowed(
+    client: TestClient, general_english_track_id: uuid.UUID
+) -> None:
+    headers = authenticate(client)
+    create_item(
+        client,
+        headers,
+        general_english_track_id,
+        word="hand",
+        meaning="The body part at the end of an arm.",
+        translation="bàn tay",
+    )
+    response = client.post(
+        "/api/v1/vocabularies",
+        headers=headers,
+        json=vocabulary_payload(
+            general_english_track_id,
+            word="hand",
+            meaning="A person who performs physical work.",
+            translation="người làm thuê",
+        ),
+    )
+    assert response.status_code == 201
+
+
+def test_edit_duplicate_check_excludes_the_current_record(
+    client: TestClient, general_english_track_id: uuid.UUID
+) -> None:
+    headers = authenticate(client)
+    item = create_item(client, headers, general_english_track_id, word="hand")
+    response = client.patch(
+        f"/api/v1/vocabularies/{item['id']}",
+        headers=headers,
+        json={"word": "HAND", "meaning": item["meaning"], "translation": item["translation"]},
+    )
+    assert response.status_code == 200
+
+
+def test_vocabulary_accepts_at_most_one_example_sentence(
+    client: TestClient, general_english_track_id: uuid.UUID
+) -> None:
+    headers = authenticate(client)
+    one = client.post(
+        "/api/v1/vocabularies",
+        headers=headers,
+        json=vocabulary_payload(
+            general_english_track_id,
+            example_sentences=["One natural example."],
+        ),
+    )
+    many = client.post(
+        "/api/v1/vocabularies",
+        headers=headers,
+        json=vocabulary_payload(
+            general_english_track_id,
+            word="different",
+            example_sentences=["First example.", "Second example."],
+        ),
+    )
+    assert one.status_code == 201
+    assert one.json()["example_sentences"] == ["One natural example."]
+    assert many.status_code == 422

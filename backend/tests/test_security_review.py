@@ -163,4 +163,4 @@ def test_ai_exercise_context_is_bounded_and_contains_no_user_metadata() -> None:
         "example_sentences",
     }
     assert len(context["meaning"]) == 1000
-    assert [len(item) for item in context["example_sentences"]] == [300, 300]
+    assert [len(item) for item in context["example_sentences"]] == [300]

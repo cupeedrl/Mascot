@@ -45,7 +45,7 @@ class VocabularyCandidate(BaseModel):
     definition: str = Field(min_length=1, max_length=1000)
     translation: str = Field(min_length=1, max_length=500)
     cefr_level: CEFRLevel
-    examples: list[str] = Field(min_length=2, max_length=2)
+    examples: list[str] = Field(min_length=1, max_length=1)
 
     @field_validator("word")
     @classmethod
@@ -64,4 +64,3 @@ class VocabularyCandidate(BaseModel):
         if any(len(example) > 500 for example in cleaned):
             raise ValueError("each example must be at most 500 characters")
         return cleaned
-

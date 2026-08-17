@@ -18,14 +18,20 @@ export interface TokenResponse {
   expires_in: number;
 }
 
+interface ApiErrorDetail {
+  message?: string;
+  existing_vocabulary_id?: string;
+}
+
 interface ApiErrorBody {
-  detail?: string | Array<{ msg?: string }>;
+  detail?: string | Array<{ msg?: string }> | ApiErrorDetail;
 }
 
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
     message: string,
+    public readonly detail?: ApiErrorDetail,
   ) {
     super(message);
     this.name = "ApiError";
@@ -70,10 +76,16 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     }
 
     const detail = body.detail;
+    const structuredDetail =
+      detail && typeof detail === "object" && !Array.isArray(detail)
+        ? detail
+        : undefined;
     const message = Array.isArray(detail)
       ? detail[0]?.msg ?? "Dữ liệu không hợp lệ."
-      : detail ?? "Yêu cầu không thành công.";
-    throw new ApiError(response.status, message);
+      : typeof detail === "string"
+        ? detail
+        : structuredDetail?.message ?? "Yêu cầu không thành công.";
+    throw new ApiError(response.status, message, structuredDetail);
   }
 
   if (response.status === 204) {
@@ -243,6 +255,45 @@ export function updateVocabulary(
 
 export function deleteVocabulary(vocabularyId: string): Promise<void> {
   return request<void>(`/vocabularies/${vocabularyId}`, { method: "DELETE" });
+}
+
+export interface TopicSuggestion {
+  name: string;
+  vocabulary_count: number;
+}
+
+export interface TopicSuggestionListResponse {
+  items: TopicSuggestion[];
+}
+
+export interface TopicMutationResponse {
+  updated_count: number;
+}
+
+export function listTopicSuggestions(
+  query = "",
+  limit = 20,
+): Promise<TopicSuggestionListResponse> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (query.trim()) params.set("q", query.trim());
+  return request<TopicSuggestionListResponse>(`/vocabularies/topics?${params.toString()}`);
+}
+
+export function renamePersonalTopic(
+  oldTopic: string,
+  newTopic: string,
+): Promise<TopicMutationResponse> {
+  return request<TopicMutationResponse>("/vocabularies/topics", {
+    method: "PATCH",
+    body: JSON.stringify({ old_topic: oldTopic, new_topic: newTopic }),
+  });
+}
+
+export function removePersonalTopic(topic: string): Promise<TopicMutationResponse> {
+  return request<TopicMutationResponse>("/vocabularies/topics", {
+    method: "DELETE",
+    body: JSON.stringify({ topic }),
+  });
 }
 
 export interface ReviewQueueResponse {

@@ -306,3 +306,39 @@ def test_library_and_import_endpoints_require_authentication(
     assert client.post(
         f"/api/v1/vocabulary-sets/{library['travel_set_id']}/start-learning"
     ).status_code == 401
+
+
+def test_library_import_skips_overlapping_personal_sense(
+    client: TestClient, library: dict[str, object]
+) -> None:
+    headers = authenticate(client)
+    entry_id = library["travel_entry_ids"][0]
+    detail = client.get(
+        f"/api/v1/vocabulary-sets/{library['travel_set_id']}", headers=headers
+    ).json()
+    entry = next(item for item in detail["entries"] if item["id"] == str(entry_id))
+    manual = client.post(
+        "/api/v1/vocabularies",
+        headers=headers,
+        json={
+            "learning_track_id": str(library["track_id"]),
+            "word": entry["word"].upper(),
+            "part_of_speech": entry["part_of_speech"],
+            "meaning": "A deliberately different definition.",
+            "translation": entry["translation"],
+            "example_sentences": ["A manual example sentence."],
+            "level_code": "A2",
+            "topic": "Personal",
+            "learning_status": "new",
+        },
+    )
+    assert manual.status_code == 201
+
+    imported = client.post(
+        f"/api/v1/vocabulary-entries/{entry_id}/add-to-my-vocabulary",
+        headers=headers,
+    )
+    assert imported.status_code == 200
+    assert imported.json()["created_count"] == 0
+    assert imported.json()["skipped_count"] == 1
+    assert client.get("/api/v1/vocabularies", headers=headers).json()["total"] == 1

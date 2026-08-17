@@ -13,6 +13,8 @@ from app.models.learning_track import LearningTrack
 from app.models.vocabulary import Vocabulary
 from app.models.vocabulary_entry import VocabularyEntry
 from app.models.vocabulary_set import VocabularySet
+from app.services.normalization import normalize_word
+from app.services.vocabulary import vocabulary_senses_overlap
 
 
 class VocabularySetNotFoundError(Exception):
@@ -201,7 +203,7 @@ def get_vocabulary_set(
             "meaning": entry.meaning,
             "translation": entry.translation,
             "translation_language_code": entry.translation_language_code,
-            "example_sentences": entry.example_sentences,
+            "example_sentences": list(entry.example_sentences[:1]),
             "order_index": entry.order_index,
             "is_added": entry.id in added_ids,
         }
@@ -248,26 +250,47 @@ def import_vocabulary_entries(
             )
         )
     )
-    to_create = [entry for entry in entries if entry.id not in existing_ids]
-    for entry in to_create:
-        source_set = entry.vocabulary_set
-        db.add(
-            Vocabulary(
-                user_id=user_id,
-                learning_track_id=source_set.learning_track_id,
-                source_vocabulary_entry_id=entry.id,
-                word=entry.word,
-                normalized_word=entry.normalized_word,
-                part_of_speech=entry.part_of_speech,
-                meaning=entry.meaning,
-                translation=entry.translation,
-                translation_language_code=entry.translation_language_code,
-                example_sentences=list(entry.example_sentences),
-                level_code=source_set.level_code,
-                topic=source_set.topic,
-                learning_status="new",
+    candidate_entries = [entry for entry in entries if entry.id not in existing_ids]
+    existing_vocabularies = list(
+        db.scalars(
+            select(Vocabulary).where(
+                Vocabulary.user_id == user_id,
             )
         )
+    ) if candidate_entries else []
+
+    to_create: list[tuple[VocabularyEntry, Vocabulary]] = []
+    comparison_items = list(existing_vocabularies)
+    for entry in candidate_entries:
+        if any(
+            vocabulary_senses_overlap(
+                existing,
+                word=entry.word,
+                meaning=entry.meaning,
+                translation=entry.translation,
+            )
+            for existing in comparison_items
+        ):
+            continue
+        source_set = entry.vocabulary_set
+        personal_item = Vocabulary(
+            user_id=user_id,
+            learning_track_id=source_set.learning_track_id,
+            source_vocabulary_entry_id=entry.id,
+            word=entry.word,
+            normalized_word=normalize_word(entry.word),
+            part_of_speech=entry.part_of_speech,
+            meaning=entry.meaning,
+            translation=entry.translation,
+            translation_language_code=entry.translation_language_code,
+            example_sentences=list(entry.example_sentences[:1]),
+            level_code=source_set.level_code,
+            topic=source_set.topic,
+            learning_status="new",
+        )
+        db.add(personal_item)
+        comparison_items.append(personal_item)
+        to_create.append((entry, personal_item))
     try:
         db.commit()
     except IntegrityError:
@@ -281,7 +304,7 @@ def import_vocabulary_entries(
     return VocabularyImportResult(
         created_count=len(to_create),
         skipped_count=len(unique_ids) - len(to_create),
-        imported_entry_ids=[entry.id for entry in to_create],
+        imported_entry_ids=[entry.id for entry, _item in to_create],
     )
 
 

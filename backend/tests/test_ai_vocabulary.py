@@ -42,10 +42,7 @@ def valid_candidate(**overrides: object) -> dict[str, object]:
         "definition": "Only and not involving anyone or anything else.",
         "translation": "chỉ, duy nhất",
         "cefr_level": "B2",
-        "examples": [
-            "The decision was based solely on cost.",
-            "She is solely responsible for the project.",
-        ],
+        "examples": ["The decision was based solely on cost."],
     }
     candidate.update(overrides)
     return candidate
@@ -149,6 +146,21 @@ def test_invalid_cefr_output_returns_safe_error(client: TestClient) -> None:
         "/api/v1/ai/vocabulary", headers=headers, json={"word": "solely"}
     )
 
+    assert response.status_code == 502
+
+
+def test_multiple_ai_examples_are_rejected(client: TestClient) -> None:
+    headers = authenticate(client)
+    use_fake_provider(
+        FakeVocabularyProvider(
+            result=valid_candidate(
+                examples=["First natural example.", "Second natural example."]
+            )
+        )
+    )
+    response = client.post(
+        "/api/v1/ai/vocabulary", headers=headers, json={"word": "solely"}
+    )
     assert response.status_code == 502
 
 
@@ -275,3 +287,28 @@ def test_ai_preview_can_be_edited_and_saved_through_existing_vocabulary_api(
     assert response.json()["meaning"] == "An edited definition."
     with session_factory() as db:
         assert db.scalar(select(func.count()).select_from(Vocabulary)) == 1
+
+
+def test_ai_assisted_save_uses_normal_duplicate_validation(
+    client: TestClient,
+    general_english_track_id: uuid.UUID,
+) -> None:
+    headers = authenticate(client)
+    use_fake_provider(FakeVocabularyProvider())
+    preview = client.post(
+        "/api/v1/ai/vocabulary", headers=headers, json={"word": "solely"}
+    ).json()
+    payload = {
+        "learning_track_id": str(general_english_track_id),
+        "word": preview["word"],
+        "part_of_speech": preview["part_of_speech"],
+        "meaning": preview["definition"],
+        "translation": preview["translation"],
+        "example_sentences": preview["examples"],
+        "level_code": preview["cefr_level"],
+        "topic": None,
+        "learning_status": "new",
+    }
+    assert client.post("/api/v1/vocabularies", headers=headers, json=payload).status_code == 201
+    duplicate = client.post("/api/v1/vocabularies", headers=headers, json=payload)
+    assert duplicate.status_code == 409

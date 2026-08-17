@@ -58,10 +58,7 @@ def test_groq_provider_uses_responses_parse_and_configured_base_url(
         definition="Only and not involving anything else.",
         translation="chỉ, duy nhất",
         cefr_level="B2",
-        examples=[
-            "The decision was based solely on cost.",
-            "She is solely responsible for the project.",
-        ],
+        examples=["The decision was based solely on cost."],
     )
 
     class FakeResponses:

@@ -12,19 +12,28 @@ from app.models.user import User
 from app.schemas.vocabulary import (
     CEFRLevel,
     LearningStatus,
+    TopicMutationResponse,
+    TopicRemoveRequest,
+    TopicRenameRequest,
+    TopicSuggestionListResponse,
     VocabularyCreate,
     VocabularyListResponse,
     VocabularyResponse,
     VocabularyUpdate,
 )
 from app.services.vocabulary import (
+    DuplicateVocabularySenseError,
     LearningTrackUnavailableError,
+    TopicNotFoundError,
     TrackLevelError,
     VocabularyNotFoundError,
     create_vocabulary,
     delete_vocabulary,
     get_owned_vocabulary,
+    list_personal_topics,
     list_owned_vocabularies,
+    remove_personal_topic,
+    rename_personal_topic,
     update_vocabulary,
 )
 
@@ -46,6 +55,24 @@ def _track_level_invalid() -> HTTPException:
     )
 
 
+def _duplicate_sense(exc: DuplicateVocabularySenseError) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail={
+            "message": (
+                "This word already exists in My Vocabulary with the same or "
+                "overlapping meaning. Edit the existing entry or add a genuinely "
+                "different sense."
+            ),
+            "existing_vocabulary_id": str(exc.existing.id),
+        },
+    )
+
+
+def _topic_not_found() -> HTTPException:
+    return HTTPException(status_code=404, detail="Personal topic not found")
+
+
 @router.post("", response_model=VocabularyResponse, status_code=status.HTTP_201_CREATED)
 def create(
     payload: VocabularyCreate,
@@ -58,6 +85,8 @@ def create(
         raise _track_unavailable() from exc
     except TrackLevelError as exc:
         raise _track_level_invalid() from exc
+    except DuplicateVocabularySenseError as exc:
+        raise _duplicate_sense(exc) from exc
 
 
 @router.get("", response_model=VocabularyListResponse)
@@ -92,6 +121,58 @@ def list_items(
     )
 
 
+@router.get("/topics", response_model=TopicSuggestionListResponse)
+def list_topics(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+    q: Annotated[str | None, Query(max_length=120)] = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+) -> TopicSuggestionListResponse:
+    return TopicSuggestionListResponse(
+        items=list_personal_topics(
+            db,
+            current_user.id,
+            query=q,
+            limit=limit,
+        )
+    )
+
+
+@router.patch("/topics", response_model=TopicMutationResponse)
+def rename_topic(
+    payload: TopicRenameRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> TopicMutationResponse:
+    try:
+        count = rename_personal_topic(
+            db,
+            current_user.id,
+            old_topic=payload.old_topic,
+            new_topic=payload.new_topic,
+        )
+    except TopicNotFoundError as exc:
+        raise _topic_not_found() from exc
+    return TopicMutationResponse(updated_count=count)
+
+
+@router.delete("/topics", response_model=TopicMutationResponse)
+def remove_topic(
+    payload: TopicRemoveRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> TopicMutationResponse:
+    try:
+        count = remove_personal_topic(
+            db,
+            current_user.id,
+            topic=payload.topic,
+        )
+    except TopicNotFoundError as exc:
+        raise _topic_not_found() from exc
+    return TopicMutationResponse(updated_count=count)
+
+
 @router.get("/{vocabulary_id}", response_model=VocabularyResponse)
 def get_one(
     vocabulary_id: uuid.UUID,
@@ -119,6 +200,8 @@ def update(
         raise _track_unavailable() from exc
     except TrackLevelError as exc:
         raise _track_level_invalid() from exc
+    except DuplicateVocabularySenseError as exc:
+        raise _duplicate_sense(exc) from exc
 
 
 @router.delete("/{vocabulary_id}", status_code=status.HTTP_204_NO_CONTENT)

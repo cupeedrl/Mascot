@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.schemas.catalog import LearningTrackResponse
 
@@ -21,6 +21,11 @@ class VocabularyEntryResponse(BaseModel):
     example_sentences: list[str]
     order_index: int
     is_added: bool = False
+
+    @field_validator("example_sentences")
+    @classmethod
+    def expose_at_most_one_example(cls, value: list[str]) -> list[str]:
+        return value[:1]
 
 
 class VocabularySetListItem(BaseModel):

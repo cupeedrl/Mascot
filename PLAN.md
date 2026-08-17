@@ -12,7 +12,7 @@ Mascot V1 is a multi-user, AI-assisted learning management application for **Gen
 - A shared, read-only Mascot Vocabulary Library organized as Language → Learning Track → Level → Topic/Vocabulary Set → Vocabulary Entries.
 - A learner journey that lets a user browse a General English level/topic, select one or more catalog words (or a whole set), and add them to personal learning vocabulary.
 - Vocabulary creation, viewing, editing, deletion, search, and filtering.
-- Vocabulary metadata: word, part of speech, meaning, translation, example sentences, level, topic, learning status, language/track context, and timestamps.
+- Vocabulary metadata: word, part of speech, meaning, translation, one optional example sentence, level, topic, learning status, language/track context, and timestamps.
 - A simple self-assessed vocabulary review flow with deterministic counters, status progression, and due dates.
 - An AI vocabulary preview workflow: generate, validate, preview/edit, then explicitly save through the normal vocabulary API.
 - Multiple-choice and fill-in-the-blank exercises based on the authenticated user's vocabulary.
@@ -132,7 +132,11 @@ A vocabulary row is a user-owned learning item within one learning track. Its le
 
 Different users may store the same word. A user may also store multiple senses or parts of speech for the same spelling, so V1 should not impose a broad uniqueness constraint on the word itself.
 
-A personal row may optionally reference `source_vocabulary_entry_id`. Catalog imports copy a snapshot into `vocabularies` so future learning/review data remains user-owned and independently editable. Manual and confirmed AI vocabulary use `NULL`. A partial unique index on (`user_id`, `source_vocabulary_entry_id`) applies only when the source is non-null: this makes catalog imports idempotent without restricting legitimate manual duplicates.
+A personal row may optionally reference `source_vocabulary_entry_id`. Catalog imports copy a snapshot into `vocabularies` so future learning/review data remains user-owned and independently editable. Manual and confirmed AI vocabulary use `NULL`. A partial unique index on (`user_id`, `source_vocabulary_entry_id`) applies only when the source is non-null: this makes catalog imports idempotent without restricting legitimate manual senses.
+
+Personal topics remain lightweight string metadata in V1. Topic suggestions are derived from distinct current-user values, normalized with Unicode normalization, trimmed/collapsed whitespace, and case-insensitive comparison. Users may rename a personal topic across their owned vocabulary or remove it by setting matching rows to `NULL`; neither operation mutates shared catalog topics.
+
+For the same normalized English word, a new personal row is allowed only when both its normalized English definition and normalized Vietnamese translation differ from every existing owned sense. A matching definition or a matching translation is an overlapping sense and returns `409`; part of speech alone never bypasses this rule. Updates exclude the edited row itself, and catalog imports skip overlapping senses without overwriting data.
 
 No `user_vocabulary_sets` table is required in V1. Whole-set and partial progress are derived by comparing catalog entry IDs with the user's source-linked vocabulary. This supports the required UX without introducing enrollment state that could drift from actual learning vocabulary.
 
@@ -268,7 +272,7 @@ General conventions:
 | `meaning` | TEXT | Required simple target-language definition for V1. |
 | `translation` | TEXT | Required V1 Vietnamese translation. |
 | `translation_language_code` | VARCHAR(16) | Required, default `vi`; prevents the shared storage model from assuming every translation is Vietnamese forever. |
-| `example_sentences` | JSONB | Required JSON array of strings, default `[]`; supports the AI assistant's multiple examples without a premature child table. |
+| `example_sentences` | JSONB | Required JSON array, default `[]`, constrained by application schemas to zero or one sentence. The existing column is retained to avoid an unnecessary migration. |
 | `level_code` | VARCHAR(32) | Required in V1; `A1`–`C2` under the General English track's CEFR framework. Named generically for future frameworks. |
 | `topic` | VARCHAR(120) | Optional normalized display/filter value. |
 | `learning_status` | VARCHAR(20) | Required; `new`, `learning`, `review`, or `mastered`; default `new`. |
@@ -282,7 +286,7 @@ General conventions:
 
 - Primary key: `id`.
 - Foreign keys: `user_id -> users.id`; `learning_track_id -> learning_tracks.id`, both delete restricted in the initial migration.
-- Checks: allowed V1 learning statuses; all counters nonnegative; `correct_count + incorrect_count <= review_count`; `example_sentences` must be a JSON array; required text is nonblank. Pydantic additionally limits lengths and validates every example as a nonblank string.
+- Checks: allowed V1 learning statuses; all counters nonnegative; `correct_count + incorrect_count <= review_count`; `example_sentences` must be a JSON array; required text is nonblank. Pydantic additionally allows at most one nonblank example sentence of bounded length.
 - Level validation: the V1 service/schema accepts only CEFR `A1`, `A2`, `B1`, `B2`, `C1`, or `C2`. Do not add a database check that globally assumes every future track uses CEFR; track-aware validation belongs in the service until a generic proficiency catalog is actually needed.
 - Indexes:
   - (`user_id`, `created_at DESC`) for listing and recent vocabulary.
@@ -292,7 +296,7 @@ General conventions:
   - (`user_id`, `next_review_at`) with a partial condition where `next_review_at IS NOT NULL` for due reviews.
   - A functional index on (`user_id`, `learning_track_id`, `lower(word)`) for exact/prefix case-insensitive lookup. Add trigram search later only if measured search needs justify it.
 - Relationships: belongs to a user and track; may contribute to many exercises through `exercise_vocabularies`.
-- No uniqueness constraint on (`user_id`, `word`): multiple meanings/parts of speech are legitimate. Duplicate-handling UX remains a review decision.
+- No broad uniqueness constraint on (`user_id`, `word`): genuinely different senses remain legitimate. Service validation rejects an owned same-word row whenever either definition or translation overlaps an existing sense and returns safe `409` metadata for a “View existing word” action.
 - A partial unique index on (`user_id`, `source_vocabulary_entry_id`) where the source is not null prevents accidental duplicate catalog imports while preserving unlimited manual senses/usages.
 
 ### `exercises`
@@ -486,6 +490,9 @@ Import requests never accept `user_id`. Invalid/inactive IDs fail without partia
 | `GET` | `/vocabularies/{vocabulary_id}` | Get one vocabulary item owned by the current user. | Yes |
 | `PATCH` | `/vocabularies/{vocabulary_id}` | Partially update an owned item using a dedicated update schema. | Yes |
 | `DELETE` | `/vocabularies/{vocabulary_id}` | Delete an owned item and its exercise links; existing exercises/attempts remain. Return `204`. | Yes |
+| `GET` | `/vocabularies/topics` | Return normalized, counted current-user topic suggestions with bounded typeahead search. | Yes |
+| `PATCH` | `/vocabularies/topics` | Rename all current-user vocabulary rows matching one normalized personal topic. | Yes |
+| `DELETE` | `/vocabularies/topics` | Set the matching personal topic to `NULL` without deleting vocabulary. | Yes |
 
 ### Vocabulary review
 
@@ -750,7 +757,7 @@ Testing and documentation should be added within each phase; Phase 9 is a cross-
 ### Phase 5 — AI Vocabulary Assistant
 
 - Implement a narrow provider protocol and an OpenAI-compatible Responses API adapter, configured by backend-only environment variables. The approved default is Groq-hosted `openai/gpt-oss-20b`; the OpenAI-hosted adapter remains optional, and provider selection stays isolated behind the protocol.
-- Request native structured output, then independently validate the result with a strict Pydantic candidate schema: one matching word, part of speech, simple English definition, Vietnamese translation, CEFR A1–C2, and exactly two example sentences.
+- Request native structured output, then independently validate the result with a strict Pydantic candidate schema: one matching word, part of speech, simple English definition, Vietnamese translation, CEFR A1–C2, and exactly one natural example sentence.
 - Expose authenticated `POST /api/v1/ai/vocabulary` with bounded input, a 20-second default timeout, an 800-token default output cap, and safe `502`/`503`/`504` error mapping.
 - Integrate generation into the existing add-vocabulary page as an editable, clearly labelled preview with loading, retryable error, and discard states.
 - Ensure generation has no database dependency and never writes to PostgreSQL; only the user's later explicit submission to `POST /api/v1/vocabularies` saves the edited candidate under current-user ownership.
@@ -811,11 +818,11 @@ Backend unit tests should cover:
 
 - Password hashing/verification behavior and JWT creation/expiry/claim validation.
 - Email normalization and Pydantic field constraints.
-- Vocabulary status/level validation.
+- Vocabulary status/level validation, personal topic normalization, and duplicate-sense comparison.
 - Review counter and fixed scheduling transitions, including incorrect answers and boundary times.
 - Multiple-choice option-ID grading and fill-in-the-blank normalization/acceptable answers.
 - Dashboard calculation helpers where aggregation is not entirely expressed in SQL.
-- AI candidate validation, including malformed JSON, invalid CEFR values, missing answer options, answer not present in options, excessive output, and empty examples.
+- AI candidate validation, including malformed JSON, invalid CEFR values, missing answer options, answer not present in options, excessive output, and anything other than exactly one nonblank vocabulary example.
 
 Frontend unit/component tests should cover forms, filter state, protected navigation behavior, AI preview/edit/save, hidden exercise answers, grading display, empty dashboard states, and accessible interactions.
 
@@ -889,9 +896,9 @@ The following should be confirmed before the relevant implementation phase:
 4. **Translation behavior:** V1 assumes generated translations are Vietnamese (`vi`). Confirm whether users may choose another translation language or whether Vietnamese is fixed for the MVP.
 5. **Track selection:** Should General English be silently selected, displayed as a fixed selector, or chosen during onboarding? V1 stores the track even if the UI has only one option.
 6. **Level terminology:** The plan stores generic `level_code` under a track's `level_framework`, while the V1 UI calls it CEFR. Confirm this small future-facing generalization.
-7. **Vocabulary duplicates:** Should the UI warn when the same normalized word/part of speech already exists, while still allowing multiple senses? No hard uniqueness rule is proposed.
-8. **Examples:** The plan stores an array of example sentences to match AI output, although the original vocabulary field list says singular `example`. Confirm desired minimum/maximum example count.
-9. **Topic model:** V1 uses free-text topics for simple filtering. Confirm whether casing/whitespace normalization and suggested topics are sufficient; a separate topics table is deferred.
+7. **Vocabulary duplicates — resolved in Product Refinement Batch A:** Same-word entries require both a different normalized English definition and a different normalized Vietnamese translation; overlapping senses return `409`, while truly different senses remain valid.
+8. **Examples — resolved in Product Refinement Batch A:** Vocabulary allows zero or one example sentence; AI always returns exactly one. The existing JSON array column remains for migration-free compatibility.
+9. **Topic model — resolved in Product Refinement Batch A:** Topics remain strings with database-backed personal typeahead suggestions plus owner-scoped rename/remove behavior; a first-class topics table remains deferred.
 10. **Exercise generation workflow:** The plan validates and saves generated exercises immediately, unlike vocabulary previews. Confirm whether exercises also require a preview/edit/explicit-save step.
 11. **Exercise grading:** Approve case, punctuation, whitespace, Unicode, and acceptable-answer normalization for fill-in-the-blank exercises.
 12. **Attempts and dashboard semantics — resolved in Phase 8:** “Exercises completed” counts attempts, repeat attempts contribute independently to accuracy, and “recently added” means the five newest owned vocabulary rows by `created_at DESC, id DESC`.
