@@ -7,7 +7,8 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.models import User, Vocabulary
+from app.models import ExerciseAttempt, User, Vocabulary
+from app.services.dashboard import get_dashboard_snapshot
 from tests.test_exercises import _create_exercise
 from tests.test_vocabulary import authenticate, create_item, general_english_track_id
 
@@ -47,8 +48,99 @@ def test_empty_user_dashboard_has_zero_metrics(client: TestClient) -> None:
         "correct_exercise_attempts": 0,
         "incorrect_exercise_attempts": 0,
         "exercise_accuracy": 0.0,
+        "current_streak": 0,
+        "longest_streak": 0,
+        "recent_active_dates": [],
         "recently_added_vocabulary": [],
     }
+
+
+def test_streak_counts_consecutive_meaningful_actions_once_per_day(
+    client: TestClient,
+    general_english_track_id: uuid.UUID,
+    session_factory: sessionmaker[Session],
+) -> None:
+    email = "dashboard-streak@example.com"
+    headers = authenticate(client, email)
+    now = datetime(2026, 8, 18, 12, tzinfo=UTC)
+    first = create_item(client, headers, general_english_track_id, word="Streak first")
+    second = create_item(client, headers, general_english_track_id, word="Streak second")
+    _update_vocabulary(
+        session_factory,
+        str(first["id"]),
+        created_at=now - timedelta(days=2),
+        last_reviewed_at=now - timedelta(days=1),
+    )
+    _update_vocabulary(
+        session_factory,
+        str(second["id"]),
+        created_at=now - timedelta(days=1),
+    )
+    same_day = create_item(
+        client, headers, general_english_track_id, word="Streak same day"
+    )
+    _update_vocabulary(
+        session_factory,
+        str(same_day["id"]),
+        created_at=now,
+        last_reviewed_at=now,
+    )
+
+    exercise_id = _create_exercise(
+        session_factory,
+        user_id=_user_id(session_factory, email),
+        track_id=general_english_track_id,
+    )
+    attempt = client.post(
+        f"/api/v1/exercises/{exercise_id}/attempts",
+        headers=headers,
+        json={"answer": "A"},
+    )
+    assert attempt.status_code == 200
+    with session_factory() as db:
+        stored_attempt = db.get(ExerciseAttempt, uuid.UUID(attempt.json()["id"]))
+        assert stored_attempt is not None
+        stored_attempt.completed_at = now
+        db.commit()
+        snapshot = get_dashboard_snapshot(db, _user_id(session_factory, email), now=now)
+
+    assert snapshot.current_streak == 3
+    assert snapshot.longest_streak == 3
+    assert snapshot.recent_active_dates == [
+        (now - timedelta(days=2)).date(),
+        (now - timedelta(days=1)).date(),
+        now.date(),
+    ]
+
+
+def test_streak_break_and_same_day_actions(
+    client: TestClient,
+    general_english_track_id: uuid.UUID,
+    session_factory: sessionmaker[Session],
+) -> None:
+    email = "dashboard-streak-break@example.com"
+    headers = authenticate(client, email)
+    now = datetime(2026, 8, 18, 12, tzinfo=UTC)
+    for index, days_ago in enumerate([4, 3, 2]):
+        item = create_item(
+            client,
+            headers,
+            general_english_track_id,
+            word=f"Break streak {index}",
+        )
+        _update_vocabulary(
+            session_factory,
+            str(item["id"]),
+            created_at=now - timedelta(days=days_ago),
+            last_reviewed_at=now - timedelta(days=days_ago),
+        )
+
+    with session_factory() as db:
+        snapshot = get_dashboard_snapshot(db, _user_id(session_factory, email), now=now)
+
+    assert snapshot.current_streak == 0
+    assert snapshot.longest_streak == 3
+    assert len(snapshot.recent_active_dates) == 3
 
 
 def test_vocabulary_status_totals_and_mastered_count(
@@ -215,11 +307,13 @@ def test_dashboard_is_isolated_between_users(
 
     assert first_body["total_vocabulary"] == 1
     assert first_body["exercises_completed"] == 0
+    assert first_body["current_streak"] == 1
     assert [item["word"] for item in first_body["recently_added_vocabulary"]] == [
         "First only"
     ]
     assert second_body["total_vocabulary"] == 2
     assert second_body["exercises_completed"] == 1
+    assert second_body["current_streak"] == 1
 
 
 def test_dashboard_requires_authentication(client: TestClient) -> None:

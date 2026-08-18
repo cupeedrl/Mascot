@@ -357,6 +357,9 @@ export interface DashboardResponse {
   correct_exercise_attempts: number;
   incorrect_exercise_attempts: number;
   exercise_accuracy: number;
+  current_streak: number;
+  longest_streak: number;
+  recent_active_dates: string[];
   recently_added_vocabulary: DashboardRecentVocabulary[];
 }
 

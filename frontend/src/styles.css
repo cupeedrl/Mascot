@@ -515,7 +515,7 @@ button:disabled {
 .auth-layout {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: minmax(420px, 1fr) minmax(480px, 0.95fr);
+  grid-template-columns: minmax(500px, 1.08fr) minmax(460px, 0.92fr);
   background: var(--surface);
 }
 
@@ -526,7 +526,7 @@ button:disabled {
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
-  padding: clamp(48px, 7vw, 96px);
+  padding: clamp(52px, 6vw, 88px);
   color: #fff;
   background: #342b7c;
 }
@@ -561,8 +561,8 @@ button:disabled {
   position: relative;
   z-index: 1;
   max-width: 9ch;
-  margin: 8px 0 0;
-  font-size: clamp(40px, 5vw, 64px);
+  margin: 6px 0 0;
+  font-size: clamp(40px, 4.7vw, 62px);
   line-height: 1.03;
   letter-spacing: -0.055em;
 }
@@ -571,7 +571,7 @@ button:disabled {
   position: relative;
   z-index: 1;
   max-width: 520px;
-  margin: 24px 0 0;
+  margin: 18px 0 0;
   color: rgb(255 255 255 / 72%);
   font-size: 16px;
   line-height: 1.75;
@@ -582,7 +582,7 @@ button:disabled {
   z-index: 1;
   display: grid;
   gap: 12px;
-  margin-top: 32px;
+  margin-top: 26px;
 }
 
 .auth-benefits span {
@@ -596,11 +596,11 @@ button:disabled {
 
 .brand-mascot-visual {
   position: absolute;
-  right: 8%;
-  bottom: 7%;
+  right: 10%;
+  bottom: 8%;
   display: grid;
-  width: 230px;
-  height: 230px;
+  width: 218px;
+  height: 218px;
   place-items: center;
   border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 50%;
@@ -636,11 +636,11 @@ button:disabled {
 .form-panel {
   display: grid;
   place-items: center;
-  padding: 48px;
+  padding: 40px clamp(40px, 5vw, 72px);
 }
 
 .auth-card {
-  width: min(100%, 440px);
+  width: min(100%, 500px);
 }
 
 .mobile-auth-brand {
@@ -655,7 +655,7 @@ button:disabled {
 }
 
 .form-intro {
-  margin: 12px 0 28px;
+  margin: 10px 0 22px;
   color: var(--muted);
   font-size: 15px;
   line-height: 1.65;
@@ -666,16 +666,16 @@ button:disabled {
 }
 
 .auth-card label {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .auth-card .primary-button {
   width: 100%;
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 .auth-switch {
-  margin: 24px 0 0;
+  margin: 20px 0 0;
   color: var(--muted);
   text-align: center;
   font-size: 14px;
@@ -922,7 +922,8 @@ button:disabled {
   text-decoration: none;
 }
 
-.journey-visual { position: relative; display: grid; place-items: center; min-height: 270px; }
+.journey-side { display: grid; align-content: center; gap: 14px; }
+.journey-visual { position: relative; display: grid; place-items: center; min-height: 214px; }
 .penguin-hero-stage {
   position: relative;
   display: grid;
@@ -938,6 +939,25 @@ button:disabled {
 .hero-sparkle { position: absolute; z-index: 2; color: var(--primary); font-size: 23px; }
 .hero-sparkle-one { top: 24px; right: 20px; }
 .hero-sparkle-two { bottom: 38px; left: 18px; color: #9a8eea; font-size: 15px; }
+.learning-streak-card {
+  display: grid;
+  gap: 13px;
+  border: 1px solid rgb(102 88 232 / 15%);
+  border-radius: 16px;
+  padding: 14px;
+  background: rgb(255 255 255 / 76%);
+  box-shadow: 0 10px 22px rgb(62 48 143 / 7%);
+}
+.streak-summary { display: flex; align-items: center; gap: 10px; }
+.streak-icon { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 11px; color: #d76a20; background: #fff2e6; }
+.streak-summary > div { display: grid; gap: 2px; }
+.streak-summary strong { color: var(--text); font-size: 14px; letter-spacing: -.02em; }
+.streak-summary span:last-child { color: var(--muted); font-size: 11px; font-weight: 650; }
+.streak-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.streak-day { display: grid; justify-items: center; gap: 5px; color: var(--muted); font-size: 9px; font-weight: 700; }
+.streak-day i { display: block; width: 9px; height: 9px; border: 1px solid #d8d3e8; border-radius: 50%; background: #fff; }
+.streak-day.active { color: var(--primary-dark); }
+.streak-day.active i { border-color: var(--primary); background: var(--primary); box-shadow: 0 0 0 3px rgb(102 88 232 / 12%); }
 .journey-progress-chip {
   position: absolute;
   right: -8px;

@@ -2,15 +2,18 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
-from sqlalchemy import and_, func, or_, select
+from sqlalchemy import and_, func, or_, select, union_all
 from sqlalchemy.orm import Session
 
 from app.models.exercise_attempt import ExerciseAttempt
 from app.models.vocabulary import Vocabulary
 
 RECENT_VOCABULARY_LIMIT = 6
+RECENT_ACTIVITY_DAYS = 14
+USER_FACING_TIMEZONE = ZoneInfo("Asia/Ho_Chi_Minh")
 
 
 @dataclass(frozen=True)
@@ -25,7 +28,66 @@ class DashboardSnapshot:
     correct_exercise_attempts: int
     incorrect_exercise_attempts: int
     exercise_accuracy: float
+    current_streak: int
+    longest_streak: int
+    recent_active_dates: list[date]
     recently_added_vocabulary: list[Vocabulary]
+
+
+def _to_user_facing_date(value: datetime) -> date:
+    """Convert persisted UTC timestamps into the single V1 learner day boundary."""
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=UTC)
+    return value.astimezone(USER_FACING_TIMEZONE).date()
+
+
+def _calculate_streaks(
+    activity_times: list[datetime], *, current_time: datetime
+) -> tuple[int, int, list[date]]:
+    active_dates = sorted({_to_user_facing_date(value) for value in activity_times})
+    if not active_dates:
+        return 0, 0, []
+
+    active_date_set = set(active_dates)
+    longest_streak = 1
+    run_length = 1
+    for previous, current in zip(active_dates, active_dates[1:]):
+        if current == previous + timedelta(days=1):
+            run_length += 1
+        else:
+            run_length = 1
+        longest_streak = max(longest_streak, run_length)
+
+    today = _to_user_facing_date(current_time)
+    latest_active_date = active_dates[-1]
+    current_streak = 0
+    # A learner who was active yesterday still has an unbroken current streak.
+    if latest_active_date <= today and (today - latest_active_date).days <= 1:
+        cursor = latest_active_date
+        while cursor in active_date_set:
+            current_streak += 1
+            cursor -= timedelta(days=1)
+
+    recent_start = today - timedelta(days=RECENT_ACTIVITY_DAYS - 1)
+    recent_active_dates = [day for day in active_dates if day >= recent_start]
+    return current_streak, longest_streak, recent_active_dates
+
+
+def _learning_activity_times(db: Session, user_id: uuid.UUID) -> list[datetime]:
+    """Return all meaningful learner action times using one union query."""
+    activity_events = union_all(
+        select(Vocabulary.created_at.label("occurred_at")).where(
+            Vocabulary.user_id == user_id
+        ),
+        select(Vocabulary.last_reviewed_at.label("occurred_at")).where(
+            Vocabulary.user_id == user_id,
+            Vocabulary.last_reviewed_at.is_not(None),
+        ),
+        select(ExerciseAttempt.completed_at.label("occurred_at")).where(
+            ExerciseAttempt.user_id == user_id
+        ),
+    ).subquery()
+    return list(db.scalars(select(activity_events.c.occurred_at)))
 
 
 def get_dashboard_snapshot(
@@ -92,6 +154,10 @@ def get_dashboard_snapshot(
             .limit(RECENT_VOCABULARY_LIMIT)
         )
     )
+    current_streak, longest_streak, recent_active_dates = _calculate_streaks(
+        _learning_activity_times(db, user_id),
+        current_time=current_time,
+    )
 
     return DashboardSnapshot(
         total_vocabulary=int(vocabulary_metrics.total_vocabulary),
@@ -106,5 +172,8 @@ def get_dashboard_snapshot(
             attempt_metrics.incorrect_exercise_attempts
         ),
         exercise_accuracy=exercise_accuracy,
+        current_streak=current_streak,
+        longest_streak=longest_streak,
+        recent_active_dates=recent_active_dates,
         recently_added_vocabulary=recent_vocabulary,
     )

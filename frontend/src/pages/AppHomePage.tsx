@@ -4,6 +4,7 @@ import {
   BookOpen,
   CheckCircle2,
   Dumbbell,
+  Flame,
   Plus,
   RefreshCw,
   Target,
@@ -30,6 +31,32 @@ function errorMessage(error: unknown): string {
 
 function accuracyLabel(value: number): string {
   return `${Number.isInteger(value) ? value : value.toFixed(1)}%`;
+}
+
+function vietnamTodayUtc(): Date {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const value = (type: string) => parts.find((part) => part.type === type)?.value ?? "";
+  return new Date(Date.UTC(Number(value("year")), Number(value("month")) - 1, Number(value("day"))));
+}
+
+function activityWeek(activeDates: string[]) {
+  const today = vietnamTodayUtc();
+  const active = new Set(activeDates);
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(today);
+    date.setUTCDate(today.getUTCDate() - (6 - index));
+    const isoDate = date.toISOString().slice(0, 10);
+    return {
+      isoDate,
+      label: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"][date.getUTCDay()],
+      isActive: active.has(isoDate),
+    };
+  });
 }
 
 export function AppHomePage() {
@@ -68,6 +95,8 @@ export function AppHomePage() {
     );
   }
 
+  const weeklyActivity = activityWeek(dashboard.recent_active_dates);
+
   return (
     <section className="dashboard-page">
       <PageHeader
@@ -92,12 +121,31 @@ export function AppHomePage() {
             <Link className="hero-text-link" to="/app/vocabulary">Xem từ vựng của tôi</Link>
           </div>
         </div>
-        <div className="journey-visual" aria-label="Linh vật chim cánh cụt Mascot">
-          <div className="penguin-hero-stage" aria-hidden="true">
-            <span className="hero-sparkle hero-sparkle-one">✦</span>
-            <span className="hero-sparkle hero-sparkle-two">✦</span>
-            <PenguinMark size={168} />
+        <div className="journey-side">
+          <div className="journey-visual" aria-label="Linh vật chim cánh cụt Mascot">
+            <div className="penguin-hero-stage" aria-hidden="true">
+              <span className="hero-sparkle hero-sparkle-one">✦</span>
+              <span className="hero-sparkle hero-sparkle-two">✦</span>
+              <PenguinMark size={168} />
+            </div>
           </div>
+          <aside className="learning-streak-card" aria-label="Chuỗi ngày học tập">
+            <div className="streak-summary">
+              <span className="streak-icon"><Flame size={18} /></span>
+              <div>
+                <strong>{dashboard.current_streak} ngày liên tiếp</strong>
+                <span>Kỷ lục: {dashboard.longest_streak} ngày</span>
+              </div>
+            </div>
+            <div className="streak-calendar" aria-label="Hoạt động 7 ngày gần nhất">
+              {weeklyActivity.map((day) => (
+                <div className={day.isActive ? "streak-day active" : "streak-day"} key={day.isoDate}>
+                  <span>{day.label}</span>
+                  <i aria-label={day.isActive ? "Có hoạt động học" : "Chưa có hoạt động học"} />
+                </div>
+              ))}
+            </div>
+          </aside>
         </div>
       </section>
 

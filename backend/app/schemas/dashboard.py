@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict
 
@@ -28,4 +28,7 @@ class DashboardResponse(BaseModel):
     correct_exercise_attempts: int
     incorrect_exercise_attempts: int
     exercise_accuracy: float
+    current_streak: int
+    longest_streak: int
+    recent_active_dates: list[date]
     recently_added_vocabulary: list[RecentVocabularyResponse]

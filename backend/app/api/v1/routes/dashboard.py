@@ -31,6 +31,9 @@ def get_dashboard(
         correct_exercise_attempts=snapshot.correct_exercise_attempts,
         incorrect_exercise_attempts=snapshot.incorrect_exercise_attempts,
         exercise_accuracy=snapshot.exercise_accuracy,
+        current_streak=snapshot.current_streak,
+        longest_streak=snapshot.longest_streak,
+        recent_active_dates=snapshot.recent_active_dates,
         recently_added_vocabulary=[
             RecentVocabularyResponse.model_validate(item)
             for item in snapshot.recently_added_vocabulary
