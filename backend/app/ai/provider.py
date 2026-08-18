@@ -16,7 +16,16 @@ class AIProviderError(Exception):
 
 
 class AIProviderResponseError(Exception):
-    pass
+    """The provider replied, but no safe structured candidate could be read."""
+
+    def __init__(
+        self,
+        stage: str = "provider_response",
+        summary: str = "provider returned no parseable structured result",
+    ) -> None:
+        super().__init__(summary)
+        self.stage = stage
+        self.summary = summary
 
 
 class AIProviderQuotaError(Exception):

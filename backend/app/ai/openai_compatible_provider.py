@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 
 from pydantic import ValidationError
 
@@ -21,6 +22,9 @@ from app.ai.provider import (
 )
 from app.schemas.ai_exercise import AIFillInBlankBatch, AIMultipleChoiceBatch
 from app.schemas.ai_vocabulary import VocabularyCandidate
+
+
+logger = logging.getLogger(__name__)
 
 
 class OpenAICompatibleVocabularyProvider:
@@ -100,13 +104,29 @@ class OpenAICompatibleVocabularyProvider:
         except (AuthenticationError, PermissionDeniedError, NotFoundError) as exc:
             raise AIProviderConfigurationError from exc
         except ValidationError as exc:
-            raise AIProviderResponseError from exc
+            logger.warning(
+                "AI structured response parsing failed (stage=provider_parse, model=%s, schema=%s, validation_errors=%s)",
+                self._model,
+                text_format.__name__,
+                len(exc.errors()),
+            )
+            raise AIProviderResponseError(
+                "provider_parse", "provider response did not match the requested schema"
+            ) from exc
         except OpenAIError as exc:
             raise AIProviderError from exc
 
         parsed = response.output_parsed
         if parsed is None:
-            raise AIProviderResponseError
+            logger.warning(
+                "AI structured response missing parsed output (stage=provider_parse, model=%s, schema=%s, status=%s)",
+                self._model,
+                text_format.__name__,
+                getattr(response, "status", "unknown"),
+            )
+            raise AIProviderResponseError(
+                "provider_parse", "provider returned no parsed structured output"
+            )
         return parsed
 
     def generate_vocabulary(self, word: str) -> object:

@@ -10,6 +10,7 @@ import {
 
 import {
   getCurrentUser,
+  hasAccessToken,
   login as loginRequest,
   logout as logoutRequest,
   register as registerRequest,
@@ -39,7 +40,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setUnauthorizedHandler(clearAuthentication);
-    setIsInitializing(false);
+    let active = true;
+
+    async function restoreAuthentication() {
+      if (!hasAccessToken()) {
+        if (active) setIsInitializing(false);
+        return;
+      }
+      try {
+        const currentUser = await getCurrentUser();
+        if (active) setUser(currentUser);
+      } catch {
+        clearAuthentication();
+      } finally {
+        if (active) setIsInitializing(false);
+      }
+    }
+
+    void restoreAuthentication();
     return () => setUnauthorizedHandler(null);
   }, [clearAuthentication]);
 

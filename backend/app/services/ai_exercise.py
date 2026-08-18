@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import unicodedata
 import uuid
 
@@ -20,6 +21,9 @@ from app.schemas.ai_exercise import (
 from app.services.normalization import normalize_topic
 
 
+logger = logging.getLogger(__name__)
+
+
 class VocabularySelectionNotFoundError(Exception):
     pass
 
@@ -37,7 +41,7 @@ class VocabularySourceEmptyError(Exception):
 
 
 class InvalidAIExerciseResponseError(Exception):
-    pass
+    """Raised only after untrusted AI output fails a safe backend check."""
 
 
 class AIExercisePersistenceError(Exception):
@@ -162,7 +166,12 @@ def _parse_batch(raw: object, exercise_type: str):
             return AIMultipleChoiceBatch.model_validate(raw)
         return AIFillInBlankBatch.model_validate(raw)
     except (ValidationError, TypeError, ValueError) as exc:
-        raise InvalidAIExerciseResponseError from exc
+        logger.warning(
+            "AI exercise batch schema validation failed (type=%s, errors=%s)",
+            exercise_type,
+            len(exc.errors()) if isinstance(exc, ValidationError) else "unavailable",
+        )
+        raise InvalidAIExerciseResponseError("schema validation failed") from exc
 
 
 def _validate_candidate_semantics(
@@ -173,7 +182,7 @@ def _validate_candidate_semantics(
     selected_by_id: dict[uuid.UUID, Vocabulary],
 ) -> None:
     if len(batch.exercises) != requested_count:
-        raise InvalidAIExerciseResponseError
+        raise InvalidAIExerciseResponseError("unexpected exercise count")
 
     prompts = [
         _normalized(
@@ -184,18 +193,13 @@ def _validate_candidate_semantics(
         for candidate in batch.exercises
     ]
     if len(set(prompts)) != len(prompts):
-        raise InvalidAIExerciseResponseError
+        raise InvalidAIExerciseResponseError("duplicate generated prompt")
 
     selected_ids = set(selected_by_id)
-    selected_words = {_normalized(item.word) for item in selected_by_id.values()}
-
     for candidate in batch.exercises:
         if exercise_type == "multiple_choice":
             if candidate.target_vocabulary_id not in selected_ids:
-                raise InvalidAIExerciseResponseError
-            option_words = {_normalized(option.text) for option in candidate.options}
-            if not option_words.issubset(selected_words):
-                raise InvalidAIExerciseResponseError
+                raise InvalidAIExerciseResponseError("multiple-choice target is outside source pool")
             correct_option = next(
                 (
                     option
@@ -211,11 +215,11 @@ def _validate_candidate_semantics(
                     selected_by_id[candidate.target_vocabulary_id].word
                 )
             ):
-                raise InvalidAIExerciseResponseError
+                raise InvalidAIExerciseResponseError("multiple-choice target does not match correct option")
         else:
             for blank in candidate.blanks:
                 if blank.target_vocabulary_id not in selected_ids:
-                    raise InvalidAIExerciseResponseError
+                    raise InvalidAIExerciseResponseError("cloze target is outside source pool")
                 correct_option = next(
                     (
                         option
@@ -231,7 +235,7 @@ def _validate_candidate_semantics(
                         selected_by_id[blank.target_vocabulary_id].word
                     )
                 ):
-                    raise InvalidAIExerciseResponseError
+                    raise InvalidAIExerciseResponseError("cloze target does not match correct option")
 
 
 def generate_and_store_exercises(
@@ -274,10 +278,18 @@ def generate_and_store_exercises(
             word_to_vocabulary = {
                 _normalized(item.word): item for item in vocabularies
             }
-            linked_vocabularies = [
-                word_to_vocabulary[_normalized(option.text)]
-                for option in candidate.options
-            ]
+            # The target must be owned, but a natural English distractor does
+            # not need to be another owned word. Link any matching owned
+            # options plus the mandatory target, without treating a safe
+            # external distractor as a persistence error.
+            linked_vocabularies = list(
+                {
+                    item.id: item
+                    for option in candidate.options
+                    if (item := word_to_vocabulary.get(_normalized(option.text)))
+                    is not None
+                }.values()
+            )
             if candidate.target_vocabulary_id not in {
                 item.id for item in linked_vocabularies
             }:

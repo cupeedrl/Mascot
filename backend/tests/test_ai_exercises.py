@@ -448,6 +448,77 @@ def test_source_pool_can_be_larger_than_question_count(
     assert len(provider.calls[0][0]) == 16
 
 
+def test_recent_eleven_words_generates_two_valid_sentence_clozes(
+    client: TestClient,
+    general_english_track_id: uuid.UUID,
+    session_factory: sessionmaker[Session],
+) -> None:
+    """Regression: natural distractors must not reject a valid Groq MCQ batch."""
+    headers = authenticate(client, "eleven-recent-words@example.com")
+    vocabularies = [
+        create_item(
+            client,
+            headers,
+            general_english_track_id,
+            word=word,
+            meaning=f"A learner-friendly meaning for {word}.",
+        )
+        for word in [
+            "routine", "breakfast", "commute", "neighbor", "relax", "parent",
+            "sibling", "cousin", "married", "support", "garden",
+        ]
+    ]
+    first, second = vocabularies[0], vocabularies[1]
+    provider = FakeExerciseProvider(
+        {
+            "exercises": [
+                {
+                    "exercise_type": "multiple_choice",
+                    "prompt": "After a long day, I follow my evening _____ before bed.",
+                    "options": [
+                        {"id": "A", "text": first["word"]},
+                        {"id": "B", "text": "holiday"},
+                        {"id": "C", "text": "problem"},
+                        {"id": "D", "text": "mistake"},
+                    ],
+                    "correct_answer": "A",
+                    "explanation": "“Routine” là chuỗi hoạt động bạn thường làm theo một trình tự quen thuộc.",
+                    "target_vocabulary_id": first["id"],
+                },
+                {
+                    "exercise_type": "multiple_choice",
+                    "prompt": "She ate _____ before leaving for school.",
+                    "options": [
+                        {"id": "A", "text": second["word"]},
+                        {"id": "B", "text": "lesson"},
+                        {"id": "C", "text": "window"},
+                        {"id": "D", "text": "ticket"},
+                    ],
+                    "correct_answer": "A",
+                    "explanation": "“Breakfast” là bữa ăn đầu tiên trong ngày.",
+                    "target_vocabulary_id": second["id"],
+                },
+            ]
+        }
+    )
+    _use_provider(provider)
+
+    response = _request(
+        client,
+        headers,
+        [],
+        source_mode="recent",
+        exercise_type="multiple_choice",
+        count=2,
+    )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["created_count"] == 2
+    assert len(provider.calls[0][0]) == 11
+    with session_factory() as db:
+        assert db.scalar(select(func.count()).select_from(Exercise)) == 2
+
+
 def test_recent_source_only_uses_current_users_vocabulary(
     client: TestClient,
     general_english_track_id: uuid.UUID,

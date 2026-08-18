@@ -1,7 +1,9 @@
+import { persistAccessToken, readAccessToken } from "../auth/sessionStorage";
+
 const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
 const apiBaseUrl = configuredBaseUrl.replace(/\/$/, "");
 
-let accessToken: string | null = null;
+let accessToken: string | null = readAccessToken();
 let unauthorizedHandler: (() => void) | null = null;
 
 export interface User {
@@ -40,6 +42,11 @@ export class ApiError extends Error {
 
 export function setAccessToken(token: string | null): void {
   accessToken = token;
+  persistAccessToken(token);
+}
+
+export function hasAccessToken(): boolean {
+  return accessToken !== null;
 }
 
 export function setUnauthorizedHandler(handler: (() => void) | null): void {

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -35,6 +36,7 @@ from app.services.ai_exercise import (
 )
 
 router = APIRouter(prefix="/ai/exercises")
+logger = logging.getLogger(__name__)
 
 
 @router.post("/generate", response_model=AIExerciseGenerationResponse)
@@ -91,6 +93,14 @@ def generate_exercises(
             detail="Yêu cầu AI quá thời gian chờ. Vui lòng thử lại.",
         ) from exc
     except (AIProviderResponseError, InvalidAIExerciseResponseError) as exc:
+        stage = exc.stage if isinstance(exc, AIProviderResponseError) else "exercise_validation"
+        logger.warning(
+            "AI exercise generation rejected (stage=%s, user_id=%s, error=%s, reason=%s)",
+            stage,
+            current_user.id,
+            type(exc).__name__,
+            str(exc) or "provider returned no parseable structured result",
+        )
         raise HTTPException(
             status_code=502,
             detail="AI trả về dữ liệu bài tập không hợp lệ; không có bài nào được lưu.",

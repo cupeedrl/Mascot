@@ -85,7 +85,19 @@ class AIMultipleChoiceCandidate(BaseModel):
     explanation: str = Field(min_length=1, max_length=1000)
     target_vocabulary_id: uuid.UUID
 
-    @field_validator("prompt", "explanation")
+    @field_validator("prompt")
+    @classmethod
+    def normalize_sentence_blank(cls, value: str) -> str:
+        cleaned = _clean_required(value)
+        blanks = re.findall(r"_{3,}", cleaned)
+        if len(blanks) != 1:
+            raise ValueError("prompt must contain exactly one blank")
+        # Groq can occasionally use five or six underscores even when the
+        # intended question is an otherwise valid sentence cloze. Store one
+        # canonical placeholder so downstream rendering and grading agree.
+        return cleaned.replace(blanks[0], "_______", 1)
+
+    @field_validator("explanation")
     @classmethod
     def clean_text(cls, value: str) -> str:
         return _clean_required(value)
@@ -109,10 +121,10 @@ class AIMultipleChoiceCandidate(BaseModel):
             r"_{3,}", self.prompt.replace("_______", "", 1)
         ):
             raise ValueError("prompt must contain exactly one seven-underscore blank")
-        if "\n" in self.prompt or len(re.findall(r"[.!?]", self.prompt)) != 1:
+        if "\n" in self.prompt or not re.search(r"[.!?][\"')\]]*$", self.prompt):
             raise ValueError("prompt must be exactly one complete sentence")
         lowered = _normalized(self.prompt)
-        if lowered.startswith("what does ") or lowered.startswith("which word means "):
+        if re.match(r"^(what does|which word(?:\s+\w+){0,3}\s+mean)", lowered):
             raise ValueError("prompt must be a contextual sentence-cloze question")
         return self
 
