@@ -34,7 +34,11 @@ def create_app() -> FastAPI:
         if request.url.path.startswith(settings.api_v1_prefix):
             response.headers["Cache-Control"] = "no-store"
         return response
-
+    
+    @application.get("/health")
+    async def health():
+        return {"status": "ok"}
+    
     application.include_router(api_router, prefix=settings.api_v1_prefix)
     return application
 
