@@ -59,6 +59,23 @@ function activityWeek(activeDates: string[]) {
   });
 }
 
+function vietnamDateParts() {
+  const now = new Date();
+  const weekday = new Intl.DateTimeFormat("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    weekday: "long",
+  }).format(now);
+  const dayAndMonth = new Intl.DateTimeFormat("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    day: "numeric",
+    month: "long",
+  }).format(now);
+  return {
+    weekday: weekday.charAt(0).toUpperCase() + weekday.slice(1),
+    dayAndMonth,
+  };
+}
+
 export function AppHomePage() {
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -96,15 +113,41 @@ export function AppHomePage() {
   }
 
   const weeklyActivity = activityWeek(dashboard.recent_active_dates);
+  const today = vietnamDateParts();
 
   return (
     <section className="dashboard-page">
-      <PageHeader
-        eyebrow="Chào mừng trở lại"
-        title="Hôm nay mình học gì?"
-        description="Mascot đã sắp xếp những bước quan trọng nhất để bạn tiếp tục tiến bộ."
-        aside={<span className="welcome-date">{new Intl.DateTimeFormat("vi-VN", { weekday: "long", day: "numeric", month: "long" }).format(new Date())}</span>}
-      />
+      <section className="dashboard-top-region">
+        <PageHeader
+          eyebrow="Chào mừng trở lại"
+          title="Hôm nay mình học gì?"
+          description="Mascot đã sắp xếp những bước quan trọng nhất để bạn tiếp tục tiến bộ."
+        />
+        <aside className="dashboard-hero-meta" aria-label="Tổng quan hoạt động hôm nay">
+          <div className="dashboard-date-card">
+            <span>Hôm nay</span>
+            <strong>{today.weekday}</strong>
+            <time>{today.dayAndMonth}</time>
+          </div>
+          <section className="learning-streak-card" aria-label="Chuỗi ngày học tập">
+            <div className="streak-summary">
+              <span className="streak-icon"><Flame size={18} /></span>
+              <div>
+                <strong>{dashboard.current_streak} ngày liên tiếp</strong>
+                <span>Kỷ lục: {dashboard.longest_streak} ngày</span>
+              </div>
+            </div>
+            <div className="streak-calendar" aria-label="Hoạt động 7 ngày gần nhất">
+              {weeklyActivity.map((day) => (
+                <div className={day.isActive ? "streak-day active" : "streak-day"} key={day.isoDate}>
+                  <span>{day.label}</span>
+                  <i aria-label={day.isActive ? "Có hoạt động học" : "Chưa có hoạt động học"} />
+                </div>
+              ))}
+            </div>
+          </section>
+        </aside>
+      </section>
 
       <section className="journey-hero" aria-labelledby="journey-heading">
         <div className="journey-copy">
@@ -121,31 +164,12 @@ export function AppHomePage() {
             <Link className="hero-text-link" to="/app/vocabulary">Xem từ vựng của tôi</Link>
           </div>
         </div>
-        <div className="journey-side">
-          <div className="journey-visual" aria-label="Linh vật chim cánh cụt Mascot">
-            <div className="penguin-hero-stage" aria-hidden="true">
-              <span className="hero-sparkle hero-sparkle-one">✦</span>
-              <span className="hero-sparkle hero-sparkle-two">✦</span>
-              <PenguinMark size={168} />
-            </div>
+        <div className="journey-visual" aria-label="Linh vật chim cánh cụt Mascot">
+          <div className="penguin-hero-stage" aria-hidden="true">
+            <span className="hero-sparkle hero-sparkle-one">✦</span>
+            <span className="hero-sparkle hero-sparkle-two">✦</span>
+            <PenguinMark size={168} />
           </div>
-          <aside className="learning-streak-card" aria-label="Chuỗi ngày học tập">
-            <div className="streak-summary">
-              <span className="streak-icon"><Flame size={18} /></span>
-              <div>
-                <strong>{dashboard.current_streak} ngày liên tiếp</strong>
-                <span>Kỷ lục: {dashboard.longest_streak} ngày</span>
-              </div>
-            </div>
-            <div className="streak-calendar" aria-label="Hoạt động 7 ngày gần nhất">
-              {weeklyActivity.map((day) => (
-                <div className={day.isActive ? "streak-day active" : "streak-day"} key={day.isoDate}>
-                  <span>{day.label}</span>
-                  <i aria-label={day.isActive ? "Có hoạt động học" : "Chưa có hoạt động học"} />
-                </div>
-              ))}
-            </div>
-          </aside>
         </div>
       </section>
 

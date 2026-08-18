@@ -870,11 +870,62 @@ button:disabled {
   text-transform: capitalize;
 }
 
+.dashboard-top-region {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(272px, 308px);
+  align-items: start;
+  gap: 32px;
+}
+
+.dashboard-top-region .page-header {
+  padding-top: 4px;
+}
+
+.dashboard-hero-meta {
+  display: grid;
+  gap: 12px;
+}
+
+.dashboard-date-card {
+  display: grid;
+  min-height: 84px;
+  align-content: center;
+  justify-items: start;
+  gap: 2px;
+  border: 1px solid rgb(102 88 232 / 13%);
+  border-radius: 16px;
+  padding: 15px 18px;
+  background:
+    radial-gradient(circle at 94% 10%, rgb(151 132 255 / 16%), transparent 26%),
+    rgb(255 255 255 / 74%);
+  box-shadow: 0 10px 22px rgb(62 48 143 / 5%);
+}
+
+.dashboard-date-card span {
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.dashboard-date-card strong {
+  color: var(--text);
+  font-size: 17px;
+  letter-spacing: -.03em;
+}
+
+.dashboard-date-card time {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
 .journey-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.55fr);
   gap: 32px;
-  margin-top: 32px;
+  margin-top: 24px;
   border: 1px solid #ded9f4;
   border-radius: 24px;
   padding: clamp(28px, 4vw, 48px);
@@ -922,7 +973,6 @@ button:disabled {
   text-decoration: none;
 }
 
-.journey-side { display: grid; align-content: center; gap: 14px; }
 .journey-visual { position: relative; display: grid; place-items: center; min-height: 214px; }
 .penguin-hero-stage {
   position: relative;
@@ -941,21 +991,23 @@ button:disabled {
 .hero-sparkle-two { bottom: 38px; left: 18px; color: #9a8eea; font-size: 15px; }
 .learning-streak-card {
   display: grid;
-  gap: 13px;
+  gap: 14px;
   border: 1px solid rgb(102 88 232 / 15%);
   border-radius: 16px;
-  padding: 14px;
-  background: rgb(255 255 255 / 76%);
-  box-shadow: 0 10px 22px rgb(62 48 143 / 7%);
+  padding: 16px 18px;
+  background:
+    radial-gradient(circle at 92% 8%, rgb(130 108 246 / 14%), transparent 28%),
+    rgb(255 255 255 / 82%);
+  box-shadow: 0 12px 26px rgb(62 48 143 / 8%);
 }
-.streak-summary { display: flex; align-items: center; gap: 10px; }
-.streak-icon { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 11px; color: #d76a20; background: #fff2e6; }
+.streak-summary { display: flex; align-items: center; gap: 11px; }
+.streak-icon { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 12px; color: #d76a20; background: #fff2e6; }
 .streak-summary > div { display: grid; gap: 2px; }
-.streak-summary strong { color: var(--text); font-size: 14px; letter-spacing: -.02em; }
+.streak-summary strong { color: var(--text); font-size: 15px; letter-spacing: -.025em; }
 .streak-summary span:last-child { color: var(--muted); font-size: 11px; font-weight: 650; }
-.streak-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-.streak-day { display: grid; justify-items: center; gap: 5px; color: var(--muted); font-size: 9px; font-weight: 700; }
-.streak-day i { display: block; width: 9px; height: 9px; border: 1px solid #d8d3e8; border-radius: 50%; background: #fff; }
+.streak-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; border-top: 1px solid rgb(102 88 232 / 10%); padding-top: 12px; }
+.streak-day { display: grid; justify-items: center; gap: 6px; color: var(--muted); font-size: 9px; font-weight: 700; }
+.streak-day i { display: block; width: 10px; height: 10px; border: 1px solid #d8d3e8; border-radius: 50%; background: #fff; }
 .streak-day.active { color: var(--primary-dark); }
 .streak-day.active i { border-color: var(--primary); background: var(--primary); box-shadow: 0 0 0 3px rgb(102 88 232 / 12%); }
 .journey-progress-chip {
@@ -2871,11 +2923,16 @@ button:disabled {
   .learn-page-header .page-header-aside { width: 100%; }
   .learn-hero-aside { grid-template-columns: minmax(200px, .8fr) minmax(230px, 1fr); }
   .track-card { display: grid; }
+  .dashboard-top-region { grid-template-columns: minmax(0, 1fr) minmax(250px, 290px); gap: 22px; }
+  .dashboard-top-region .page-header { flex-direction: column; }
 }
 
 @media (max-width: 720px) {
   .page-header-eyebrow { font-size: 13px; }
   .page-header h1 { font-size: 34px; }
+  .dashboard-top-region { grid-template-columns: 1fr; gap: 18px; }
+  .dashboard-hero-meta { grid-template-columns: 1fr; }
+  .dashboard-date-card { min-height: 76px; }
   .journey-hero { padding: 26px 22px; }
   .learn-hero,
   .practice-heading { padding: 24px 20px; }
