@@ -515,8 +515,8 @@ button:disabled {
 .auth-layout {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: minmax(500px, 1.08fr) minmax(460px, 0.92fr);
-  background: var(--surface);
+  grid-template-columns: minmax(0, 1.08fr) minmax(480px, 0.92fr);
+  background: #f8f7fc;
 }
 
 .brand-panel {
@@ -526,7 +526,7 @@ button:disabled {
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
-  padding: clamp(52px, 6vw, 88px);
+  padding: clamp(48px, 5.5vw, 80px);
   color: #fff;
   background: #342b7c;
 }
@@ -562,7 +562,7 @@ button:disabled {
   z-index: 1;
   max-width: 9ch;
   margin: 6px 0 0;
-  font-size: clamp(40px, 4.7vw, 62px);
+  font-size: clamp(40px, 4.4vw, 60px);
   line-height: 1.03;
   letter-spacing: -0.055em;
 }
@@ -571,7 +571,7 @@ button:disabled {
   position: relative;
   z-index: 1;
   max-width: 520px;
-  margin: 18px 0 0;
+  margin: 16px 0 0;
   color: rgb(255 255 255 / 72%);
   font-size: 16px;
   line-height: 1.75;
@@ -582,7 +582,7 @@ button:disabled {
   z-index: 1;
   display: grid;
   gap: 12px;
-  margin-top: 26px;
+  margin-top: 22px;
 }
 
 .auth-benefits span {
@@ -596,11 +596,11 @@ button:disabled {
 
 .brand-mascot-visual {
   position: absolute;
-  right: 10%;
-  bottom: 8%;
+  right: 9%;
+  bottom: 7%;
   display: grid;
-  width: 218px;
-  height: 218px;
+  width: 232px;
+  height: 232px;
   place-items: center;
   border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 50%;
@@ -636,11 +636,19 @@ button:disabled {
 .form-panel {
   display: grid;
   place-items: center;
-  padding: 40px clamp(40px, 5vw, 72px);
+  padding: 32px clamp(36px, 5vw, 76px);
+  background:
+    radial-gradient(circle at 92% 8%, rgb(131 110 245 / 9%), transparent 24%),
+    #f8f7fc;
 }
 
 .auth-card {
   width: min(100%, 500px);
+  border: 1px solid rgb(102 88 232 / 12%);
+  border-radius: 20px;
+  padding: clamp(30px, 3vw, 42px);
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 18px 44px rgb(49 38 120 / 8%);
 }
 
 .mobile-auth-brand {
@@ -649,33 +657,39 @@ button:disabled {
 
 .auth-card h2 {
   margin: 0;
-  font-size: 32px;
+  font-size: 34px;
   line-height: 1.15;
   letter-spacing: -0.035em;
 }
 
 .form-intro {
-  margin: 10px 0 22px;
+  margin: 8px 0 20px;
   color: var(--muted);
   font-size: 15px;
   line-height: 1.65;
 }
 
 .auth-card form {
-  gap: 8px;
+  gap: 7px;
 }
 
 .auth-card label {
-  margin-top: 8px;
+  margin-top: 9px;
+}
+
+.auth-card input {
+  min-height: 52px;
+  background: #fff;
 }
 
 .auth-card .primary-button {
+  min-height: 52px;
   width: 100%;
-  margin-top: 14px;
+  margin-top: 13px;
 }
 
 .auth-switch {
-  margin: 20px 0 0;
+  margin: 18px 0 0;
   color: var(--muted);
   text-align: center;
   font-size: 14px;
@@ -2768,7 +2782,9 @@ button:disabled {
   .brand-panel > p:not(.eyebrow) { margin-top: 16px; font-size: 14px; }
   .auth-benefits { display: none; }
   .brand-mascot-visual { right: -30px; bottom: -38px; transform: scale(0.72); }
-  .form-panel { padding: 40px 24px; }
+  .form-panel { padding: 28px 20px 40px; }
+  .auth-card { width: min(100%, 520px); border-radius: 18px; padding: 28px 22px; }
+  .auth-card h2 { font-size: 31px; }
   .app-content { padding-inline: 16px; }
   .dashboard-welcome,
   .page-heading-row,
