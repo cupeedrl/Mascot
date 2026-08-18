@@ -2,17 +2,18 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ArrowRight,
   BookOpen,
+  CalendarDays,
   CheckCircle2,
   Dumbbell,
   Flame,
   Plus,
   RefreshCw,
+  Sparkles,
   Target,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { ApiError, DashboardResponse, getDashboard } from "../api/client";
-import { PageHeader } from "../components/PageHeader";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { PenguinMark } from "../components/PenguinMark";
 
@@ -55,6 +56,7 @@ function activityWeek(activeDates: string[]) {
       isoDate,
       label: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"][date.getUTCDay()],
       isActive: active.has(isoDate),
+      isToday: index === 6,
     };
   });
 }
@@ -117,59 +119,86 @@ export function AppHomePage() {
 
   return (
     <section className="dashboard-page">
-      <section className="dashboard-top-region">
-        <PageHeader
-          eyebrow="Chào mừng trở lại"
-          title="Hôm nay mình học gì?"
-          description="Mascot đã sắp xếp những bước quan trọng nhất để bạn tiếp tục tiến bộ."
-        />
+      <section className="dashboard-top-grid">
+        <section className="dashboard-learning-hero" aria-labelledby="journey-heading">
+          <div className="dashboard-hero-copy">
+            <p className="eyebrow">CHÀO MỪNG TRỞ LẠI</p>
+            <h1 id="journey-heading">Hôm nay mình học gì?</h1>
+            <p className="dashboard-hero-description">
+              Mascot đã sắp xếp những bước quan trọng nhất để bạn tiếp tục tiến bộ.
+            </p>
+            <p className="hero-journey-label"><BookOpen size={16} /> TIẾNG ANH TỔNG QUÁT · CEFR</p>
+            <ul className="hero-learning-benefits" aria-label="Lợi ích học tập cùng Mascot">
+              <li><BookOpen size={17} /><span><strong>Học đúng trọng tâm</strong>Từ vựng phù hợp lộ trình CEFR của bạn.</span></li>
+              <li><RefreshCw size={17} /><span><strong>Ghi nhớ hiệu quả</strong>Ôn tập đúng lúc để ghi nhớ lâu hơn.</span></li>
+              <li><Target size={17} /><span><strong>Tiến bộ mỗi ngày</strong>Theo dõi hành trình và luyện tập đều đặn.</span></li>
+            </ul>
+            <div className="journey-actions">
+              <Link className="primary-link" to="/app/learn">
+                Tiếp tục học <ArrowRight size={17} />
+              </Link>
+              <Link className="hero-text-link" to="/app/vocabulary">Xem từ vựng của tôi</Link>
+            </div>
+          </div>
+          <div className="journey-visual dashboard-mascot-visual" aria-label="Linh vật chim cánh cụt Mascot">
+            <div className="penguin-hero-stage" aria-hidden="true">
+              <span className="hero-sparkle hero-sparkle-one">✦</span>
+              <span className="hero-sparkle hero-sparkle-two">✦</span>
+              <PenguinMark size={190} />
+            </div>
+          </div>
+        </section>
         <aside className="dashboard-hero-meta" aria-label="Tổng quan hoạt động hôm nay">
           <div className="dashboard-date-card">
-            <span>Hôm nay</span>
-            <strong>{today.weekday}</strong>
-            <time>{today.dayAndMonth}</time>
+            <span className="date-icon"><CalendarDays size={19} /></span>
+            <div>
+              <span>Hôm nay</span>
+              <strong>{today.weekday}</strong>
+              <time>{today.dayAndMonth}</time>
+            </div>
           </div>
           <section className="learning-streak-card" aria-label="Chuỗi ngày học tập">
             <div className="streak-summary">
               <span className="streak-icon"><Flame size={18} /></span>
               <div>
-                <strong>{dashboard.current_streak} ngày liên tiếp</strong>
+                <span className="streak-title">Chuỗi ngày học</span>
+                <strong><b>{dashboard.current_streak}</b> ngày liên tiếp</strong>
                 <span>Kỷ lục: {dashboard.longest_streak} ngày</span>
               </div>
             </div>
             <div className="streak-calendar" aria-label="Hoạt động 7 ngày gần nhất">
               {weeklyActivity.map((day) => (
-                <div className={day.isActive ? "streak-day active" : "streak-day"} key={day.isoDate}>
+                <div className={`streak-day${day.isActive ? " active" : ""}${day.isToday ? " today" : ""}`} key={day.isoDate}>
                   <span>{day.label}</span>
                   <i aria-label={day.isActive ? "Có hoạt động học" : "Chưa có hoạt động học"} />
                 </div>
               ))}
             </div>
           </section>
+          <section className="dashboard-motivation-card" aria-label="Lời nhắc học tập">
+            <Sparkles size={18} />
+            <p>Tiến bộ nhỏ mỗi ngày<br />sẽ tạo nên kết quả lớn.</p>
+          </section>
         </aside>
       </section>
 
-      <section className="journey-hero" aria-labelledby="journey-heading">
-        <div className="journey-copy">
-          <div className="journey-label"><BookOpen size={17} /> Hành trình hiện tại</div>
-          <p className="eyebrow">TIẾNG ANH TỔNG QUÁT · CEFR</p>
-          <h2 id="journey-heading">Học từ đúng lộ trình.</h2>
-          <p>
-            Chọn chủ đề phù hợp, thêm từ vào thư viện cá nhân và luyện lại theo tiến độ thực tế.
-          </p>
-          <div className="journey-actions">
-            <Link className="primary-link" to="/app/learn">
-              Tiếp tục học <ArrowRight size={17} />
-            </Link>
-            <Link className="hero-text-link" to="/app/vocabulary">Xem từ vựng của tôi</Link>
-          </div>
+      <section className="progress-summary" aria-labelledby="progress-summary-heading">
+        <div className="section-heading-row">
+          <div><p className="eyebrow">TIẾN ĐỘ CỦA BẠN</p><h2 id="progress-summary-heading">Nhìn nhanh hành trình</h2></div>
         </div>
-        <div className="journey-visual" aria-label="Linh vật chim cánh cụt Mascot">
-          <div className="penguin-hero-stage" aria-hidden="true">
-            <span className="hero-sparkle hero-sparkle-one">✦</span>
-            <span className="hero-sparkle hero-sparkle-two">✦</span>
-            <PenguinMark size={168} />
-          </div>
+        <div className="dashboard-metrics" aria-label="Tổng quan tiến độ">
+          <article className="dashboard-metric">
+            <span className="metric-icon"><Target size={19} /></span>
+            <div><span>Tổng từ vựng</span><strong>{dashboard.total_vocabulary}</strong></div>
+          </article>
+          <article className="dashboard-metric">
+            <span className="metric-icon"><RefreshCw size={19} /></span>
+            <div><span>Từ đến hạn ôn</span><strong>{dashboard.words_due_for_review}</strong></div>
+          </article>
+          <article className="dashboard-metric">
+            <span className="metric-icon"><CheckCircle2 size={19} /></span>
+            <div><span>Độ chính xác bài tập</span><strong>{accuracyLabel(dashboard.exercise_accuracy)}</strong></div>
+          </article>
         </div>
       </section>
 
@@ -199,26 +228,6 @@ export function AppHomePage() {
             <b>Mới</b>
             <ArrowRight size={18} />
           </Link>
-        </div>
-      </section>
-
-      <section className="progress-summary" aria-labelledby="progress-summary-heading">
-        <div className="section-heading-row">
-          <div><p className="eyebrow">TIẾN ĐỘ CỦA BẠN</p><h2 id="progress-summary-heading">Nhìn nhanh hành trình</h2></div>
-        </div>
-        <div className="dashboard-metrics" aria-label="Tổng quan tiến độ">
-          <article className="dashboard-metric">
-            <span className="metric-icon"><Target size={19} /></span>
-            <div><span>Tổng từ vựng</span><strong>{dashboard.total_vocabulary}</strong></div>
-          </article>
-          <article className="dashboard-metric">
-            <span className="metric-icon"><RefreshCw size={19} /></span>
-            <div><span>Từ đến hạn ôn</span><strong>{dashboard.words_due_for_review}</strong></div>
-          </article>
-          <article className="dashboard-metric">
-            <span className="metric-icon"><CheckCircle2 size={19} /></span>
-            <div><span>Độ chính xác bài tập</span><strong>{accuracyLabel(dashboard.exercise_accuracy)}</strong></div>
-          </article>
         </div>
       </section>
 
