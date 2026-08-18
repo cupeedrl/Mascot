@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useState } from "react";
-import { ArrowRight, BookOpen, BriefcaseBusiness, Compass, GraduationCap, MessageCircle, Search, Users } from "lucide-react";
+import { ArrowRight, Compass, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import {
@@ -12,12 +12,12 @@ import { PageSkeleton } from "../components/PageSkeleton";
 import { LearningIllustration } from "../components/LearningIllustration";
 import { PageHeader } from "../components/PageHeader";
 import { PenguinMark } from "../components/PenguinMark";
+import { getTopicAccent, getTopicIcon } from "../features/learn/topicPresentation";
 
 const LEVELS: CefrLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const LEVEL_LABELS: Record<CefrLevel, string> = {
   A1: "Cơ bản", A2: "Sơ cấp", B1: "Trung cấp", B2: "Trên trung cấp", C1: "Nâng cao", C2: "Thành thạo",
 };
-const topicIcons = [BookOpen, Users, BriefcaseBusiness, GraduationCap, MessageCircle, Compass];
 
 function errorMessage(error: unknown): string {
   return error instanceof ApiError ? error.message : "Không thể tải thư viện từ vựng.";
@@ -123,10 +123,11 @@ export function LearnPage() {
           <PageSkeleton cards={3} />
         ) : result?.items.length ? (
           <div className="set-grid">
-            {result.items.map((set, index) => {
-              const TopicIcon = topicIcons[index % topicIcons.length];
+            {result.items.map((set) => {
+              const TopicIcon = getTopicIcon(set.topic);
+              const accent = getTopicAccent(set.topic);
               const progress = set.entry_count ? Math.round((set.added_count / set.entry_count) * 100) : 0;
-              return <article className={`set-card topic-accent-${index % 4}`} key={set.id}>
+              return <article className={`set-card topic-accent-${accent}`} key={set.id}>
                 <div className="set-card-topline">
                   <span className="topic-visual" aria-hidden="true"><TopicIcon size={22} /></span>
                   <span className="level-badge">{set.level_code}</span>
