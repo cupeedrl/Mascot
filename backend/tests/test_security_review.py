@@ -166,3 +166,39 @@ def test_ai_exercise_context_is_bounded_and_contains_no_user_metadata() -> None:
     }
     assert len(context["meaning"]) == 1000
     assert [len(item) for item in context["example_sentences"]] == [300]
+
+
+def test_cors_string_parsing_supports_comma_and_json() -> None:
+    settings_json = Settings(
+        _env_file=None,
+        database_url="postgresql+psycopg://test:test@localhost/test",
+        jwt_secret_key="test-only-jwt-secret-key-that-is-long-enough",
+        cors_origins='["https://app.vercel.app"]',
+    )
+    assert settings_json.cors_origins == ["https://app.vercel.app"]
+
+    settings_csv = Settings(
+        _env_file=None,
+        database_url="postgresql+psycopg://test:test@localhost/test",
+        jwt_secret_key="test-only-jwt-secret-key-that-is-long-enough",
+        cors_origins="https://app.vercel.app, https://other.vercel.app",
+    )
+    assert settings_csv.cors_origins == [
+        "https://app.vercel.app",
+        "https://other.vercel.app",
+    ]
+
+
+def test_production_environment_disables_docs(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.main import create_app
+
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    get_settings.cache_clear()
+    try:
+        prod_app = create_app()
+        assert prod_app.docs_url is None
+        assert prod_app.redoc_url is None
+        assert prod_app.openapi_url is None
+    finally:
+        monkeypatch.delenv("ENVIRONMENT", raising=False)
+        get_settings.cache_clear()

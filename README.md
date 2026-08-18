@@ -690,17 +690,79 @@ LIMIT 5;
 
 Không chia sẻ hoặc log `password_hash`, JWT hay giá trị secret.
 
+## Hướng dẫn triển khai Production (Neon + Render + Vercel)
+
+### 1. Thứ tự triển khai (Deployment Order)
+
+1. **Bước 1 — Khởi tạo Database (Neon PostgreSQL):**
+   - Tạo database instance trên [Neon](https://neon.tech).
+   - Lấy chuỗi kết nối dạng: `postgresql+psycopg://<user>:<password>@<ep-xyz>.region.aws.neon.tech/<dbname>?sslmode=require`.
+
+2. **Bước 2 — Chạy Migration khởi tạo schema:**
+   - Chạy lệnh migration từ máy phát triển hoặc CI/CD trỏ tới Neon:
+     ```bash
+     cd backend
+     DATABASE_URL="postgresql+psycopg://<user>:<password>@<ep-xyz>.region.aws.neon.tech/<dbname>?sslmode=require" alembic upgrade head
+     ```
+
+3. **Bước 3 — Triển khai Backend (Render):**
+   - Tạo **Web Service** mới trên [Render](https://render.com) từ repository này.
+   - **Root Directory:** `backend`
+   - **Environment:** `Python 3`
+   - **Build Command:** `pip install -e .`
+   - **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - Cấu hình Environment Variables (xem bảng bên dưới).
+
+4. **Bước 4 — Triển khai Frontend (Vercel):**
+   - Import repository trên [Vercel](https://vercel.com).
+   - **Root Directory:** `frontend`
+   - **Framework Preset:** `Vite`
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `dist`
+   - Cấu hình biến môi trường: `VITE_API_BASE_URL=https://<your-render-backend>.onrender.com/api/v1`
+   - *Lưu ý:* `frontend/vercel.json` tự động cấu hình rewrite cho React Router SPA.
+
+5. **Bước 5 — Cập nhật CORS và Smoke Test:**
+   - Sau khi Vercel sinh domain (ví dụ `https://mascot.vercel.app`), cập nhật `CORS_ORIGINS=["https://mascot.vercel.app"]` trên Render.
+   - Kiểm tra các luồng chính: Đăng ký → Đăng nhập → Learn / Import → My Vocabulary → Ôn tập → Practice (Multiple Choice + Fill in Blank) → Dashboard.
+
+---
+
+### 2. Danh mục biến môi trường (Environment Variables)
+
+#### Backend (Render Web Service)
+
+| Tên biến | Bắt buộc | Ví dụ / Giá trị gợi ý | Ghi chú |
+|---|---|---|---|
+| `ENVIRONMENT` | Có | `production` | Khi đặt `production`, `/docs` và `/openapi.json` sẽ tự động tắt |
+| `DATABASE_URL` | Có | `postgresql+psycopg://user:pass@ep-xyz.neon.tech/neondb?sslmode=require` | Connection string PostgreSQL (Neon) |
+| `CORS_ORIGINS` | Có | `["https://mascot.vercel.app"]` hoặc `https://mascot.vercel.app` | Domain frontend trên Vercel |
+| `JWT_SECRET_KEY` | Có | `(chuỗi ngẫu nhiên tối thiểu 32 ký tự)` | Khóa ký token HS256 |
+| `JWT_ALGORITHM` | Không | `HS256` | Mặc định `HS256` |
+| `JWT_ACCESS_TOKEN_EXPIRE_MINUTES` | Không | `30` | Thời hạn JWT (phút) |
+| `JWT_ISSUER` | Không | `mascot-api` | Token issuer |
+| `JWT_AUDIENCE` | Không | `mascot-frontend` | Token audience |
+| `AI_PROVIDER` | Có | `groq` | Provider AI chính |
+| `GROQ_API_KEY` | Có | `gsk_...` | API Key từ console.groq.com |
+| `GROQ_MODEL` | Không | `openai/gpt-oss-20b` | Model Groq |
+| `GROQ_BASE_URL` | Không | `https://api.groq.com/openai/v1` | Endpoint Groq |
+| `AI_REQUEST_TIMEOUT_SECONDS` | Không | `20` | Timeout gọi AI (giây) |
+| `AI_MAX_OUTPUT_TOKENS` | Không | `800` | Token tối đa cho Vocabulary |
+| `AI_EXERCISE_MAX_OUTPUT_TOKENS` | Không | `4000` | Token tối đa cho Exercise |
+
+#### Frontend (Vercel)
+
+| Tên biến | Bắt buộc | Ví dụ / Giá trị gợi ý | Ghi chú |
+|---|---|---|---|
+| `VITE_API_BASE_URL` | Có | `https://<your-render-service>.onrender.com/api/v1` | URL REST API v1 của Render backend |
+
+---
+
 ## Phạm vi hiện tại
 
-Đã có: Phase 1 infrastructure, Phase 2 authentication, Phase 3 Personal Vocabulary CRUD/search/filter/pagination, Phase 3.5 shared Vocabulary Library + Learn/import flow, Phase 4 Vocabulary Review, Phase 5 AI Vocabulary Assistant, Phase 6 deterministic Exercise System, Phase 7 AI Exercise Generator, Phase 8 Dashboard và Phase 9 Full Testing/Security Review.
+Đã có: Phase 1 infrastructure, Phase 2 authentication, Phase 3 Personal Vocabulary CRUD/search/filter/pagination, Phase 3.5 shared Vocabulary Library + Learn/import flow, Phase 4 Vocabulary Review, Phase 5 AI Vocabulary Assistant, Phase 6 deterministic Exercise System, Phase 7 AI Exercise Generator, Phase 8 Dashboard, Phase 9 Full Testing/Security Review và Phase 10 Production Preparation.
 
-Kết quả và các rủi ro còn lại của Phase 9 nằm trong [`REVIEW.md`](./REVIEW.md). Các lệnh kiểm tra dependency có thể lặp lại:
+Kết quả và các rủi ro còn lại của Phase 9 nằm trong [`REVIEW.md`](./REVIEW.md).
 
-```powershell
-cd backend
-.\.venv\Scripts\python.exe -m pip_audit --local
-cd ..
-docker compose exec -T frontend npm audit --omit=dev --audit-level=high
-```
+Chưa có: IELTS, TOEIC, Chinese, HSK, RAG hoặc autonomous agents. Basic AI Tutor chỉ là Future/Optional, không nằm trong V1.
 
-Chưa có: IELTS, TOEIC, Chinese, HSK, RAG hoặc autonomous agents. Basic AI Tutor chỉ còn là Future/Optional, không nằm trong V1.

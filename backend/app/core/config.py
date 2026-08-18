@@ -7,6 +7,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_name: str = "Mascot API"
+    environment: Literal["development", "production", "test", "staging"] = (
+        "development"
+    )
     api_v1_prefix: str = "/api/v1"
     database_url: str = Field(min_length=1)
     cors_origins: list[str] = Field(default_factory=list)
@@ -28,6 +31,20 @@ class Settings(BaseSettings):
     ai_request_timeout_seconds: float = Field(default=20.0, ge=1.0, le=120.0)
     ai_max_output_tokens: int = Field(default=800, ge=200, le=4000)
     ai_exercise_max_output_tokens: int = Field(default=4000, ge=800, le=8000)
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, value: object) -> object:
+        if isinstance(value, str):
+            stripped = value.strip()
+            if stripped.startswith("[") and stripped.endswith("]"):
+                import json
+                try:
+                    return json.loads(stripped)
+                except Exception:
+                    pass
+            return [part.strip() for part in stripped.split(",") if part.strip()]
+        return value
 
     @field_validator("cors_origins")
     @classmethod
