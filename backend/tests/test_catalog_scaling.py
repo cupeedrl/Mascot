@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import pathlib
 import uuid
@@ -231,3 +231,41 @@ def test_catalog_seed_never_mutates_or_deletes_user_vocabulary(
         assert refreshed is not None
         assert refreshed.word == "custom_user_word"
         assert refreshed.learning_status == "learning"
+
+
+def test_catalog_loader_query_count_is_batched(
+    session_factory: sessionmaker[Session],
+    general_english_track_id: uuid.UUID,
+) -> None:
+    data_dir = pathlib.Path(__file__).parent.parent / "app" / "catalog" / "data"
+    sets = load_catalog_from_dir(data_dir)
+    total_entries = sum(len(s.entries) for s in sets)
+    assert total_entries >= 2000
+
+    from sqlalchemy import event
+
+    with session_factory() as db:
+        engine = db.get_bind()
+        query_count = 0
+
+        def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+            nonlocal query_count
+            query_count += 1
+
+        event.listen(engine, "before_cursor_execute", before_cursor_execute)
+        try:
+            # 1. Initial bulk load
+            res1 = load_catalog_into_db(db, sets, track_id=general_english_track_id)
+            assert res1.entries_created == total_entries
+            # Query count must be bounded and small (batch size 500), NOT ~2400+ per-entry SELECTs
+            assert query_count < 30, f"Expected < 30 queries, got {query_count}"
+
+            # 2. Idempotent re-run
+            query_count = 0
+            res2 = load_catalog_into_db(db, sets, track_id=general_english_track_id)
+            assert res2.entries_created == 0
+            assert res2.entries_updated == total_entries
+            assert query_count < 30, f"Expected < 30 queries on rerun, got {query_count}"
+        finally:
+            event.remove(engine, "before_cursor_execute", before_cursor_execute)
+
