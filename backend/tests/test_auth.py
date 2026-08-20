@@ -186,12 +186,24 @@ def test_inactive_user_cannot_login_or_reuse_existing_token(
         user.is_active = False
         db.commit()
 
-    assert login(client).status_code == 401
+    # 1. Disabled user with wrong password -> generic 401 (no account enumeration)
+    wrong_pwd_resp = login(client, password="WrongPassword123!")
+    assert wrong_pwd_resp.status_code == 401
+    assert wrong_pwd_resp.json()["detail"] == "Invalid email or password"
+
+    # 2. Disabled user with correct password -> 403 ACCOUNT_DISABLED
+    disabled_resp = login(client)
+    assert disabled_resp.status_code == 403
+    assert disabled_resp.json()["detail"]["code"] == "ACCOUNT_DISABLED"
+    assert "hạn chế" in disabled_resp.json()["detail"]["message"].lower()
+
+    # 3. Inactive user with existing token -> 401 ACCOUNT_DISABLED
     response = client.get(
         "/api/v1/auth/me",
         headers=authorization_header(token),
     )
     assert response.status_code == 401
+    assert response.json()["detail"]["code"] == "ACCOUNT_DISABLED"
 
 
 def test_logout_requires_authentication_and_returns_success(client: TestClient) -> None:

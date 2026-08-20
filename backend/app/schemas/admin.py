@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import uuid
 from datetime import datetime
@@ -114,3 +114,39 @@ class AdminUpdateCatalogEntryRequest(BaseModel):
     example_sentences: list[str] | None = Field(default=None, min_length=1, max_length=5)
     level_code: CEFRLevel | None = None
     topic: str | None = Field(default=None, min_length=1, max_length=120)
+
+
+class AdminAIUsageItem(BaseModel):
+    id: uuid.UUID
+    user_id: uuid.UUID | None = None
+    user_email: str | None = None
+    feature: str
+    provider: str
+    model: str
+    status: str
+    status_code: int | None = None
+    latency_ms: int | None = None
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    total_tokens: int | None = None
+    error_type: str | None = None
+    created_at: datetime
+
+
+class AdminAIUsageSummary(BaseModel):
+    total_requests: int
+    successful_requests: int
+    failed_requests: int
+    rate_limited_requests: int
+    average_latency_ms: int
+    total_tokens: int
+
+
+class AdminAIUsageListResponse(BaseModel):
+    items: list[AdminAIUsageItem]
+    page: int
+    page_size: int
+    total: int
+    total_pages: int
+    summary: AdminAIUsageSummary
+

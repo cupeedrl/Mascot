@@ -46,7 +46,11 @@ export function AuthPage({ mode }: AuthPageProps) {
       navigate(destination, { replace: true });
     } catch (caughtError) {
       if (caughtError instanceof ApiError) {
-        if (caughtError.status === 401) {
+        if (caughtError.code === "ACCOUNT_DISABLED") {
+          setError(
+            "Tài khoản của bạn hiện đang bị hạn chế. Vui lòng liên hệ quản trị viên để được hỗ trợ.",
+          );
+        } else if (caughtError.status === 401) {
           setError("Email hoặc mật khẩu không chính xác.");
         } else if (caughtError.status === 409) {
           setError("Email này đã được đăng ký.");

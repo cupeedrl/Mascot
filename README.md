@@ -825,11 +825,34 @@ Không chia sẻ hoặc log `password_hash`, JWT hay giá trị secret.
 
 ---
 
-## Phạm vi hiện tại
+## Hệ thống Quản trị Mascot (Phase G Admin Portal)
 
-Đã có: Phase 1 infrastructure, Phase 2 authentication, Phase 3 Personal Vocabulary CRUD/search/filter/pagination, Phase 3.5 shared Vocabulary Library + Learn/import flow, Phase 4 Vocabulary Review, Phase 5 AI Vocabulary Assistant, Phase 6 deterministic Exercise System, Phase 7 AI Exercise Generator, Phase 8 Dashboard, Phase 9 Full Testing/Security Review và Phase 10 Production Preparation.
+Mascot V1 tích hợp sẵn cổng quản trị bảo mật (Admin Portal) tại `/admin`:
 
-Kết quả và các rủi ro còn lại của Phase 9 nằm trong [`REVIEW.md`](./REVIEW.md).
+- **Admin Overview (`/admin`)**: Tổng hợp nhanh số lượng người dùng thực tế, từ vựng catalog, từ vựng sổ tay cá nhân và lượt luyện tập.
+- **Quản lý Người dùng (`/admin/users`, `/admin/users/:id`)**: Danh sách người dùng phân trang server-side, tìm kiếm theo email, bộ lọc vai trò (`user`/`admin`) & trạng thái (`hoạt động`/`vô hiệu hóa`). Chi tiết tiến độ học tập, chuỗi ngày học và lịch sử làm bài gần nhất. Hỗ trợ phân quyền và khóa/mở khóa tài khoản an toàn (bảo vệ tài khoản admin cuối cùng).
+- **Quản lý Thư viện từ (`/admin/catalog`)**: CRUD kho từ vựng dùng chung chuẩn CEFR (A1–C2), tự động nhóm theo chủ đề/cấp độ, kiểm tra trùng lặp và tách liên kết an toàn (`SET NULL`) khi xóa để bảo vệ sổ tay của người học.
+- **Nhật ký & Giám sát AI (`/admin/ai-usage`)**: Theo dõi lượt gọi AI tạo bài tập và làm giàu từ vựng, độ trễ phản hồi (ms), số lượng token tiêu thụ, lỗi hệ thống và tỷ lệ giới hạn tần suất (429 Rate Limit).
 
-Chưa có: IELTS, TOEIC, Chinese, HSK, RAG hoặc autonomous agents. Basic AI Tutor chỉ là Future/Optional, không nằm trong V1.
+### Phân quyền & Tạo tài khoản Admin
+
+1. Chạy CLI script để nâng quyền tài khoản đầu tiên:
+   ```bash
+   cd backend
+   python scripts/set_admin.py your-email@example.com
+   ```
+2. Đăng nhập tại `http://localhost:5173/login` (hoặc link production).
+3. Truy cập `/admin` thông qua link "Trang quản trị" trên sidebar hoặc đường dẫn trực tiếp.
+
+---
+
+## Phạm vi hiện tại (Mascot V1 Final)
+
+Đã hoàn thành toàn bộ các giai đoạn:
+- **Phase A–E**: Hạ tầng, Xác thực JWT, My Vocabulary CRUD, Thư viện CEFR A1–C2, Spaced-Repetition Review, AI Exercise Generator (Multiple Choice & Passage Cloze).
+- **Phase F & F.2**: Khôi phục mật khẩu (Forgot/Reset Password) với mã băm SHA-256 an toàn, thời hạn 20 phút, vô hiệu hóa một lần và tích hợp Gmail SMTP / Resend.
+- **Phase G1–G3**: Admin Foundation, Quản trị Người dùng, Quản lý Thư viện từ CEFR và Giám sát AI Usage.
+
+- Alembic Migration Head cuối cùng: `20260820_0010` (`ai_usage_logs`).
+
 

@@ -52,11 +52,10 @@ export function AdminLayout() {
           </NavLink>
 
           <p className="admin-nav-section">THEO DÕI</p>
-          <div className="admin-nav-disabled" title="Tính năng sẽ có trong Phase G3">
+          <NavLink to="/admin/ai-usage" className={({ isActive }) => (isActive ? "active" : "")}>
             <BrainCircuit size={18} />
             <span>AI Usage</span>
-            <small className="admin-nav-tag">G3</small>
-          </div>
+          </NavLink>
         </nav>
 
         <div className="admin-sidebar-footer">

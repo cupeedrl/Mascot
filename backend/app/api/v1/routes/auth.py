@@ -22,6 +22,7 @@ from app.schemas.auth import (
 )
 from app.services.ai_guard import ai_guard, AICooldownError, AIDuplicateRequestError
 from app.services.auth import (
+    AccountDisabledError,
     DuplicateEmailError,
     InvalidResetTokenError,
     authenticate_user,
@@ -60,7 +61,17 @@ def login(
     credentials: LoginRequest,
     db: Annotated[Session, Depends(get_db)],
 ) -> TokenResponse:
-    user = authenticate_user(db, str(credentials.email), credentials.password)
+    try:
+        user = authenticate_user(db, str(credentials.email), credentials.password)
+    except AccountDisabledError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "message": "Tài khoản của bạn hiện đang bị hạn chế.",
+                "code": "ACCOUNT_DISABLED",
+            },
+        ) from exc
+
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

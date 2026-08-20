@@ -6,6 +6,7 @@ import { AdminLayout } from "./components/AdminLayout";
 import { AdminRoute } from "./components/AdminRoute";
 import { AppLayout } from "./components/AppLayout";
 import { AboutPage } from "./pages/AboutPage";
+import { AdminAIUsagePage } from "./pages/AdminAIUsagePage";
 import { AdminCatalogPage } from "./pages/AdminCatalogPage";
 import { AdminOverviewPage } from "./pages/AdminOverviewPage";
 import { AdminUserDetailPage } from "./pages/AdminUserDetailPage";
@@ -42,6 +43,7 @@ function App() {
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="users/:userId" element={<AdminUserDetailPage />} />
             <Route path="catalog" element={<AdminCatalogPage />} />
+            <Route path="ai-usage" element={<AdminAIUsagePage />} />
           </Route>
           <Route
             path="/app"

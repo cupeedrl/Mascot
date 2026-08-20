@@ -44,11 +44,18 @@ def get_current_user(
     except (jwt.InvalidTokenError, KeyError, TypeError, ValueError) as exc:
         raise authentication_error() from exc
 
-    user = db.scalar(
-        select(User).where(User.id == user_id, User.is_active.is_(True))
-    )
+    user = db.scalar(select(User).where(User.id == user_id))
     if user is None:
         raise authentication_error()
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={
+                "message": "Tài khoản của bạn đã bị hạn chế.",
+                "code": "ACCOUNT_DISABLED",
+            },
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user
 
 

@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.api.dependencies import require_admin
 from app.catalog.constants import CATALOG_PARTS_OF_SPEECH, GENERAL_ENGLISH_TRACK_ID
 from app.db.session import get_db
+from app.models.ai_usage_log import AIUsageLog
 from app.models.exercise_attempt import ExerciseAttempt
 from app.models.learning_track import LearningTrack
 from app.models.user import User
@@ -18,6 +19,9 @@ from app.models.vocabulary import Vocabulary
 from app.models.vocabulary_entry import VocabularyEntry
 from app.models.vocabulary_set import VocabularySet
 from app.schemas.admin import (
+    AdminAIUsageItem,
+    AdminAIUsageListResponse,
+    AdminAIUsageSummary,
     AdminCatalogEntryItem,
     AdminCatalogListResponse,
     AdminCreateCatalogEntryRequest,
@@ -721,3 +725,127 @@ def delete_admin_catalog_entry(
     db.commit()
 
     return {"success": True, "message": "Đã xóa từ vựng khỏi thư viện dùng chung."}
+
+
+# ==========================================
+# 4. ADMIN AI USAGE
+# ==========================================
+
+
+@router.get("/ai-usage", response_model=AdminAIUsageListResponse)
+def list_admin_ai_usage(
+    _admin_user: Annotated[User, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    search: str | None = None,
+    feature: str | None = None,
+    status: str | None = None,
+    period: Literal["24h", "7d", "30d", "all"] = "all",
+    provider: str | None = None,
+) -> AdminAIUsageListResponse:
+    """Retrieve paginated AI usage logs and summary metrics using SQL aggregations."""
+    from datetime import datetime, timedelta, timezone
+
+    conditions = []
+
+    # Time filter
+    if period == "24h":
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+        conditions.append(AIUsageLog.created_at >= cutoff)
+    elif period == "7d":
+        cutoff = datetime.now(timezone.utc) - timedelta(days=7)
+        conditions.append(AIUsageLog.created_at >= cutoff)
+    elif period == "30d":
+        cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+        conditions.append(AIUsageLog.created_at >= cutoff)
+
+    # Search filter (email, model, feature)
+    if search and search.strip():
+        clean_search = search.strip().lower()
+        conditions.append(
+            or_(
+                func.lower(User.email).contains(clean_search),
+                func.lower(AIUsageLog.model).contains(clean_search),
+                func.lower(AIUsageLog.feature).contains(clean_search),
+            )
+        )
+
+    # Feature filter
+    if feature and feature.strip():
+        conditions.append(AIUsageLog.feature == feature.strip())
+
+    # Status filter
+    if status and status.strip():
+        conditions.append(AIUsageLog.status == status.strip().lower())
+
+    # Provider filter
+    if provider and provider.strip():
+        conditions.append(AIUsageLog.provider == provider.strip().lower())
+
+    # 1. Summary aggregations in SQL
+    summary_stmt = (
+        select(
+            func.count(AIUsageLog.id).label("total"),
+            func.count(AIUsageLog.id).filter(AIUsageLog.status == "success").label("success_count"),
+            func.count(AIUsageLog.id).filter(AIUsageLog.status == "failed").label("failed_count"),
+            func.count(AIUsageLog.id).filter(AIUsageLog.status == "rate_limited").label("rate_limited_count"),
+            func.coalesce(func.avg(AIUsageLog.latency_ms), 0).label("avg_latency"),
+            func.coalesce(func.sum(AIUsageLog.total_tokens), 0).label("sum_tokens"),
+        )
+        .outerjoin(User, AIUsageLog.user_id == User.id)
+        .where(*conditions)
+    )
+    summary_row = db.execute(summary_stmt).one()
+    total = summary_row.total or 0
+
+    summary = AdminAIUsageSummary(
+        total_requests=total,
+        successful_requests=summary_row.success_count or 0,
+        failed_requests=summary_row.failed_count or 0,
+        rate_limited_requests=summary_row.rate_limited_count or 0,
+        average_latency_ms=round(summary_row.avg_latency or 0),
+        total_tokens=summary_row.sum_tokens or 0,
+    )
+
+    # 2. Paginated rows with User email JOIN
+    items_stmt = (
+        select(AIUsageLog, User.email)
+        .outerjoin(User, AIUsageLog.user_id == User.id)
+        .where(*conditions)
+        .order_by(AIUsageLog.created_at.desc())
+        .limit(page_size)
+        .offset((page - 1) * page_size)
+    )
+    results = db.execute(items_stmt).all()
+
+    items = [
+        AdminAIUsageItem(
+            id=log.id,
+            user_id=log.user_id,
+            user_email=email,
+            feature=log.feature,
+            provider=log.provider,
+            model=log.model,
+            status=log.status,
+            status_code=log.status_code,
+            latency_ms=log.latency_ms,
+            input_tokens=log.input_tokens,
+            output_tokens=log.output_tokens,
+            total_tokens=log.total_tokens,
+            error_type=log.error_type,
+            created_at=log.created_at,
+        )
+        for log, email in results
+    ]
+
+    total_pages = math.ceil(total / page_size) if total > 0 else 1
+
+    return AdminAIUsageListResponse(
+        items=items,
+        page=page,
+        page_size=page_size,
+        total=total,
+        total_pages=total_pages,
+        summary=summary,
+    )

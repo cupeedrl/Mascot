@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import uuid
 from fastapi.testclient import TestClient
@@ -144,16 +144,25 @@ def test_admin_users_management_flow(
     assert disable_resp.json()["is_active"] is False
 
     # 8. Disabled learner cannot call authenticated APIs
-    assert client.get("/api/v1/dashboard", headers=learner_headers).status_code == 401
+    api_resp = client.get("/api/v1/dashboard", headers=learner_headers)
+    assert api_resp.status_code == 401
+    assert api_resp.json()["detail"]["code"] == "ACCOUNT_DISABLED"
 
-    # 9. Disabled learner cannot log in
-    assert (
-        client.post(
-            "/api/v1/auth/login",
-            json={"email": "student_one@example.com", "password": "Password123!"},
-        ).status_code
-        == 401
+    # 9. Disabled learner with wrong password -> generic 401
+    wrong_pwd_resp = client.post(
+        "/api/v1/auth/login",
+        json={"email": "student_one@example.com", "password": "WrongPassword123!"},
     )
+    assert wrong_pwd_resp.status_code == 401
+    assert wrong_pwd_resp.json()["detail"] == "Invalid email or password"
+
+    # 10. Disabled learner with correct credentials gets 403 ACCOUNT_DISABLED
+    login_resp = client.post(
+        "/api/v1/auth/login",
+        json={"email": "student_one@example.com", "password": "StrongPassword123!"},
+    )
+    assert login_resp.status_code == 403
+    assert login_resp.json()["detail"]["code"] == "ACCOUNT_DISABLED"
 
     # 10. Re-enable learner account
     enable_resp = client.patch(
@@ -258,3 +267,82 @@ def test_admin_catalog_crud_flow(
         )
         assert user_vocab_after is not None
         assert user_vocab_after.source_vocabulary_entry_id is None
+
+
+def test_admin_ai_usage_flow(
+    client: TestClient,
+    session_factory: sessionmaker[Session],
+) -> None:
+    from app.services.ai_logger import record_ai_usage
+
+    admin_headers = authenticate(client, email="ai_admin@example.com")
+    with session_factory() as db:
+        admin_u = db.scalar(select(User).where(User.email == "ai_admin@example.com"))
+        admin_u.role = "admin"
+        admin_id = admin_u.id
+
+        # Insert real usage records
+        record_ai_usage(
+            db,
+            user_id=admin_id,
+            feature="exercise_generation",
+            provider="groq",
+            model="llama-3.3-70b-versatile",
+            status="success",
+            status_code=200,
+            latency_ms=1250,
+            input_tokens=150,
+            output_tokens=300,
+            total_tokens=450,
+        )
+        record_ai_usage(
+            db,
+            user_id=admin_id,
+            feature="vocabulary_enrichment",
+            provider="groq",
+            model="llama-3.3-70b-versatile",
+            status="rate_limited",
+            status_code=429,
+            latency_ms=45,
+            error_type="AICooldownError",
+        )
+        record_ai_usage(
+            db,
+            user_id=None,
+            feature="exercise_generation",
+            provider="groq",
+            model="llama-3.3-70b-versatile",
+            status="failed",
+            status_code=503,
+            latency_ms=80,
+            error_type="AIProviderNotConfiguredError",
+        )
+
+    # 1. Admin queries AI usage without filters
+    resp = client.get("/api/v1/admin/ai-usage", headers=admin_headers)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total"] == 3
+    assert data["summary"]["total_requests"] == 3
+    assert data["summary"]["successful_requests"] == 1
+    assert data["summary"]["failed_requests"] == 1
+    assert data["summary"]["rate_limited_requests"] == 1
+    assert data["summary"]["total_tokens"] == 450
+    assert len(data["items"]) == 3
+
+    # 2. Filter by status
+    status_resp = client.get("/api/v1/admin/ai-usage?status=rate_limited", headers=admin_headers)
+    assert status_resp.status_code == 200
+    assert status_resp.json()["total"] == 1
+    assert status_resp.json()["items"][0]["status"] == "rate_limited"
+
+    # 3. Filter by period
+    period_resp = client.get("/api/v1/admin/ai-usage?period=24h", headers=admin_headers)
+    assert period_resp.status_code == 200
+    assert period_resp.json()["total"] == 3
+
+    # 4. Search by email
+    search_resp = client.get("/api/v1/admin/ai-usage?search=ai_admin", headers=admin_headers)
+    assert search_resp.status_code == 200
+    assert search_resp.json()["total"] == 2
+

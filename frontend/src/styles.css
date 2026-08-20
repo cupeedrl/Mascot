@@ -4612,6 +4612,11 @@ button:disabled {
   color: #991b1b;
 }
 
+.status-warning {
+  background: #fffbeb;
+  color: #b45309;
+}
+
 .admin-pos-badge {
   display: inline-block;
   padding: 2px 7px;

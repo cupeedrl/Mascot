@@ -96,3 +96,62 @@ test("admin catalog form validates required fields", () => {
   );
 });
 
+test("login error mapping handles ACCOUNT_DISABLED and generic 401 correctly", () => {
+  const resolveLoginErrorMessage = (error: { status: number; code?: string; message?: string }) => {
+    if (error.code === "ACCOUNT_DISABLED") {
+      return "Tài khoản của bạn hiện đang bị hạn chế. Vui lòng liên hệ quản trị viên để được hỗ trợ.";
+    }
+    if (error.status === 401) {
+      return "Email hoặc mật khẩu không chính xác.";
+    }
+    if (error.status === 409) {
+      return "Email này đã được đăng ký.";
+    }
+    return error.message ?? "Đã có lỗi xảy ra. Vui lòng thử lại.";
+  };
+
+  // 1. Disabled account
+  assert.equal(
+    resolveLoginErrorMessage({ status: 403, code: "ACCOUNT_DISABLED" }),
+    "Tài khoản của bạn hiện đang bị hạn chế. Vui lòng liên hệ quản trị viên để được hỗ trợ.",
+  );
+
+  // 2. Generic invalid credentials
+  assert.equal(
+    resolveLoginErrorMessage({ status: 401 }),
+    "Email hoặc mật khẩu không chính xác.",
+  );
+
+  // 3. Duplicate email on register
+  assert.equal(
+    resolveLoginErrorMessage({ status: 409 }),
+    "Email này đã được đăng ký.",
+  );
+});
+
+test("admin AI usage query params are normalized properly", () => {
+  const buildAIUsageQuery = (params: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    feature?: string;
+    status?: string;
+    period?: string;
+  }) => {
+    const q = new URLSearchParams({
+      page: String(params.page ?? 1),
+      page_size: String(params.pageSize ?? 20),
+    });
+    if (params.search?.trim()) q.set("search", params.search.trim());
+    if (params.feature) q.set("feature", params.feature);
+    if (params.status) q.set("status", params.status);
+    if (params.period) q.set("period", params.period);
+    return q.toString();
+  };
+
+  assert.equal(
+    buildAIUsageQuery({ search: "  llama-3.3  ", status: "rate_limited", period: "24h" }),
+    "page=1&page_size=20&search=llama-3.3&status=rate_limited&period=24h",
+  );
+});
+

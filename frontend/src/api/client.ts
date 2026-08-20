@@ -23,6 +23,7 @@ export interface TokenResponse {
 
 interface ApiErrorDetail {
   message?: string;
+  code?: string;
   existing_vocabulary_id?: string;
 }
 
@@ -31,6 +32,8 @@ interface ApiErrorBody {
 }
 
 export class ApiError extends Error {
+  public readonly code?: string;
+
   constructor(
     public readonly status: number,
     message: string,
@@ -38,6 +41,7 @@ export class ApiError extends Error {
   ) {
     super(message);
     this.name = "ApiError";
+    this.code = detail?.code;
   }
 }
 
@@ -777,5 +781,63 @@ export function deleteAdminCatalogEntry(entryId: string): Promise<{ success: boo
     method: "DELETE",
   });
 }
+
+export interface AdminAIUsageItem {
+  id: string;
+  user_id: string | null;
+  user_email: string | null;
+  feature: string;
+  provider: string;
+  model: string;
+  status: string;
+  status_code: number | null;
+  latency_ms: number | null;
+  input_tokens: number | null;
+  output_tokens: number | null;
+  total_tokens: number | null;
+  error_type: string | null;
+  created_at: string;
+}
+
+export interface AdminAIUsageSummary {
+  total_requests: number;
+  successful_requests: number;
+  failed_requests: number;
+  rate_limited_requests: number;
+  average_latency_ms: number;
+  total_tokens: number;
+}
+
+export interface AdminAIUsageListResponse {
+  items: AdminAIUsageItem[];
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+  summary: AdminAIUsageSummary;
+}
+
+export function getAdminAIUsage(params: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  feature?: string;
+  status?: string;
+  period?: "24h" | "7d" | "30d" | "all";
+  provider?: string;
+} = {}): Promise<AdminAIUsageListResponse> {
+  const query = new URLSearchParams({
+    page: String(params.page ?? 1),
+    page_size: String(params.pageSize ?? 20),
+  });
+  if (params.search?.trim()) query.set("search", params.search.trim());
+  if (params.feature) query.set("feature", params.feature);
+  if (params.status) query.set("status", params.status);
+  if (params.period) query.set("period", params.period);
+  if (params.provider) query.set("provider", params.provider);
+
+  return request<AdminAIUsageListResponse>(`/admin/ai-usage?${query.toString()}`);
+}
+
 
 

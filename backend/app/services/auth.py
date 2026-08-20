@@ -23,6 +23,10 @@ class InvalidResetTokenError(Exception):
     """Raised when a password reset token is invalid, expired, or already used."""
 
 
+class AccountDisabledError(Exception):
+    """Raised when credentials are valid but account is disabled."""
+
+
 def normalize_email(email: str) -> str:
     return email.strip().lower()
 
@@ -66,8 +70,12 @@ def authenticate_user(db: Session, email: str, password: str) -> User | None:
     password_hash = user.password_hash if user is not None else DUMMY_PASSWORD_HASH
     password_matches = verify_password(password, password_hash)
 
-    if user is None or not password_matches or not user.is_active:
+    if user is None or not password_matches:
         return None
+
+    if not user.is_active:
+        raise AccountDisabledError
+
     return user
 
 
