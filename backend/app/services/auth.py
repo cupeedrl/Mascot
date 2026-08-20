@@ -4,7 +4,7 @@ import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
@@ -87,17 +87,15 @@ def create_password_reset_token(db: Session, email: str) -> str | None:
     now = datetime.now(timezone.utc)
     settings = get_settings()
 
-    # Invalidate any prior unexpired active tokens for this user
-    prior_tokens = list(
-        db.scalars(
-            select(PasswordResetToken).where(
-                PasswordResetToken.user_id == user.id,
-                PasswordResetToken.used_at.is_(None),
-            )
+    # Invalidate any prior unexpired active tokens for this user atomically
+    db.execute(
+        update(PasswordResetToken)
+        .where(
+            PasswordResetToken.user_id == user.id,
+            PasswordResetToken.used_at.is_(None),
         )
+        .values(used_at=now)
     )
-    for prior in prior_tokens:
-        prior.used_at = now
 
     raw_token = secrets.token_urlsafe(32)
     token_entity = PasswordResetToken(
@@ -118,32 +116,37 @@ def _as_utc(dt: datetime) -> datetime:
 
 
 def reset_password_with_token(db: Session, token: str, new_password: str) -> None:
-    """Reset user password using a valid, unexpired reset token."""
+    """Reset user password using a valid, unexpired reset token.
+
+    Atomically locks the token row and consumes it to ensure strictly one-time execution.
+    """
     token_hashed = hash_token(token)
     now = datetime.now(timezone.utc)
 
+    # 1. Acquire exclusive lock on the active (unused) token row
     reset_token = db.scalar(
         select(PasswordResetToken)
         .options(selectinload(PasswordResetToken.user))
-        .where(PasswordResetToken.token_hash == token_hashed)
+        .where(
+            PasswordResetToken.token_hash == token_hashed,
+            PasswordResetToken.used_at.is_(None),
+        )
+        .with_for_update()
     )
 
-    if reset_token is None:
-        raise InvalidResetTokenError("Đường dẫn đặt lại mật khẩu không hợp lệ.")
-    if reset_token.used_at is not None:
-        raise InvalidResetTokenError("Đường dẫn đặt lại mật khẩu này đã được sử dụng.")
-    if _as_utc(reset_token.expires_at) < now:
-        raise InvalidResetTokenError("Đường dẫn đặt lại mật khẩu đã hết hạn.")
+    # 2. Strict verification: must exist, be unused, and unexpired
+    if reset_token is None or _as_utc(reset_token.expires_at) <= now:
+        raise InvalidResetTokenError("Đường dẫn đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.")
 
     user = reset_token.user
     if user is None or not user.is_active:
-        raise InvalidResetTokenError("Tài khoản không tồn tại hoặc đã bị vô hiệu hóa.")
+        raise InvalidResetTokenError("Đường dẫn đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.")
 
-    # Update password
+    # 3. Update user password and mark current token used
     user.password_hash = hash_password(new_password)
     reset_token.used_at = now
 
-    # Invalidate all other active reset tokens for this user
+    # 4. Invalidate all other active reset tokens for this user
     other_tokens = list(
         db.scalars(
             select(PasswordResetToken).where(
@@ -156,4 +159,5 @@ def reset_password_with_token(db: Session, token: str, new_password: str) -> Non
     for other in other_tokens:
         other.used_at = now
 
+    # 5. Atomically commit all changes
     db.commit()

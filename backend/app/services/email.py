@@ -75,8 +75,9 @@ class TestEmailProvider(EmailProvider):
 
 class ResendEmailProvider(EmailProvider):
     def __init__(self, api_key: str, from_address: str) -> None:
-        self._api_key = api_key
-        self._from_address = from_address
+        # Strip all whitespace/newlines to prevent header formatting errors
+        self._api_key = api_key.strip()
+        self._from_address = from_address.strip()
 
     def send_email(
         self,
@@ -87,7 +88,7 @@ class ResendEmailProvider(EmailProvider):
         text_content: str,
     ) -> bool:
         if not self._api_key:
-            logger.error("password_reset_email_send_failed: Resend API key is not configured")
+            logger.error("password_reset_email_send_failed: provider=resend error_type=MissingApiKey")
             return False
 
         url = "https://api.resend.com/emails"
@@ -116,10 +117,13 @@ class ResendEmailProvider(EmailProvider):
                 if 200 <= status_code < 300:
                     logger.info("Email sent successfully via Resend to %s", to_email)
                     return True
-                logger.warning("password_reset_email_send_failed: Resend non-2xx status: %s", status_code)
+                logger.warning("password_reset_email_send_failed: provider=resend status_code=%s", status_code)
                 return False
         except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as exc:
-            logger.error("password_reset_email_send_failed: Resend exception (%s)", type(exc).__name__)
+            logger.error("password_reset_email_send_failed: provider=resend error_type=%s", type(exc).__name__)
+            return False
+        except Exception as exc:
+            logger.error("password_reset_email_send_failed: provider=resend error_type=%s", type(exc).__name__)
             return False
 
 
@@ -134,11 +138,11 @@ class GmailSmtpEmailProvider(EmailProvider):
         from_address: str | None = None,
         timeout: float = 10.0,
     ) -> None:
-        self._host = host
+        self._host = host.strip()
         self._port = port
-        self._username = username
-        self._app_password = app_password
-        self._from_address = from_address or username
+        self._username = username.strip()
+        self._app_password = app_password.strip()
+        self._from_address = (from_address or username).strip()
         self._timeout = timeout
 
     def _send_attempt(
@@ -176,7 +180,7 @@ class GmailSmtpEmailProvider(EmailProvider):
         text_content: str,
     ) -> bool:
         if not self._username or not self._app_password:
-            logger.error("password_reset_email_send_failed: Gmail SMTP credentials missing")
+            logger.error("password_reset_email_send_failed: provider=gmail_smtp error_type=MissingCredentials")
             return False
 
         max_attempts = 2
@@ -188,21 +192,20 @@ class GmailSmtpEmailProvider(EmailProvider):
             except (smtplib.SMTPException, OSError, TimeoutError) as exc:
                 if attempt < max_attempts:
                     logger.warning(
-                        "password_reset_email_send_failed: SMTP transient error on attempt %s/%s (%s). Retrying...",
+                        "password_reset_email_send_failed: provider=gmail_smtp attempt=%s/%s error_type=%s. Retrying...",
                         attempt,
                         max_attempts,
                         type(exc).__name__,
                     )
                     continue
                 logger.error(
-                    "password_reset_email_send_failed: Failed to deliver email via Gmail SMTP to %s (%s)",
-                    to_email,
+                    "password_reset_email_send_failed: provider=gmail_smtp error_type=%s",
                     type(exc).__name__,
                 )
                 return False
             except Exception as exc:
                 logger.error(
-                    "password_reset_email_send_failed: Unexpected error during SMTP sending (%s)",
+                    "password_reset_email_send_failed: provider=gmail_smtp error_type=%s",
                     type(exc).__name__,
                 )
                 return False
