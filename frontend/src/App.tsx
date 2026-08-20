@@ -2,8 +2,14 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { AuthProvider } from "./auth/AuthContext";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
+import { AdminLayout } from "./components/AdminLayout";
+import { AdminRoute } from "./components/AdminRoute";
 import { AppLayout } from "./components/AppLayout";
 import { AboutPage } from "./pages/AboutPage";
+import { AdminCatalogPage } from "./pages/AdminCatalogPage";
+import { AdminOverviewPage } from "./pages/AdminOverviewPage";
+import { AdminUserDetailPage } from "./pages/AdminUserDetailPage";
+import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { AppHomePage } from "./pages/AppHomePage";
 import { AuthPage } from "./pages/AuthPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
@@ -24,6 +30,19 @@ function App() {
           <Route path="/register" element={<AuthPage mode="register" />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          >
+            <Route index element={<AdminOverviewPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="users/:userId" element={<AdminUserDetailPage />} />
+            <Route path="catalog" element={<AdminCatalogPage />} />
+          </Route>
           <Route
             path="/app"
             element={

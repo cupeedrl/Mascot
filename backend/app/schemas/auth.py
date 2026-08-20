@@ -26,6 +26,7 @@ class UserResponse(BaseModel):
 
     id: uuid.UUID
     email: EmailStr
+    role: Literal["user", "admin"] = "user"
     is_active: bool
     created_at: datetime
     updated_at: datetime

@@ -9,6 +9,7 @@ let unauthorizedHandler: (() => void) | null = null;
 export interface User {
   id: string;
   email: string;
+  role: "user" | "admin";
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -580,3 +581,201 @@ export function startLearningVocabularySet(
     { method: "POST" },
   );
 }
+
+export interface AdminOverviewResponse {
+  total_users: number;
+  total_catalog_entries: number;
+  total_personal_vocabulary: number;
+  total_practice_sessions: number;
+}
+
+export function getAdminOverview(): Promise<AdminOverviewResponse> {
+  return request<AdminOverviewResponse>("/admin/overview");
+}
+
+export interface AdminUserListItem {
+  id: string;
+  email: string;
+  role: "user" | "admin";
+  is_active: boolean;
+  created_at: string;
+  last_active_at: string | null;
+  personal_vocabulary_count: number;
+  practice_session_count: number;
+}
+
+export interface AdminUserListResponse {
+  items: AdminUserListItem[];
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+}
+
+export interface AdminUserRecentActivityItem {
+  id: string;
+  exercise_id: string;
+  is_correct: boolean;
+  user_answer: string;
+  correct_answer: string;
+  completed_at: string;
+}
+
+export interface AdminUserDetailResponse {
+  id: string;
+  email: string;
+  role: "user" | "admin";
+  is_active: boolean;
+  created_at: string;
+  last_active_at: string | null;
+  total_vocabulary: number;
+  learning_words: number;
+  mastered_words: number;
+  exercises_completed: number;
+  exercise_accuracy: number;
+  current_streak: number;
+  longest_streak: number;
+  recent_activity: AdminUserRecentActivityItem[];
+}
+
+export function getAdminUsers(params: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  role?: "user" | "admin";
+  status?: "active" | "disabled";
+} = {}): Promise<AdminUserListResponse> {
+  const query = new URLSearchParams({
+    page: String(params.page ?? 1),
+    page_size: String(params.pageSize ?? 20),
+  });
+  if (params.search?.trim()) query.set("search", params.search.trim());
+  if (params.role) query.set("role", params.role);
+  if (params.status) query.set("status", params.status);
+
+  return request<AdminUserListResponse>(`/admin/users?${query.toString()}`);
+}
+
+export function getAdminUserDetail(userId: string): Promise<AdminUserDetailResponse> {
+  return request<AdminUserDetailResponse>(`/admin/users/${userId}`);
+}
+
+export function updateAdminUserRole(
+  userId: string,
+  role: "user" | "admin",
+): Promise<AdminUserListItem> {
+  return request<AdminUserListItem>(`/admin/users/${userId}/role`, {
+    method: "PATCH",
+    body: JSON.stringify({ role }),
+  });
+}
+
+export function updateAdminUserStatus(
+  userId: string,
+  isActive: boolean,
+): Promise<AdminUserListItem> {
+  return request<AdminUserListItem>(`/admin/users/${userId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ is_active: isActive }),
+  });
+}
+
+export interface AdminCatalogEntryItem {
+  id: string;
+  vocabulary_set_id: string;
+  word: string;
+  ipa: string | null;
+  part_of_speech: string;
+  meaning: string;
+  translation: string;
+  example_sentences: string[];
+  level_code: string;
+  topic: string;
+  set_name: string;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminCatalogListResponse {
+  items: AdminCatalogEntryItem[];
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+}
+
+export interface AdminCreateCatalogEntryPayload {
+  word: string;
+  ipa?: string;
+  part_of_speech: string;
+  meaning: string;
+  translation: string;
+  example_sentences: string[];
+  level_code: string;
+  topic: string;
+}
+
+export interface AdminUpdateCatalogEntryPayload {
+  word?: string;
+  ipa?: string;
+  part_of_speech?: string;
+  meaning?: string;
+  translation?: string;
+  example_sentences?: string[];
+  level_code?: string;
+  topic?: string;
+}
+
+export function getAdminCatalog(params: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  level?: string;
+  topic?: string;
+  sortBy?: "word" | "level" | "created_at";
+  sortOrder?: "asc" | "desc";
+} = {}): Promise<AdminCatalogListResponse> {
+  const query = new URLSearchParams({
+    page: String(params.page ?? 1),
+    page_size: String(params.pageSize ?? 20),
+  });
+  if (params.search?.trim()) query.set("search", params.search.trim());
+  if (params.level) query.set("level", params.level);
+  if (params.topic?.trim()) query.set("topic", params.topic.trim());
+  if (params.sortBy) query.set("sort_by", params.sortBy);
+  if (params.sortOrder) query.set("sort_order", params.sortOrder);
+
+  return request<AdminCatalogListResponse>(`/admin/catalog?${query.toString()}`);
+}
+
+export function getAdminCatalogEntry(entryId: string): Promise<AdminCatalogEntryItem> {
+  return request<AdminCatalogEntryItem>(`/admin/catalog/${entryId}`);
+}
+
+export function createAdminCatalogEntry(
+  payload: AdminCreateCatalogEntryPayload,
+): Promise<AdminCatalogEntryItem> {
+  return request<AdminCatalogEntryItem>("/admin/catalog", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateAdminCatalogEntry(
+  entryId: string,
+  payload: AdminUpdateCatalogEntryPayload,
+): Promise<AdminCatalogEntryItem> {
+  return request<AdminCatalogEntryItem>(`/admin/catalog/${entryId}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteAdminCatalogEntry(entryId: string): Promise<{ success: boolean; message: string }> {
+  return request<{ success: boolean; message: string }>(`/admin/catalog/${entryId}`, {
+    method: "DELETE",
+  });
+}
+
+

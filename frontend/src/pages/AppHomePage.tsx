@@ -193,15 +193,15 @@ export function AppHomePage() {
               <span>GỢI Ý TỪ MASCOT</span>
             </div>
             <strong className="motivation-title">
-              Tiến bộ nhỏ mỗi ngày<br />sẽ tạo nên kết quả lớn.
+              Tiến bộ nhỏ mỗi ngày<br />sẽ tạo nên kết quả lớn!
             </strong>
             <p className="motivation-body">
               {dashboard.words_due_for_review > 0
                 ? `Bạn đang có ${dashboard.words_due_for_review} từ đến hạn. Chỉ cần vài phút ôn tập để giữ nhịp học hôm nay.`
-                : "Chỉ cần một phiên học ngắn hôm nay để tiếp tục duy trì nhịp học."}
+                : "Dành chút ít thời gian để tiếp tục duy trì nhịp học nhé!"}
             </p>
             <Link to="/app/review" className="motivation-cta">
-              Ôn ngay <ArrowRight size={13} />
+              Ôn tập ngay <ArrowRight size={13} />
             </Link>
           </section>
         </aside>
@@ -237,7 +237,7 @@ export function AppHomePage() {
         <div className="next-action-grid">
           <Link className="next-action-card review-action" to="/app/review">
             <span className="action-icon"><RefreshCw size={21} /></span>
-            <div><strong>Ôn từ đến hạn</strong><p>Ôn lại đúng lúc để ghi nhớ lâu hơn.</p></div>
+            <div><strong>Ôn từ đến hạn</strong><p>Ôn tập để ghi nhớ lâu hơn.</p></div>
             <b>{dashboard.words_due_for_review}</b>
             <ArrowRight size={18} />
           </Link>
@@ -258,8 +258,8 @@ export function AppHomePage() {
 
       <section className="dashboard-panel dashboard-recent" aria-labelledby="recent-heading">
         <div className="dashboard-panel-heading">
-          <div><p className="eyebrow">TỪ VỰNG MỚI THÊM</p><h2 id="recent-heading">Mới trong thư viện của bạn</h2></div>
-          <Link to="/app/vocabulary/new">Thêm từ vựng <ArrowRight size={15} /></Link>
+          <div><p className="eyebrow">TỪ VỰNG MỚI THÊM</p><h2 id="recent-heading">Gần đây</h2></div>
+          <Link to="/app/vocabulary/new">THÊM TỪ VỰNG <ArrowRight size={15} /></Link>
         </div>
 
         {dashboard.recently_added_vocabulary.length === 0 ? (

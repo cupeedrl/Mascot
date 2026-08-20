@@ -122,6 +122,32 @@ FRONTEND_BASE_URL=http://localhost:5173
 ```
 Link đặt lại mật khẩu sẽ được in trực tiếp ra terminal khi có yêu cầu quên mật khẩu.
 
+### Quản trị hệ thống (Phase G1)
+
+Mascot hỗ trợ phân quyền người dùng thông qua cột `role` (`"user"` hoặc `"admin"`):
+
+- **Người dùng thông thường (`user`)**: Toàn quyền học tập, ôn tập, sổ tay cá nhân. Không truy cập được route `/admin` hoặc API `/api/v1/admin/*`.
+- **Quản trị viên (`admin`)**: Truy cập được giao diện quản trị `/admin` và gọi các API bảo mật của admin.
+- **Bảo mật**: Phân quyền được kiểm tra nghiêm ngặt tại backend qua dependency `require_admin` (trả về 403 Forbidden nếu không đủ quyền).
+
+#### Cách gán quyền Admin cho tài khoản:
+
+Sử dụng script CLI đi kèm:
+
+```bash
+# Trên máy dev hoặc console của Render:
+python scripts/set_admin.py <email_can_gan_quyen>
+```
+
+Hoặc qua SQL trực tiếp trên Neon PostgreSQL:
+
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'your-admin-email@example.com';
+```
+
+Sau khi gán quyền, đăng nhập lại hoặc tải lại trang, tài khoản sẽ truy cập được đường dẫn `/admin`.
+
+
 
 ## Chạy toàn bộ bằng Docker Compose
 

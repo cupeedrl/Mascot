@@ -7,6 +7,7 @@ import {
   Library,
   LogOut,
   RefreshCw,
+  Shield,
 } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 
@@ -71,12 +72,19 @@ export function AppLayout() {
           <NavigationLinks />
         </nav>
 
+        {user?.role === "admin" && (
+          <NavLink className="admin-portal-link" to="/admin" aria-label="Khu vực quản trị">
+            <Shield size={15} />
+            <span>Trang quản trị</span>
+          </NavLink>
+        )}
+
         <div className="account-summary">
           <div className="account-avatar" aria-hidden="true">
             {user?.email?.charAt(0).toUpperCase() ?? "M"}
           </div>
           <div className="account-copy">
-            <strong>Người học</strong>
+            <strong>Mascoter</strong>
             <span title={user?.email}>{user?.email}</span>
           </div>
           <button

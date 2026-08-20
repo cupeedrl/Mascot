@@ -50,3 +50,15 @@ def get_current_user(
     if user is None:
         raise authentication_error()
     return user
+
+
+def require_admin(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> User:
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Quyền truy cập bị từ chối. Yêu cầu quyền quản trị viên.",
+        )
+    return current_user
+

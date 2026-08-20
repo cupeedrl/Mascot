@@ -52,7 +52,7 @@ export function ForgotPasswordPage() {
           <strong>Mascot</strong>
         </div>
         <p className="eyebrow">KHÔI PHỤC TÀI KHOẢN</p>
-        <h1 id="brand-heading">Lấy lại quyền truy cập không gian học của bạn.</h1>
+        <h1 id="brand-heading">Đừng lo, đã có Mascot đây rồi!</h1>
         <p>
           Chúng tôi sẽ gửi liên kết an toàn đến hòm thư của bạn để bạn có thể tạo
           mật khẩu mới và tiếp tục hành trình học tập.

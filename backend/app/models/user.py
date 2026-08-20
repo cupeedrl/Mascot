@@ -21,6 +21,7 @@ class User(Base):
             "length(trim(password_hash)) > 0",
             name="ck_users_password_hash_not_blank",
         ),
+        CheckConstraint("role IN ('user', 'admin')", name="ck_users_role_valid"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -32,6 +33,12 @@ class User(Base):
         index=True,
     )
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    role: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="user",
+        server_default=text("'user'"),
+    )
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,
