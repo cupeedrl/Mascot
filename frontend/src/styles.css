@@ -689,6 +689,136 @@ button:disabled {
   margin-top: 13px;
 }
 
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 9px;
+}
+
+.field-label-row label {
+  margin-top: 0;
+}
+
+.forgot-password-link {
+  font-size: 13px;
+  color: var(--primary-dark);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
+}
+
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 13.5px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.auth-back-link:hover {
+  color: var(--text);
+}
+
+.auth-success-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--surface-soft, #f8fafc);
+  border: 1px solid var(--border);
+  margin-top: 16px;
+}
+
+.auth-success-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 50%;
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.1);
+}
+
+.auth-success-box strong {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.auth-success-box p {
+  margin: 6px 0 0;
+  font-size: 14.5px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.auth-success-box small {
+  display: block;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.auth-success-actions {
+  margin-top: 12px;
+  width: 100%;
+}
+
+.auth-invalid-token {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  padding: 28px 20px;
+}
+
+.auth-invalid-icon {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border-radius: 50%;
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.auth-invalid-token h2 {
+  margin: 4px 0 0;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.auth-invalid-token p {
+  margin: 4px 0 0;
+  font-size: 14.5px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.auth-invalid-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  align-items: center;
+}
+
+.auth-invalid-actions .primary-button {
+  width: 100%;
+}
+
 .auth-switch {
   margin: 18px 0 0;
   color: var(--muted);

@@ -109,7 +109,14 @@ export function AuthPage({ mode }: AuthPageProps) {
               placeholder="ban@example.com"
             />
 
-            <label htmlFor={`${mode}-password`}>Mật khẩu</label>
+            <div className="field-label-row">
+              <label htmlFor={`${mode}-password`}>Mật khẩu</label>
+              {!isRegister && (
+                <Link className="forgot-password-link" to="/forgot-password">
+                  Quên mật khẩu?
+                </Link>
+              )}
+            </div>
             <input
               id={`${mode}-password`}
               type="password"

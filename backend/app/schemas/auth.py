@@ -39,3 +39,26 @@ class TokenResponse(BaseModel):
 
 class LogoutResponse(BaseModel):
     status: Literal["ok"] = "ok"
+
+
+class ForgotPasswordRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    email: EmailStr = Field(max_length=320)
+
+
+class ForgotPasswordResponse(BaseModel):
+    message: str = "Nếu email này đã được đăng ký, Mascot sẽ gửi hướng dẫn đặt lại mật khẩu."
+
+
+class ResetPasswordRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    token: str = Field(min_length=16, max_length=256)
+    new_password: str = Field(min_length=12, max_length=128)
+    confirm_password: str = Field(min_length=12, max_length=128)
+
+
+class ResetPasswordResponse(BaseModel):
+    message: str = "Mật khẩu đã được cập nhật thành công."
+

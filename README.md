@@ -82,6 +82,47 @@ Khi chạy Docker Compose, đặt các biến trên trong `.env` gốc. Khi ch�
 
 Adapter OpenAI cũ vẫn là lựa chọn dự phòng. Khi muốn dùng lại, đặt `AI_PROVIDER=openai`, `OPENAI_API_KEY` và `OPENAI_MODEL`. Mỗi lần chỉ có một provider được chọn; V1 không tự động failover giữa Groq và OpenAI.
 
+### Cấu hình Email & Đặt lại mật khẩu (Phase F & F.2)
+
+Mascot hỗ trợ gửi email khôi phục mật khẩu thông qua **Gmail SMTP** (phù hợp gửi thực tế không cần custom domain), **Resend** (API), hoặc **Console/Log** (local development):
+
+#### 1. Cấu hình Gmail SMTP (Khuyến nghị cho Production nhỏ / Demo)
+
+1. Tạo hoặc dùng tài khoản Gmail dành cho Mascot.
+2. Bật **Xác minh 2 bước (2-Step Verification)** trong tài khoản Google.
+3. Truy cập <https://myaccount.google.com/apppasswords>, tạo **Mật khẩu ứng dụng (App Password)** cho Mascot (chuỗi 16 ký tự).
+4. Cấu hình biến môi trường trên Render:
+
+```dotenv
+EMAIL_PROVIDER=gmail_smtp
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your-email@gmail.com
+SMTP_APP_PASSWORD=abcd-efgh-ijkl-mnop
+EMAIL_FROM=Mascot <your-email@gmail.com>
+FRONTEND_BASE_URL=https://your-mascot-app.vercel.app
+PASSWORD_RESET_TOKEN_EXPIRE_MINUTES=20
+```
+
+#### 2. Cấu hình Resend (Tùy chọn)
+
+```dotenv
+EMAIL_PROVIDER=resend
+RESEND_API_KEY=re_your_resend_api_key_here
+EMAIL_FROM=Mascot <onboarding@resend.dev> # hoặc domain đã verify
+FRONTEND_BASE_URL=https://your-mascot-app.vercel.app
+PASSWORD_RESET_TOKEN_EXPIRE_MINUTES=20
+```
+
+#### 3. Local Development
+
+```dotenv
+EMAIL_PROVIDER=console
+FRONTEND_BASE_URL=http://localhost:5173
+```
+Link đặt lại mật khẩu sẽ được in trực tiếp ra terminal khi có yêu cầu quên mật khẩu.
+
+
 ## Chạy toàn bộ bằng Docker Compose
 
 ```powershell

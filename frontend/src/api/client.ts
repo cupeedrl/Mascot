@@ -123,6 +123,24 @@ export function logout(): Promise<{ status: "ok" }> {
   return request<{ status: "ok" }>("/auth/logout", { method: "POST" });
 }
 
+export function forgotPassword(email: string): Promise<{ message: string }> {
+  return request<{ message: string }>("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function resetPassword(
+  token: string,
+  new_password: string,
+  confirm_password: string,
+): Promise<{ message: string }> {
+  return request<{ message: string }>("/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, new_password, confirm_password }),
+  });
+}
+
 export type LearningStatus = "new" | "learning" | "review" | "mastered";
 export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 

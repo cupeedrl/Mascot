@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -31,6 +31,20 @@ class Settings(BaseSettings):
     ai_request_timeout_seconds: float = Field(default=20.0, ge=1.0, le=120.0)
     ai_max_output_tokens: int = Field(default=800, ge=200, le=4000)
     ai_exercise_max_output_tokens: int = Field(default=4000, ge=800, le=8000)
+    email_provider: Literal["console", "resend", "gmail_smtp", "test"] = "console"
+    resend_api_key: SecretStr | None = None
+    smtp_host: str = Field(default="smtp.gmail.com", min_length=1, max_length=255)
+    smtp_port: int = Field(default=587, ge=1, le=65535)
+    smtp_username: str | None = None
+    smtp_app_password: SecretStr | None = None
+    smtp_timeout_seconds: float = Field(default=10.0, ge=1.0, le=60.0)
+    email_from: str = Field(
+        default="Mascot <onboarding@resend.dev>", min_length=1, max_length=200
+    )
+    frontend_base_url: str = Field(
+        default="http://localhost:5173", min_length=1, max_length=500
+    )
+    password_reset_token_expire_minutes: int = Field(default=20, ge=5, le=120)
 
     @field_validator("cors_origins", mode="before")
     @classmethod
@@ -55,6 +69,20 @@ class Settings(BaseSettings):
         if any(not value.startswith(("http://", "https://")) for value in normalized):
             raise ValueError("CORS origins must use http:// or https://")
         return list(dict.fromkeys(normalized))
+
+    @model_validator(mode="after")
+    def validate_email_provider_config(self) -> "Settings":
+        if self.email_provider == "gmail_smtp":
+            if not self.smtp_username or not self.smtp_app_password:
+                raise ValueError(
+                    "SMTP_USERNAME and SMTP_APP_PASSWORD are required when EMAIL_PROVIDER is set to gmail_smtp"
+                )
+        elif self.email_provider == "resend":
+            if not self.resend_api_key:
+                raise ValueError(
+                    "RESEND_API_KEY is required when EMAIL_PROVIDER is set to resend"
+                )
+        return self
 
     model_config = SettingsConfigDict(
         env_file=".env",

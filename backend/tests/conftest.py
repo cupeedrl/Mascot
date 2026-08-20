@@ -13,6 +13,7 @@ os.environ.setdefault("JWT_ALGORITHM", "HS256")
 os.environ.setdefault("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30")
 os.environ.setdefault("JWT_ISSUER", "mascot-api")
 os.environ.setdefault("JWT_AUDIENCE", "mascot-frontend")
+os.environ["EMAIL_PROVIDER"] = "test"
 
 from collections.abc import Generator
 
@@ -21,6 +22,10 @@ from fastapi.testclient import TestClient
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
+
+from app.services.email import set_email_provider, test_email_provider
+
+set_email_provider(test_email_provider)
 
 from app.db.base import Base
 from app.db.session import get_db
