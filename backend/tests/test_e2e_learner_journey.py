@@ -109,7 +109,9 @@ def test_complete_v1_learner_journey(
     vocabulary_provider = FakeVocabularyProvider()
     app.dependency_overrides[get_vocabulary_ai_provider] = lambda: vocabulary_provider
     preview = client.post(
-        "/api/v1/ai/vocabulary", headers=headers, json={"word": "solely"}
+        "/api/v1/ai/vocabulary",
+        headers=headers,
+        json={"word": "solely", "part_of_speech": "adverb", "translation": "chỉ, duy nhất"},
     )
     assert preview.status_code == 200
     assert client.get("/api/v1/vocabularies", headers=headers).json()["total"] == 3

@@ -211,6 +211,7 @@ export function VocabularyPage() {
                     <h2>{item.word}</h2>
                     <span className="level-badge">{item.level_code}</span>
                   </div>
+                  {item.ipa && <p className="vocabulary-ipa">{item.ipa}</p>}
                   <p className="part-of-speech">{item.part_of_speech}</p>
                 </div>
                 <span className={`status-badge status-${item.learning_status}`}>
@@ -221,13 +222,11 @@ export function VocabularyPage() {
               <p className="translation">{item.translation}</p>
               {item.example_sentences[0] && <blockquote>{item.example_sentences[0]}</blockquote>}
               <div className="vocabulary-meta">
+                <span className={`source-badge ${item.source_vocabulary_entry_id ? "source-library" : "source-custom"}`}>
+                  {item.source_vocabulary_entry_id ? "Thư viện" : "Cá nhân"}
+                </span>
                 <span>{item.learning_track.name}</span>
                 {item.topic && <span>#{item.topic}</span>}
-                {item.source_vocabulary_entry && (
-                  <span className="source-note">
-                    Từ thư viện: {item.source_vocabulary_entry.vocabulary_set.level_code} · {item.source_vocabulary_entry.vocabulary_set.name}
-                  </span>
-                )}
               </div>
               <div className="card-actions">
                 <Link className="text-button" to={`/app/vocabulary/${item.id}/edit`}>

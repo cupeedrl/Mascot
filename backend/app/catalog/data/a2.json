@@ -1,0 +1,4529 @@
+[
+  {
+    "code": "a2-travel",
+    "level_code": "A2",
+    "topic": "Travel",
+    "name": "Travel & Holidays",
+    "description": "Practical vocabulary for holidays, transport, sightseeing, and bookings.",
+    "entries": [
+      {
+        "word": "passport",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpɑːs.pɔːt/",
+        "meaning": "An official document issued by a government for international travel.",
+        "translation": "hộ chiếu",
+        "example_sentences": [
+          "Keep your passport in a secure travel wallet."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "departure",
+        "part_of_speech": "noun",
+        "ipa": "/dɪˈpɑː.tʃər/",
+        "meaning": "The action of leaving, especially on a journey.",
+        "translation": "sự khởi hành, giờ xuất phát",
+        "example_sentences": [
+          "Our flight departure is scheduled for six in the morning."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "arrival",
+        "part_of_speech": "noun",
+        "ipa": "/əˈraɪ.vəl/",
+        "meaning": "The action or process of arriving at a destination.",
+        "translation": "sự đến nơi, chuyến đến",
+        "example_sentences": [
+          "Please wait in the terminal hall for our arrival."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "tourist",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtʊə.rɪst/",
+        "meaning": "A person who is travelling or visiting a place for pleasure.",
+        "translation": "khách du lịch",
+        "example_sentences": [
+          "Thousands of tourists visit the ancient town of Hoi An every year."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "luggage",
+        "part_of_speech": "noun",
+        "ipa": "/ˈlʌɡ.ɪdʒ/",
+        "meaning": "Suitcases or other bags in which to pack personal belongings for traveling.",
+        "translation": "hành lý",
+        "example_sentences": [
+          "Check your luggage at the airline counter before boarding."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "suitcase",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsuːt.keɪs/",
+        "meaning": "A rectangular case with a handle for carrying clothes and belongings.",
+        "translation": "va-li",
+        "example_sentences": [
+          "He packed his shirts and shoes carefully into a large suitcase."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "passenger",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpæs.ən.dʒər/",
+        "meaning": "A traveler on a public or private conveyance other than the driver.",
+        "translation": "hành khách",
+        "example_sentences": [
+          "All passengers must fasten their seatbelts during takeoff."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "flight",
+        "part_of_speech": "noun",
+        "ipa": "/flaɪt/",
+        "meaning": "A journey made through the air, especially in a plane.",
+        "translation": "chuyến bay",
+        "example_sentences": [
+          "The direct flight from Hanoi to Tokyo takes about five hours."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "journey",
+        "part_of_speech": "noun",
+        "ipa": "/ˈdʒɜː.ni/",
+        "meaning": "An act of travelling from one place to another.",
+        "translation": "hành trình, chuyến đi",
+        "example_sentences": [
+          "The train journey through Hai Van Pass offers spectacular ocean views."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "trip",
+        "part_of_speech": "noun",
+        "ipa": "/trɪp/",
+        "meaning": "A journey or excursion, especially for pleasure or a particular purpose.",
+        "translation": "chuyến đi, chuyến du ngoạn",
+        "example_sentences": [
+          "Our class organized a weekend camping trip in Ba Vi National Park."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "destination",
+        "part_of_speech": "noun",
+        "ipa": "/ˌdes.tɪˈneɪ.ʃən/",
+        "meaning": "The place to which someone or something is going or being sent.",
+        "translation": "điểm đến",
+        "example_sentences": [
+          "Phu Quoc Island is a top beach destination in Southeast Asia."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "souvenir",
+        "part_of_speech": "noun",
+        "ipa": "/ˌsuː.vənˈɪər/",
+        "meaning": "A thing kept as a reminder of a person, place, or event.",
+        "translation": "quà lưu niệm",
+        "example_sentences": [
+          "I bought a traditional conical hat as a souvenir from Hue."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sightseeing",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsaɪtˌsiː.ɪŋ/",
+        "meaning": "The activity of visiting places of interest in a particular location.",
+        "translation": "việc tham quan ngắm cảnh",
+        "example_sentences": [
+          "We spent the whole afternoon sightseeing around the old quarter."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "guide",
+        "part_of_speech": "noun",
+        "ipa": "/ɡaɪd/",
+        "meaning": "A person who advises or shows the way to others.",
+        "translation": "hướng dẫn viên du lịch",
+        "example_sentences": [
+          "The tour guide explained the fascinating history of the ancient temple."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "brochure",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbrəʊ.ʃər/",
+        "meaning": "A small booklet containing pictures and information about a product or service.",
+        "translation": "tờ rơi giới thiệu, sách hướng dẫn",
+        "example_sentences": [
+          "Pick up a travel brochure at the visitor information center."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "reservation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌrez.əˈveɪ.ʃən/",
+        "meaning": "An arrangement by which accommodation, transportation, or a table is secured in advance.",
+        "translation": "sự đặt chỗ trước",
+        "example_sentences": [
+          "We made a dinner reservation at a riverside restaurant."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "platform",
+        "part_of_speech": "noun",
+        "ipa": "/ˈplæt.fɔːm/",
+        "meaning": "A raised level surface on which people stand to enter a railway train.",
+        "translation": "sân ga, ke ga",
+        "example_sentences": [
+          "The express train to Da Nang will depart from platform number three."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "delay",
+        "part_of_speech": "noun",
+        "ipa": "/dɪˈleɪ/",
+        "meaning": "A period of time by which something is late or postponed.",
+        "translation": "sự chậm trễ, sự hoãn lại",
+        "example_sentences": [
+          "Bad weather caused a two-hour flight delay at the airport."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "cancel",
+        "part_of_speech": "verb",
+        "ipa": "/ˈkæn.səl/",
+        "meaning": "To decide that a planned event or booking will not take place.",
+        "translation": "hủy bỏ",
+        "example_sentences": [
+          "The airline had to cancel the flight due to the sudden storm."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "book",
+        "part_of_speech": "verb",
+        "ipa": "/bʊk/",
+        "meaning": "To reserve accommodation, a place, or a service in advance.",
+        "translation": "đặt phòng, đặt vé",
+        "example_sentences": [
+          "Make sure to book your train tickets early during holiday seasons."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "pack",
+        "part_of_speech": "verb",
+        "ipa": "/pæk/",
+        "meaning": "To fill a suitcase or bag with clothes and items for travel.",
+        "translation": "thu xếp hành lý, đóng gói",
+        "example_sentences": [
+          "I need to pack my warm clothes before heading to Sapa."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "unpack",
+        "part_of_speech": "verb",
+        "ipa": "/ʌnˈpæk/",
+        "meaning": "To take items out of a suitcase or bag after arriving.",
+        "translation": "dỡ hành lý",
+        "example_sentences": [
+          "We unpacked our bags as soon as we checked into the hotel room."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "explore",
+        "part_of_speech": "verb",
+        "ipa": "/ɪkˈsplɔːr/",
+        "meaning": "To travel through an unfamiliar area to learn about it.",
+        "translation": "khám phá, thám hiểm",
+        "example_sentences": [
+          "Tourists love to explore the hidden alleyways and street food stalls of Hanoi."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "miss",
+        "part_of_speech": "verb",
+        "ipa": "/mɪs/",
+        "meaning": "To fail to catch or reach transport on time.",
+        "translation": "bỏ lỡ, lỡ chuyến",
+        "example_sentences": [
+          "Hurry up or we will miss the morning train to Hai Phong."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "catch",
+        "part_of_speech": "verb",
+        "ipa": "/kætʃ/",
+        "meaning": "To reach and board transport in time.",
+        "translation": "bắt kịp, đón xe",
+        "example_sentences": [
+          "We caught the express bus just before the doors closed."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "abroad",
+        "part_of_speech": "adverb",
+        "ipa": "/əˈbrɔːd/",
+        "meaning": "In or to a foreign country or countries.",
+        "translation": "ở nước ngoài, ra nước ngoài",
+        "example_sentences": [
+          "Many students dream of traveling abroad to study and gain experience."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "international",
+        "part_of_speech": "adjective",
+        "ipa": "/ˌɪn.təˈnæʃ.ən.əl/",
+        "meaning": "Existing, occurring, or carried on between nations.",
+        "translation": "quốc tế",
+        "example_sentences": [
+          "Noi Bai is one of the busiest international airports in Vietnam."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "domestic",
+        "part_of_speech": "adjective",
+        "ipa": "/dəˈmes.tɪk/",
+        "meaning": "Existing or occurring inside a particular country; not foreign.",
+        "translation": "nội địa, trong nước",
+        "example_sentences": [
+          "Domestic tourism has grown rapidly over recent years."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "crowded",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈkraʊ.dɪd/",
+        "meaning": "Full of people, leaving little or no room to move.",
+        "translation": "đông đúc, đông người",
+        "example_sentences": [
+          "The night market is always crowded on Saturday evenings."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "famous",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈfeɪ.məs/",
+        "meaning": "Known about by many people.",
+        "translation": "nổi tiếng",
+        "example_sentences": [
+          "Ha Long Bay is famous worldwide for its limestone islands."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "scenic",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈsiː.nɪk/",
+        "meaning": "Providing or having beautiful natural views.",
+        "translation": "có cảnh quan đẹp, ngoạn mục",
+        "example_sentences": [
+          "The train route offers scenic views of coastal cliffs and rice fields."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "convenient",
+        "part_of_speech": "adjective",
+        "ipa": "/kənˈviː.ni.ənt/",
+        "meaning": "Fitting in well with a person's needs, activities, and plans.",
+        "translation": "thuận tiện, tiện lợi",
+        "example_sentences": [
+          "Traveling by metro is fast and convenient during peak traffic hours."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "uncomfortable",
+        "part_of_speech": "adjective",
+        "ipa": "/ʌnˈkʌm.fə.tə.bəl/",
+        "meaning": "Causing or feeling slight pain or physical discomfort.",
+        "translation": "không thoải mái, khó chịu",
+        "example_sentences": [
+          "Sitting on the hard wooden bench for three hours was quite uncomfortable."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "foreign",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈfɒr.ən/",
+        "meaning": "Of, from, in, or characteristic of a country other than one's own.",
+        "translation": "thuộc nước ngoài, ngoại quốc",
+        "example_sentences": [
+          "She enjoys learning foreign languages and experiencing new cultures."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "local",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈləʊ.kəl/",
+        "meaning": "Belonging or relating to a particular area or neighborhood.",
+        "translation": "địa phương, bản địa",
+        "example_sentences": [
+          "We asked local residents to recommend the best noodle soup restaurant."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "safe",
+        "part_of_speech": "adjective",
+        "ipa": "/seɪf/",
+        "meaning": "Protected from or not exposed to danger or risk.",
+        "translation": "an toàn",
+        "example_sentences": [
+          "Always keep your money and identity cards in a safe zippered pocket."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "dangerous",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈdeɪn.dʒər.əs/",
+        "meaning": "Able or likely to cause harm or injury.",
+        "translation": "nguy hiểm",
+        "example_sentences": [
+          "It is dangerous to swim in the sea when there are red warning flags."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "direct",
+        "part_of_speech": "adjective",
+        "ipa": "/daɪˈrekt/",
+        "meaning": "Extending or moving from one place to another without changing direction or stopping.",
+        "translation": "trực tiếp, thẳng",
+        "example_sentences": [
+          "Is there a direct bus route from the airport to the city center?"
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "customs",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkʌs.təmz/",
+        "meaning": "The official department that collects duties on imported goods.",
+        "translation": "hải quan",
+        "example_sentences": [
+          "All international travelers must pass through airport customs inspection."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "immigration",
+        "part_of_speech": "noun",
+        "ipa": "/ˌɪm.ɪˈɡreɪ.ʃən/",
+        "meaning": "The place at an airport or border where travel documents are checked.",
+        "translation": "thủ tục nhập cảnh",
+        "example_sentences": [
+          "Show your passport and landing card at the immigration desk."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "currency",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkʌr.ən.si/",
+        "meaning": "A system of money in common use in a country.",
+        "translation": "tiền tệ",
+        "example_sentences": [
+          "You can exchange foreign currency at the airport bank counter."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "exchange",
+        "part_of_speech": "verb",
+        "ipa": "/ɪksˈtʃeɪndʒ/",
+        "meaning": "To give money in one currency and receive its equivalent in another.",
+        "translation": "đổi tiền, trao đổi",
+        "example_sentences": [
+          "We need to exchange some dollars into Vietnamese dong for small purchases."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "route",
+        "part_of_speech": "noun",
+        "ipa": "/ruːt/",
+        "meaning": "A way or course taken in getting from a starting point to a destination.",
+        "translation": "tuyến đường, lộ trình",
+        "example_sentences": [
+          "This scenic bus route passes through lush mountain valleys."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "itinerary",
+        "part_of_speech": "noun",
+        "ipa": "/aɪˈtɪn.ər.ər.i/",
+        "meaning": "A planned route or journey with arrival times.",
+        "translation": "lịch trình chi tiết chuyến đi",
+        "example_sentences": [
+          "Check the flight itinerary before heading down to the harbor."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "terminal",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtɜː.mɪ.nəl/",
+        "meaning": "A building at an airport or harbor where passengers arrive and depart.",
+        "translation": "nhà ga sân bay, bến bãi",
+        "example_sentences": [
+          "International departures leave from terminal two."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "ferry",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfer.i/",
+        "meaning": "A boat or ship for conveying passengers and goods across water.",
+        "translation": "chuyến phà, tàu phà",
+        "example_sentences": [
+          "We took an early morning ferry across to Cat Ba Island."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "subway",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsʌb.weɪ/",
+        "meaning": "An underground electric railway system in a city.",
+        "translation": "tàu điện ngầm",
+        "example_sentences": [
+          "The subway system makes traveling across the capital very quick."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "commute",
+        "part_of_speech": "verb",
+        "ipa": "/kəˈmjuːt/",
+        "meaning": "To travel some distance between home and work on a regular basis.",
+        "translation": "đi lại hằng ngày giữa nơi ở và chỗ làm",
+        "example_sentences": [
+          "He commutes thirty kilometers by electric train each working day."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "hire",
+        "part_of_speech": "verb",
+        "ipa": "/haɪər/",
+        "meaning": "To obtain the temporary use of something for an agreed payment.",
+        "translation": "thuê mướn",
+        "example_sentences": [
+          "Many tourists hire a scooter to explore the coastline on their own."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "rent",
+        "part_of_speech": "verb",
+        "ipa": "/rent/",
+        "meaning": "To pay money for the use of property, a room, or vehicle.",
+        "translation": "thuê",
+        "example_sentences": [
+          "We rented a small beach bungalow for three relaxing nights."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "camp",
+        "part_of_speech": "verb",
+        "ipa": "/kæmp/",
+        "meaning": "To live for a time in a tent, especially while on holiday.",
+        "translation": "cắm trại",
+        "example_sentences": [
+          "Students love to camp by the lake during autumn weekends."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "hike",
+        "part_of_speech": "verb",
+        "ipa": "/haɪk/",
+        "meaning": "To walk for a long distance, especially across country or woods.",
+        "translation": "đi bộ đường dài, leo núi dã ngoại",
+        "example_sentences": [
+          "We plan to hike up the mountain trail early tomorrow morning."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "scenery",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsiː.nər.i/",
+        "meaning": "The natural features of a landscape considered in terms of their appearance.",
+        "translation": "phong cảnh thiên nhiên",
+        "example_sentences": [
+          "The mountain scenery in Ha Giang leaves every traveler breathless."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "resort",
+        "part_of_speech": "noun",
+        "ipa": "/rɪˈzɔːt/",
+        "meaning": "A place that is a popular destination for vacations or recreation.",
+        "translation": "khu nghỉ dưỡng",
+        "example_sentences": [
+          "The seaside resort has private swimming pools and beachfront villas."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "motel",
+        "part_of_speech": "noun",
+        "ipa": "/məʊˈtel/",
+        "meaning": "A roadside hotel designed primarily for motorists.",
+        "translation": "nhà nghỉ ven đường",
+        "example_sentences": [
+          "We stayed at a quiet roadside motel overnight during our road trip."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "a2-work",
+    "level_code": "A2",
+    "topic": "Work",
+    "name": "Work & Workplace",
+    "description": "Essential vocabulary for workplace duties, offices, and job roles.",
+    "entries": [
+      {
+        "word": "interview",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɪn.tə.vjuː/",
+        "meaning": "A formal meeting in which someone is asked questions to see if they are suitable for a job.",
+        "translation": "buổi phỏng vấn xin việc",
+        "example_sentences": [
+          "Her job interview at the technology company is scheduled for tomorrow morning."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "manager",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmæn.ɪ.dʒər/",
+        "meaning": "A person responsible for controlling or administering an organization or group of staff.",
+        "translation": "người quản lý, trưởng phòng",
+        "example_sentences": [
+          "The marketing manager leads our weekly planning meeting."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "employee",
+        "part_of_speech": "noun",
+        "ipa": "/ɪmˈplɔɪ.iː/",
+        "meaning": "A person employed for wages or salary, especially at non-executive level.",
+        "translation": "nhân viên, người lao động",
+        "example_sentences": [
+          "The company provides all employees with health insurance and training."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "employer",
+        "part_of_speech": "noun",
+        "ipa": "/ɪmˈplɔɪ.ər/",
+        "meaning": "A person or organization that employs people.",
+        "translation": "người sử dụng lao động, công ty chủ quản",
+        "example_sentences": [
+          "A good employer supports the professional development of their team."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "colleague",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkɒl.iːɡ/",
+        "meaning": "A person with whom one works in a profession or business.",
+        "translation": "đồng nghiệp",
+        "example_sentences": [
+          "I discussed the project outline with my colleagues over lunch."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "salary",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsæl.ər.i/",
+        "meaning": "A fixed regular payment made by an employer to an employee.",
+        "translation": "tiền lương tháng",
+        "example_sentences": [
+          "His monthly salary arrives directly in his bank account on the first day."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "wage",
+        "part_of_speech": "noun",
+        "ipa": "/weɪdʒ/",
+        "meaning": "A fixed regular payment earned for work or services, typically paid daily or weekly.",
+        "translation": "tiền công, thù lao theo giờ",
+        "example_sentences": [
+          "Part-time tutors earn an hourly wage for teaching students."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "bonus",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbəʊ.nəs/",
+        "meaning": "An extra sum of money given to an employee beyond normal pay as a reward.",
+        "translation": "tiền thưởng",
+        "example_sentences": [
+          "Staff received a generous performance bonus at the end of the year."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "meeting",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmiː.tɪŋ/",
+        "meaning": "An assembly of people for discussion or all aspects of work.",
+        "translation": "cuộc họp",
+        "example_sentences": [
+          "Our department has a short daily meeting to review project progress."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "office",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɒf.ɪs/",
+        "meaning": "A room or building used as a place of business for clerical and administrative work.",
+        "translation": "văn phòng làm việc",
+        "example_sentences": [
+          "Their new office is located in a modern building in downtown Hanoi."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "company",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkʌm.pə.ni/",
+        "meaning": "A commercial business enterprise.",
+        "translation": "công ty, doanh nghiệp",
+        "example_sentences": [
+          "She founded a software development company five years ago."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "business",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbɪz.nɪs/",
+        "meaning": "Commercial activity or a commercial organization.",
+        "translation": "kinh doanh, việc buôn bán",
+        "example_sentences": [
+          "He started a small online retail business after graduating from university."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "factory",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfæk.tər.i/",
+        "meaning": "A building or group of buildings where goods are manufactured.",
+        "translation": "nhà máy, xí nghiệp",
+        "example_sentences": [
+          "The electronics factory employs over two thousand skilled workers."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "supervisor",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsuː.pə.vaɪ.zər/",
+        "meaning": "A person who supervises a person or an activity.",
+        "translation": "người giám sát, tổ trưởng",
+        "example_sentences": [
+          "Report any machinery safety issues to your shift supervisor."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "client",
+        "part_of_speech": "noun",
+        "ipa": "/klaɪ.ənt/",
+        "meaning": "A person or organization using the services of a professional person or company.",
+        "translation": "khách hàng, đối tác dịch vụ",
+        "example_sentences": [
+          "The legal firm represents corporate clients across Southeast Asia."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "career",
+        "part_of_speech": "noun",
+        "ipa": "/kəˈrɪər/",
+        "meaning": "An occupation undertaken for a significant period of a person's life.",
+        "translation": "sự nghiệp",
+        "example_sentences": [
+          "She built a successful career in graphic design and digital media."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "profession",
+        "part_of_speech": "noun",
+        "ipa": "/prəˈfeʃ.ən/",
+        "meaning": "A paid occupation that involves prolonged training and formal qualification.",
+        "translation": "nghề nghiệp chuyên môn",
+        "example_sentences": [
+          "Teaching is a respected and demanding profession in every society."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "training",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtreɪ.nɪŋ/",
+        "meaning": "The action of teaching a person a particular skill or type of behavior.",
+        "translation": "sự đào tạo, tập huấn",
+        "example_sentences": [
+          "All new recruits receive three weeks of intensive product training."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "experience",
+        "part_of_speech": "noun",
+        "ipa": "/ɪkˈspɪə.ri.əns/",
+        "meaning": "Practical contact with and observation of facts or events.",
+        "translation": "kinh nghiệm làm việc",
+        "example_sentences": [
+          "Applicants must have at least two years of practical accounting experience."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "duty",
+        "part_of_speech": "noun",
+        "ipa": "/ˈdʒuː.ti/",
+        "meaning": "A task or action that a person is required to perform as part of one's job.",
+        "translation": "nhiệm vụ, bổn phận",
+        "example_sentences": [
+          "His daily duties include answering phone calls and preparing sales reports."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "shift",
+        "part_of_speech": "noun",
+        "ipa": "/ʃɪft/",
+        "meaning": "One of two or more recurring periods in which different groups of workers do the same job.",
+        "translation": "ca làm việc",
+        "example_sentences": [
+          "Nurses work rotating night shifts at the central hospital."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "overtime",
+        "part_of_speech": "noun",
+        "ipa": "/ˈəʊ.və.taɪm/",
+        "meaning": "Time worked in addition to one's normal working hours.",
+        "translation": "giờ làm thêm, việc tăng ca",
+        "example_sentences": [
+          "Workers receive higher pay rates when they do overtime on weekends."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "holiday",
+        "part_of_speech": "noun",
+        "ipa": "/ˈhɒl.ə.deɪ/",
+        "meaning": "An extended period of leisure and recreation away from work.",
+        "translation": "kỳ nghỉ, ngày nghỉ lễ",
+        "example_sentences": [
+          "Employees are entitled to twelve days of paid annual holiday."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "leave",
+        "part_of_speech": "noun",
+        "ipa": "/liːv/",
+        "meaning": "Time allowed away from work for a particular reason.",
+        "translation": "ngày nghỉ phép",
+        "example_sentences": [
+          "She took two days of sick leave to recover from the flu."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "contract",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkɒn.trækt/",
+        "meaning": "A written or spoken agreement, especially one concerning employment, that is intended to be enforceable by law.",
+        "translation": "hợp đồng lao động",
+        "example_sentences": [
+          "He signed a two-year employment contract with the international school."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "apply",
+        "part_of_speech": "verb",
+        "ipa": "/əˈplaɪ/",
+        "meaning": "To make a formal application or request for a job.",
+        "translation": "nộp đơn xin việc, ứng tuyển",
+        "example_sentences": [
+          "I decided to apply for the junior marketing specialist position."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "hire",
+        "part_of_speech": "verb",
+        "ipa": "/haɪər/",
+        "meaning": "To employ someone for wages or salary.",
+        "translation": "tuyển dụng, thuê nhân viên",
+        "example_sentences": [
+          "The company plans to hire ten new software engineers this quarter."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fire",
+        "part_of_speech": "verb",
+        "ipa": "/faɪər/",
+        "meaning": "To dismiss an employee from a job.",
+        "translation": "sa thải, cho thôi việc",
+        "example_sentences": [
+          "The firm had to fire workers who repeatedly violated safety protocols."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "quit",
+        "part_of_speech": "verb",
+        "ipa": "/kwɪt/",
+        "meaning": "To leave a job permanently.",
+        "translation": "từ chức, bỏ việc",
+        "example_sentences": [
+          "He decided to quit his job to pursue full-time postgraduate study."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "retire",
+        "part_of_speech": "verb",
+        "ipa": "/rɪˈtaɪər/",
+        "meaning": "To leave one's job and cease to work, typically upon reaching the normal age.",
+        "translation": "nghỉ hưu",
+        "example_sentences": [
+          "My grandfather retired after forty dedicated years in civil service."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "earn",
+        "part_of_speech": "verb",
+        "ipa": "/ɜːn/",
+        "meaning": "To receive money in return for labor or services.",
+        "translation": "kiếm được tiền",
+        "example_sentences": [
+          "Hardworking students can earn extra money through part-time tutoring."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "manage",
+        "part_of_speech": "verb",
+        "ipa": "/ˈmæn.ɪdʒ/",
+        "meaning": "To be in charge of a business, team, or project.",
+        "translation": "quản lý, điều hành",
+        "example_sentences": [
+          "She manages a dynamic team of twelve creative designers."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "lead",
+        "part_of_speech": "verb",
+        "ipa": "/liːd/",
+        "meaning": "To be in charge or command of a group of people.",
+        "translation": "dẫn dắt, lãnh đạo",
+        "example_sentences": [
+          "An inspiring manager knows how to lead by personal example."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "organize",
+        "part_of_speech": "verb",
+        "ipa": "/ˈɔː.ɡən.aɪz/",
+        "meaning": "To arrange systematically or coordinate activities.",
+        "translation": "tổ chức, sắp xếp",
+        "example_sentences": [
+          "He organized a workshop on modern communication skills for the team."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "assist",
+        "part_of_speech": "verb",
+        "ipa": "/əˈsɪst/",
+        "meaning": "To help someone, typically by doing a share of the work.",
+        "translation": "trợ giúp, phụ tá",
+        "example_sentences": [
+          "The executive assistant helps the director manage daily schedules."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "promote",
+        "part_of_speech": "verb",
+        "ipa": "/prəˈməʊt/",
+        "meaning": "To raise someone to a higher position or rank.",
+        "translation": "thăng chức, đề bạt",
+        "example_sentences": [
+          "The board decided to promote her to senior regional manager."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "demanding",
+        "part_of_speech": "adjective",
+        "ipa": "/dɪˈmɑːn.dɪŋ/",
+        "meaning": "Requiring much skill, effort, or attention.",
+        "translation": "đòi hỏi khắt khe, nhiều áp lực",
+        "example_sentences": [
+          "The customer support desk is especially demanding on Monday mornings."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "hardworking",
+        "part_of_speech": "adjective",
+        "ipa": "/ˌhɑːdˈwɜː.kɪŋ/",
+        "meaning": "Tending to work with energy, dedication, and commitment.",
+        "translation": "chăm chỉ, siêng năng",
+        "example_sentences": [
+          "She is a hardworking analyst who always meets tight deadlines."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "punctual",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈpʌŋk.tʃu.əl/",
+        "meaning": "Happening or doing something at the agreed or proper time.",
+        "translation": "đúng giờ",
+        "example_sentences": [
+          "It is essential for office staff to be punctual for morning meetings."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "successful",
+        "part_of_speech": "adjective",
+        "ipa": "/səkˈses.fəl/",
+        "meaning": "Accomplishing an aim or purpose; prosperous.",
+        "translation": "thành công, đạt kết quả tốt",
+        "example_sentences": [
+          "The product launch campaign was highly successful across all markets."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "professional",
+        "part_of_speech": "adjective",
+        "ipa": "/prəˈfeʃ.ən.əl/",
+        "meaning": "Relating to or belonging to a profession; competent.",
+        "translation": "chuyên nghiệp",
+        "example_sentences": [
+          "She always maintains a polite and professional attitude toward clients."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "creative",
+        "part_of_speech": "adjective",
+        "ipa": "/kriˈeɪ.tɪv/",
+        "meaning": "Relating to or involving the imagination or original ideas in work.",
+        "translation": "sáng tạo",
+        "example_sentences": [
+          "The design studio needs creative thinkers to develop new brand identities."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "skilled",
+        "part_of_speech": "adjective",
+        "ipa": "/skɪld/",
+        "meaning": "Having or showing the knowledge, ability, or training to perform a certain activity well.",
+        "translation": "lành nghề, có tay nghề cao",
+        "example_sentences": [
+          "Skilled technicians inspect all machinery before the morning production run."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "unemployed",
+        "part_of_speech": "adjective",
+        "ipa": "/ˌʌn.ɪmˈplɔɪd/",
+        "meaning": "Without a paid job but available to work.",
+        "translation": "thất nghiệp, chưa có việc làm",
+        "example_sentences": [
+          "The vocational center offers free training courses for unemployed youths."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "part-time",
+        "part_of_speech": "adjective",
+        "ipa": "/ˌpɑːtˈtaɪm/",
+        "meaning": "Employed for or involving only a part of the usual working day or week.",
+        "translation": "bán thời gian",
+        "example_sentences": [
+          "Many college students work part-time jobs in local coffee shops."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "full-time",
+        "part_of_speech": "adjective",
+        "ipa": "/ˌfʊlˈtaɪm/",
+        "meaning": "Occupying or using the whole of someone's available working time.",
+        "translation": "toàn thời gian",
+        "example_sentences": [
+          "He received an offer for a permanent full-time position as an accountant."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "temporary",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈtem.pər.ər.i/",
+        "meaning": "Lasting for only a limited period of time; not permanent.",
+        "translation": "tạm thời, thời vụ",
+        "example_sentences": [
+          "The store hired temporary sales staff for the busy holiday season."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "permanent",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈpɜː.mə.nənt/",
+        "meaning": "Lasting or intended to last indefinitely without change.",
+        "translation": "chính thức, lâu dài",
+        "example_sentences": [
+          "After six months of probation, she secured a permanent staff contract."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "deadline",
+        "part_of_speech": "noun",
+        "ipa": "/ˈded.laɪn/",
+        "meaning": "The latest time or date by which something should be completed.",
+        "translation": "hạn chót, thời hạn hoàn thành",
+        "example_sentences": [
+          "We worked late into the evening to meet the project deadline."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "task",
+        "part_of_speech": "noun",
+        "ipa": "/tɑːsk/",
+        "meaning": "A piece of work to be done or undertaken.",
+        "translation": "công việc, nhiệm vụ",
+        "example_sentences": [
+          "The manager assigned each team member a specific research task."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "project",
+        "part_of_speech": "noun",
+        "ipa": "/ˈprɒdʒ.ekt/",
+        "meaning": "An individual or collaborative enterprise that is carefully planned to achieve a particular aim.",
+        "translation": "dự án",
+        "example_sentences": [
+          "Our software development project is currently on schedule and within budget."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "report",
+        "part_of_speech": "noun",
+        "ipa": "/rɪˈpɔːt/",
+        "meaning": "An account given of a particular matter, especially in the form of an official document.",
+        "translation": "bản báo cáo",
+        "example_sentences": [
+          "Submit your monthly financial report to the director by Friday."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "presentation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌprez.ənˈteɪ.ʃən/",
+        "meaning": "A speech or talk in which a new product, idea, or piece of work is shown and explained to an audience.",
+        "translation": "bài thuyết trình",
+        "example_sentences": [
+          "Her presentation on green energy solutions impressed the entire committee."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "document",
+        "part_of_speech": "noun",
+        "ipa": "/ˈdɒk.jə.mənt/",
+        "meaning": "A piece of written, printed, or electronic matter that provides information or evidence.",
+        "translation": "tài liệu, văn bản",
+        "example_sentences": [
+          "Please sign the official document and return it to the human resources desk."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "department",
+        "part_of_speech": "noun",
+        "ipa": "/dɪˈpɑːt.mənt/",
+        "meaning": "A division of a large organization such as a government, university, or business.",
+        "translation": "phòng ban, bộ phận",
+        "example_sentences": [
+          "The customer service department handles inquiries from across the country."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "a2-shopping",
+    "level_code": "A2",
+    "topic": "Shopping",
+    "name": "Shopping & Money",
+    "description": "Essential words for stores, prices, payments, and shopping.",
+    "entries": [
+      {
+        "word": "customer",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkʌs.tə.mər/",
+        "meaning": "A person who buys goods or services from a shop.",
+        "translation": "khách hàng",
+        "example_sentences": [
+          "The shop assistant welcomed every customer with a warm smile."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "discount",
+        "part_of_speech": "noun",
+        "ipa": "/ˈdɪs.kaʊnt/",
+        "meaning": "A deduction from the usual cost of something.",
+        "translation": "sự giảm giá, chiết khấu",
+        "example_sentences": [
+          "Students receive a twenty percent discount on all textbooks."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "receipt",
+        "part_of_speech": "noun",
+        "ipa": "/rɪˈsiːt/",
+        "meaning": "A written acknowledgment that goods or money have been received.",
+        "translation": "hóa đơn, biên lai thu tiền",
+        "example_sentences": [
+          "Keep your purchase receipt in case you want to exchange the shirt."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "cashier",
+        "part_of_speech": "noun",
+        "ipa": "/kæʃˈɪər/",
+        "meaning": "A person handling payments in a shop, bank, or restaurant.",
+        "translation": "thu ngân, nhân viên thu ngân",
+        "example_sentences": [
+          "The cashier scanned the groceries and packed them into bags."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "exchange",
+        "part_of_speech": "verb",
+        "ipa": "/ɪksˈtʃeɪndʒ/",
+        "meaning": "To give something back and receive another item in return.",
+        "translation": "đổi hàng, đổi lấy cái khác",
+        "example_sentences": [
+          "Can I exchange this jacket for a larger size?"
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "afford",
+        "part_of_speech": "verb",
+        "ipa": "/əˈfɔːd/",
+        "meaning": "To have enough money or time to pay for or do something.",
+        "translation": "có đủ khả năng chi trả",
+        "example_sentences": [
+          "I cannot afford to buy a new laptop right now."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "bargain",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbɑː.ɡɪn/",
+        "meaning": "A thing bought or offered for sale more cheaply than is usual.",
+        "translation": "món hời, món đồ giá rẻ",
+        "example_sentences": [
+          "These leather shoes were a real bargain at half price."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "brand",
+        "part_of_speech": "noun",
+        "ipa": "/brænd/",
+        "meaning": "A type of product made by a particular company under a particular name.",
+        "translation": "thương hiệu, nhãn hàng",
+        "example_sentences": [
+          "This domestic brand produces durable and stylish backpacks."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "queue",
+        "part_of_speech": "noun",
+        "ipa": "/kjuː/",
+        "meaning": "A line of people waiting their turn for service.",
+        "translation": "hàng người xếp hàng",
+        "example_sentences": [
+          "Shoppers waited in a long queue at the supermarket checkout."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "refund",
+        "part_of_speech": "noun",
+        "ipa": "/ˈriː.fʌnd/",
+        "meaning": "A repayment of a sum of money.",
+        "translation": "tiền hoàn lại, sự hoàn tiền",
+        "example_sentences": [
+          "The store issued a full refund for the damaged blender."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "price",
+        "part_of_speech": "noun",
+        "ipa": "/praɪs/",
+        "meaning": "The amount of money expected or required in payment for something.",
+        "translation": "giá cả, mức giá",
+        "example_sentences": [
+          "The price of organic vegetables has dropped this week."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "cost",
+        "part_of_speech": "verb",
+        "ipa": "/kɒst/",
+        "meaning": "To require payment of a specified sum of money before it can be acquired.",
+        "translation": "có giá là, tốn kém",
+        "example_sentences": [
+          "How much does this pair of sports shoes cost?"
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "cheap",
+        "part_of_speech": "adjective",
+        "ipa": "/tʃiːp/",
+        "meaning": "Costing very little; not expensive.",
+        "translation": "rẻ, giá thấp",
+        "example_sentences": [
+          "Street food in Vietnam is delicious and very cheap."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "expensive",
+        "part_of_speech": "adjective",
+        "ipa": "/ɪkˈspen.sɪv/",
+        "meaning": "Costing a lot of money.",
+        "translation": "đắt đỏ, đắt tiền",
+        "example_sentences": [
+          "Imported fruits are often more expensive than local ones."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sale",
+        "part_of_speech": "noun",
+        "ipa": "/seɪl/",
+        "meaning": "An event for the rapid disposal of goods at reduced prices.",
+        "translation": "đợt giảm giá, đợt khuyến mãi",
+        "example_sentences": [
+          "The clothing store is having a massive summer sale this weekend."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "wallet",
+        "part_of_speech": "noun",
+        "ipa": "/ˈwɒl.ɪt/",
+        "meaning": "A pocket-sized flat folding case for holding paper money and cards.",
+        "translation": "ví tiền, bóp tiền",
+        "example_sentences": [
+          "He pulled out his leather wallet to pay for the coffee."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "purse",
+        "part_of_speech": "noun",
+        "ipa": "/pɜːs/",
+        "meaning": "A small pouch for carrying money, typically used by women.",
+        "translation": "ví cầm tay, túi nhỏ đựng tiền",
+        "example_sentences": [
+          "She keeps her coins and lipstick in her handbag purse."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "credit card",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkred.ɪt ˌkɑːd/",
+        "meaning": "A small plastic card allowing holders to buy goods on credit.",
+        "translation": "thẻ tín dụng",
+        "example_sentences": [
+          "You can pay by contactless credit card at the supermarket."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "cash",
+        "part_of_speech": "noun",
+        "ipa": "/kæʃ/",
+        "meaning": "Money in coins or notes, as distinct from credit cards or checks.",
+        "translation": "tiền mặt",
+        "example_sentences": [
+          "I always carry a little cash for street market stalls."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "coin",
+        "part_of_speech": "noun",
+        "ipa": "/kɔɪn/",
+        "meaning": "A flat, typically round piece of metal with an official stamp, used as money.",
+        "translation": "đồng xu, tiền kim loại",
+        "example_sentences": [
+          "He put a shiny coin into the vending machine."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "supermarket",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsuː.pəˌmɑː.kɪt/",
+        "meaning": "A large self-service grocery store.",
+        "translation": "siêu thị",
+        "example_sentences": [
+          "We buy our weekly groceries at the local supermarket on Sunday."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "bakery",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbeɪ.kər.i/",
+        "meaning": "A place where bread and cakes are made or sold.",
+        "translation": "tiệm bánh mì, tiệm bánh ngọt",
+        "example_sentences": [
+          "The bakery smells of fresh warm bread every morning."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "pharmacy",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfɑː.mə.si/",
+        "meaning": "A shop where medicinal drugs are prepared and sold.",
+        "translation": "hiệu thuốc, nhà thuốc tây",
+        "example_sentences": [
+          "I went to the pharmacy to buy cough syrup and vitamins."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "mall",
+        "part_of_speech": "noun",
+        "ipa": "/mɔːl/",
+        "meaning": "A large enclosed shopping area with many stores and restaurants.",
+        "translation": "trung tâm thương mại",
+        "example_sentences": [
+          "Families enjoy walking around the shopping mall on hot afternoons."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "market",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmɑː.kɪt/",
+        "meaning": "A regular gathering of people for the purchase and sale of food and goods.",
+        "translation": "khu chợ, chợ truyền thống",
+        "example_sentences": [
+          "The morning floating market is filled with colorful boats of fruit."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "shop assistant",
+        "part_of_speech": "noun",
+        "ipa": "/ˈʃɒp əˌsɪs.tənt/",
+        "meaning": "A person who serves customers in a shop.",
+        "translation": "nhân viên bán hàng",
+        "example_sentences": [
+          "The shop assistant helped me find the right shoe size."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "trolley",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtrɒl.i/",
+        "meaning": "A large metal basket on wheels used for holding purchases in a store.",
+        "translation": "xe đẩy hàng trong siêu thị",
+        "example_sentences": [
+          "Fill the supermarket trolley with fresh fruits and vegetables."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "basket",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbɑː.skɪt/",
+        "meaning": "A container made of interwoven strips of cane or wire with a handle.",
+        "translation": "giỏ đựng hàng",
+        "example_sentences": [
+          "She carried a plastic shopping basket through the grocery aisles."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "aisle",
+        "part_of_speech": "noun",
+        "ipa": "/aɪl/",
+        "meaning": "A passage between rows of shelves in a supermarket or shop.",
+        "translation": "lối đi giữa các dãy kệ",
+        "example_sentences": [
+          "You can find cooking oil and spices in aisle number four."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "shelf",
+        "part_of_speech": "noun",
+        "ipa": "/ʃelf/",
+        "meaning": "A flat length of wood or metal attached to a wall or in a unit to hold objects.",
+        "translation": "kệ hàng, giá để đồ",
+        "example_sentences": [
+          "The supermarket worker stacked cans of soup neatly on the shelf."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "counter",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkaʊn.tər/",
+        "meaning": "A long flat-topped fixture in a store across which business is conducted.",
+        "translation": "quầy thanh toán, quầy thu ngân",
+        "example_sentences": [
+          "Please bring all your chosen items to the payment counter."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fitting room",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfɪt.ɪŋ ˌruːm/",
+        "meaning": "A room in a shop where one can try on clothes.",
+        "translation": "phòng thử đồ",
+        "example_sentences": [
+          "The fitting room is located at the back of the clothing section."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "label",
+        "part_of_speech": "noun",
+        "ipa": "/ˈleɪ.bəl/",
+        "meaning": "A small piece of paper or cloth attached to an item giving information about it.",
+        "translation": "nhãn mác, nhãn giá",
+        "example_sentences": [
+          "Check the washing instructions on the shirt label."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "size",
+        "part_of_speech": "noun",
+        "ipa": "/saɪz/",
+        "meaning": "The relative extent of something; a standard dimension of clothes or shoes.",
+        "translation": "kích cỡ, kích thước",
+        "example_sentences": [
+          "Do you have these running shoes in a size forty-two?"
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "quality",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkwɒl.ə.ti/",
+        "meaning": "The standard of something as measured against other things of a similar kind.",
+        "translation": "chất lượng",
+        "example_sentences": [
+          "These cotton shirts are known for their high quality and durability."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "spend",
+        "part_of_speech": "verb",
+        "ipa": "/spend/",
+        "meaning": "To pay out money in buying or hiring goods or services.",
+        "translation": "tiêu tiền, chi tiêu",
+        "example_sentences": [
+          "Try not to spend all your monthly allowance on video games."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "save",
+        "part_of_speech": "verb",
+        "ipa": "/seɪv/",
+        "meaning": "To keep money for future use rather than spending it immediately.",
+        "translation": "tiết kiệm tiền",
+        "example_sentences": [
+          "She saves ten percent of her part-time earnings every month."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "pay",
+        "part_of_speech": "verb",
+        "ipa": "/peɪ/",
+        "meaning": "To give money that is due for goods, services, or debt.",
+        "translation": "thanh toán, trả tiền",
+        "example_sentences": [
+          "Can I pay for my coffee using a mobile banking app?"
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "borrow",
+        "part_of_speech": "verb",
+        "ipa": "/ˈbɒr.əʊ/",
+        "meaning": "To take and use something belonging to someone else with the intention of returning it.",
+        "translation": "vay, mượn",
+        "example_sentences": [
+          "Can I borrow fifty thousand dong until tomorrow morning?"
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "lend",
+        "part_of_speech": "verb",
+        "ipa": "/lend/",
+        "meaning": "To grant to someone the use of money on the understanding that it will be returned.",
+        "translation": "cho vay, cho mượn",
+        "example_sentences": [
+          "My brother agreed to lend me his bicycle for the weekend."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "choose",
+        "part_of_speech": "verb",
+        "ipa": "/tʃuːz/",
+        "meaning": "To pick out or select as being the best or most appropriate.",
+        "translation": "chọn lựa, lựa chọn",
+        "example_sentences": [
+          "Take your time to choose the book you like best."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "buy",
+        "part_of_speech": "verb",
+        "ipa": "/baɪ/",
+        "meaning": "To obtain in exchange for payment.",
+        "translation": "mua",
+        "example_sentences": [
+          "I want to buy a pair of warm gloves for winter."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sell",
+        "part_of_speech": "verb",
+        "ipa": "/sel/",
+        "meaning": "To give or hand over something in exchange for money.",
+        "translation": "bán",
+        "example_sentences": [
+          "Farmers sell fresh organic vegetables at the weekend fair."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "order",
+        "part_of_speech": "verb",
+        "ipa": "/ˈɔː.dər/",
+        "meaning": "To request something to be made, supplied, or delivered.",
+        "translation": "đặt hàng, đặt mua",
+        "example_sentences": [
+          "I ordered a set of English storybooks online yesterday."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "deliver",
+        "part_of_speech": "verb",
+        "ipa": "/dɪˈlɪv.ər/",
+        "meaning": "To bring and hand over a letter, parcel, or goods to the proper recipient.",
+        "translation": "giao hàng, chuyển phát",
+        "example_sentences": [
+          "The courier will deliver the parcel to your doorstep this afternoon."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "return",
+        "part_of_speech": "verb",
+        "ipa": "/rɪˈtɜːn/",
+        "meaning": "To give back goods to the store from which they were bought.",
+        "translation": "trả lại hàng",
+        "example_sentences": [
+          "You can return the unworn shoes within thirty days of purchase."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "valuable",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈvæl.jə.bəl/",
+        "meaning": "Worth a great deal of money.",
+        "translation": "có giá trị, quý giá",
+        "example_sentences": [
+          "Keep valuable jewelry and documents in a locked drawer."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "worth",
+        "part_of_speech": "adjective",
+        "ipa": "/wɜːθ/",
+        "meaning": "Equivalent in value to the sum or item specified.",
+        "translation": "đáng giá, có giá trị là",
+        "example_sentences": [
+          "This antique bronze coin is worth several million dong."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "second-hand",
+        "part_of_speech": "adjective",
+        "ipa": "/ˌsek.əndˈhænd/",
+        "meaning": "Having had a previous owner; not new.",
+        "translation": "đã qua sử dụng, đồ cũ",
+        "example_sentences": [
+          "She bought a second-hand bicycle in excellent condition."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "guarantee",
+        "part_of_speech": "noun",
+        "ipa": "/ˌɡær.ənˈtiː/",
+        "meaning": "A formal promise that certain conditions will be fulfilled regarding product quality.",
+        "translation": "giấy bảo hành, sự cam kết",
+        "example_sentences": [
+          "The electronic watch comes with a twelve-month manufacturer guarantee."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "bill",
+        "part_of_speech": "noun",
+        "ipa": "/bɪl/",
+        "meaning": "A printed statement of the money owed for goods or services supplied.",
+        "translation": "hóa đơn tiền dịch vụ",
+        "example_sentences": [
+          "Please check the electricity bill before making the bank transfer."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "tip",
+        "part_of_speech": "noun",
+        "ipa": "/tɪp/",
+        "meaning": "A sum of money given to someone as a reward for their service.",
+        "translation": "tiền boa, tiền tip",
+        "example_sentences": [
+          "We left a generous tip for the friendly restaurant waiter."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "deal",
+        "part_of_speech": "noun",
+        "ipa": "/diːl/",
+        "meaning": "An attractive or advantageous purchase or transaction.",
+        "translation": "thỏa thuận tốt, món hời",
+        "example_sentences": [
+          "Buying three shirts together gave us a fantastic deal."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "package",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpæk.ɪdʒ/",
+        "meaning": "An object or collection of objects wrapped in paper in order to be sent by post.",
+        "translation": "kiện hàng, bưu kiện",
+        "example_sentences": [
+          "The delivery worker handed me a neatly wrapped package."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "store",
+        "part_of_speech": "noun",
+        "ipa": "/stɔːr/",
+        "meaning": "A retail establishment selling items to the public.",
+        "translation": "cửa hàng, tiệm buôn",
+        "example_sentences": [
+          "The convenience store near our house stays open twenty-four hours."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "a2-health",
+    "level_code": "A2",
+    "topic": "Health",
+    "name": "Health & Body",
+    "description": "Essential vocabulary for health conditions, doctors, treatments, and the human body.",
+    "entries": [
+      {
+        "word": "appointment",
+        "part_of_speech": "noun",
+        "ipa": "/əˈpɔɪnt.mənt/",
+        "meaning": "An arrangement to meet a doctor or dentist at a particular time.",
+        "translation": "cuộc hẹn khám bệnh",
+        "example_sentences": [
+          "I made an appointment with the dentist for tomorrow afternoon."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "doctor",
+        "part_of_speech": "noun",
+        "ipa": "/ˈdɒk.tər/",
+        "meaning": "A person who is qualified to treat people who are ill.",
+        "translation": "bác sĩ",
+        "example_sentences": [
+          "The doctor examined the patient and prescribed medicine."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "nurse",
+        "part_of_speech": "noun",
+        "ipa": "/nɜːs/",
+        "meaning": "A person trained to care for the sick or infirm.",
+        "translation": "y tá, điều dưỡng",
+        "example_sentences": [
+          "The nurse checked my blood pressure and temperature."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "hospital",
+        "part_of_speech": "noun",
+        "ipa": "/ˈhɒs.pɪ.təl/",
+        "meaning": "An institution providing medical treatment and nursing care.",
+        "translation": "bệnh viện",
+        "example_sentences": [
+          "She was taken to the central hospital for a medical checkup."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "clinic",
+        "part_of_speech": "noun",
+        "ipa": "/ˈklɪn.ɪk/",
+        "meaning": "An establishment where outpatients receive medical treatment.",
+        "translation": "phòng khám",
+        "example_sentences": [
+          "The dental clinic is located on the second floor."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "medicine",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmed.sən/",
+        "meaning": "A drug or other remedy used for the treatment of illness.",
+        "translation": "thuốc men",
+        "example_sentences": [
+          "Take this medicine three times a day after meals."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "pill",
+        "part_of_speech": "noun",
+        "ipa": "/pɪl/",
+        "meaning": "A small round mass of solid medicine to be swallowed whole.",
+        "translation": "viên thuốc",
+        "example_sentences": [
+          "Swallow the vitamin pill with a glass of water."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "painkiller",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpeɪnˌkɪl.ər/",
+        "meaning": "A drug or medicine that reduces or relieves pain.",
+        "translation": "thuốc giảm đau",
+        "example_sentences": [
+          "He took a painkiller to relieve his severe headache."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fever",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfiː.vər/",
+        "meaning": "An abnormally high body temperature, usually accompanied by shivering.",
+        "translation": "cơn sốt",
+        "example_sentences": [
+          "Drink warm fluids if you develop a mild fever."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "headache",
+        "part_of_speech": "noun",
+        "ipa": "/ˈhed.eɪk/",
+        "meaning": "A continuous pain in the head.",
+        "translation": "chứng đau đầu",
+        "example_sentences": [
+          "Working long hours in front of a computer can cause a headache."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "stomach ache",
+        "part_of_speech": "noun",
+        "ipa": "/ˈstʌm.ək ˌeɪk/",
+        "meaning": "A pain in a person's stomach or belly.",
+        "translation": "đau bụng, đau dạ dày",
+        "example_sentences": [
+          "Eating spicy street food caused him a stomach ache."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "toothache",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtuːθ.eɪk/",
+        "meaning": "Pain in or near a tooth.",
+        "translation": "chứng đau răng",
+        "example_sentences": [
+          "She visited the dentist because of a throbbing toothache."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "cough",
+        "part_of_speech": "noun",
+        "ipa": "/kɒf/",
+        "meaning": "A sudden, noisy expulsion of air from the lungs.",
+        "translation": "cơn ho, tiếng ho",
+        "example_sentences": [
+          "A dry cough is a common symptom of seasonal colds."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "cold",
+        "part_of_speech": "noun",
+        "ipa": "/kəʊld/",
+        "meaning": "A common viral infection of the nose and throat.",
+        "translation": "bệnh cảm lạnh",
+        "example_sentences": [
+          "He caught a bad cold after walking in the heavy rain."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "flu",
+        "part_of_speech": "noun",
+        "ipa": "/fluː/",
+        "meaning": "An infectious disease caused by a virus, with fever and severe aches.",
+        "translation": "bệnh cúm",
+        "example_sentences": [
+          "Annual vaccination helps protect elderly people from the flu."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sore throat",
+        "part_of_speech": "noun",
+        "ipa": "/ˌsɔː ˈθrəʊt/",
+        "meaning": "A condition marked by pain in the throat, typically caused by inflammation.",
+        "translation": "chứng viêm họng, đau rát cổ họng",
+        "example_sentences": [
+          "Warm honey water is soothing for a sore throat."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "wound",
+        "part_of_speech": "noun",
+        "ipa": "/wuːnd/",
+        "meaning": "An injury to living tissue caused by a cut, blow, or impact.",
+        "translation": "vết thương",
+        "example_sentences": [
+          "The nurse cleaned and bandaged the minor wound on his arm."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "bandage",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbæn.dɪdʒ/",
+        "meaning": "A strip of woven material used to bind up a wound or injury.",
+        "translation": "băng gạc, băng quấn",
+        "example_sentences": [
+          "Wrap a sterile bandage around the sprained ankle."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "plaster",
+        "part_of_speech": "noun",
+        "ipa": "/ˈplɑː.stər/",
+        "meaning": "An adhesive strip of material used for covering small cuts.",
+        "translation": "băng cá nhân",
+        "example_sentences": [
+          "Put a waterproof plaster over the small finger cut."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "symptom",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɪmp.təm/",
+        "meaning": "A physical or mental feature indicating a condition of disease.",
+        "translation": "triệu chứng bệnh",
+        "example_sentences": [
+          "Fatigue and high fever are common symptoms of viral infections."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "treatment",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtriːt.mənt/",
+        "meaning": "Medical care given to a patient for an illness or injury.",
+        "translation": "sự điều trị, phương pháp chữa trị",
+        "example_sentences": [
+          "Early medical treatment leads to a much faster recovery."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "surgery",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɜː.dʒər.i/",
+        "meaning": "The branch of medical practice treating injuries or disease by manual operation.",
+        "translation": "ca phẫu thuật",
+        "example_sentences": [
+          "The surgeon performed a successful knee surgery."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "rest",
+        "part_of_speech": "verb",
+        "ipa": "/rest/",
+        "meaning": "To cease work or movement in order to relax, sleep, or recover strength.",
+        "translation": "nghỉ ngơi",
+        "example_sentences": [
+          "You should rest in bed until your fever subsides completely."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "recover",
+        "part_of_speech": "verb",
+        "ipa": "/rɪˈkʌv.ər/",
+        "meaning": "To return to a normal state of health, mind, or strength.",
+        "translation": "hồi phục, khỏi bệnh",
+        "example_sentences": [
+          "It took her two weeks to recover fully from pneumonia."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "heal",
+        "part_of_speech": "verb",
+        "ipa": "/hiːl/",
+        "meaning": "To become sound or healthy again, especially a wound or bone.",
+        "translation": "lành lặn, lành vết thương",
+        "example_sentences": [
+          "The cut on his hand began to heal cleanly after three days."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "bleed",
+        "part_of_speech": "verb",
+        "ipa": "/bliːd/",
+        "meaning": "To lose blood from the body as a result of injury or illness.",
+        "translation": "chảy máu",
+        "example_sentences": [
+          "Apply gentle pressure to the wound if it continues to bleed."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "hurt",
+        "part_of_speech": "verb",
+        "ipa": "/hɜːt/",
+        "meaning": "To cause physical pain or injury to someone.",
+        "translation": "đau đớn, làm đau",
+        "example_sentences": [
+          "My left shoulder hurts when I lift heavy objects."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "breathe",
+        "part_of_speech": "verb",
+        "ipa": "/briːð/",
+        "meaning": "To take air into the lungs and expel it.",
+        "translation": "hít thở",
+        "example_sentences": [
+          "Breathe deeply through your nose to stay calm."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "examine",
+        "part_of_speech": "verb",
+        "ipa": "/ɪɡˈzæm.ɪn/",
+        "meaning": "To inspect a patient's body thoroughly to determine health status.",
+        "translation": "thăm khám, kiểm tra",
+        "example_sentences": [
+          "The doctor examined her eyes and throat carefully."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "prevent",
+        "part_of_speech": "verb",
+        "ipa": "/prɪˈvent/",
+        "meaning": "To keep something undesirable from happening.",
+        "translation": "phòng ngừa, ngăn chặn",
+        "example_sentences": [
+          "Washing hands regularly helps prevent the spread of germs."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "healthy",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈhel.θi/",
+        "meaning": "In good health; not diseased or injured.",
+        "translation": "khỏe mạnh, lành mạnh",
+        "example_sentences": [
+          "A balanced diet and daily exercise keep your body healthy."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "unhealthy",
+        "part_of_speech": "adjective",
+        "ipa": "/ʌnˈhel.θi/",
+        "meaning": "Harmful to health or not having good health.",
+        "translation": "không lành mạnh, có hại cho sức khỏe",
+        "example_sentences": [
+          "Eating too much sugary junk food is very unhealthy."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sick",
+        "part_of_speech": "adjective",
+        "ipa": "/sɪk/",
+        "meaning": "Affected by physical or mental illness.",
+        "translation": "bị ốm, bị bệnh",
+        "example_sentences": [
+          "He stayed home from school because he felt sick."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "ill",
+        "part_of_speech": "adjective",
+        "ipa": "/ɪl/",
+        "meaning": "Suffering from an illness or disease or in poor health.",
+        "translation": "ốm yếu, đau ốm",
+        "example_sentences": [
+          "She was seriously ill with a bacterial chest infection."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "dizzy",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈdɪz.i/",
+        "meaning": "Having a sensation of spinning around and losing one's balance.",
+        "translation": "chóng mặt, hoa mắt",
+        "example_sentences": [
+          "Standing up too quickly made him feel momentarily dizzy."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "weak",
+        "part_of_speech": "adjective",
+        "ipa": "/wiːk/",
+        "meaning": "Lacking physical strength and energy.",
+        "translation": "yếu ớt, suy nhược",
+        "example_sentences": [
+          "Patients often feel weak for a few days after surgery."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "strong",
+        "part_of_speech": "adjective",
+        "ipa": "/strɒŋ/",
+        "meaning": "Having the power to perform physically demanding tasks.",
+        "translation": "khỏe mạnh, cường tráng",
+        "example_sentences": [
+          "Regular swimming builds strong back and leg muscles."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "blind",
+        "part_of_speech": "adjective",
+        "ipa": "/blaɪnd/",
+        "meaning": "Unable to see because of injury, disease, or a congenital condition.",
+        "translation": "mù, khiếm thị",
+        "example_sentences": [
+          "Guide dogs help blind people navigate city streets safely."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "deaf",
+        "part_of_speech": "adjective",
+        "ipa": "/def/",
+        "meaning": "Lacking the power of hearing or having impaired hearing.",
+        "translation": "điếc, khiếm thính",
+        "example_sentences": [
+          "She uses sign language to communicate with her deaf friend."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "head",
+        "part_of_speech": "noun",
+        "ipa": "/hed/",
+        "meaning": "The upper part of the human body containing the brain and eyes.",
+        "translation": "đầu",
+        "example_sentences": [
+          "He wore a protective helmet to safeguard his head."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "chest",
+        "part_of_speech": "noun",
+        "ipa": "/tʃest/",
+        "meaning": "The front surface of a person's body between neck and stomach.",
+        "translation": "lồng ngực",
+        "example_sentences": [
+          "He felt a sharp tightness across his chest when running."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "back",
+        "part_of_speech": "noun",
+        "ipa": "/bæk/",
+        "meaning": "The rear surface of the human body from shoulders to hips.",
+        "translation": "lưng",
+        "example_sentences": [
+          "Sitting with proper posture prevents chronic back pain."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "arm",
+        "part_of_speech": "noun",
+        "ipa": "/ɑːm/",
+        "meaning": "Each of the two upper limbs of the human body.",
+        "translation": "cánh tay",
+        "example_sentences": [
+          "She raised her right arm to ask the teacher a question."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "leg",
+        "part_of_speech": "noun",
+        "ipa": "/leɡ/",
+        "meaning": "Each of the limbs on which a person walks and stands.",
+        "translation": "chân",
+        "example_sentences": [
+          "Cycling every morning strengthens the muscles in your legs."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "foot",
+        "part_of_speech": "noun",
+        "ipa": "/fʊt/",
+        "meaning": "The lower extremity of the leg below the ankle.",
+        "translation": "bàn chân",
+        "example_sentences": [
+          "Wear supportive walking shoes to protect your feet."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "finger",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfɪŋ.ɡər/",
+        "meaning": "Each of the four slender jointed parts attached to either hand.",
+        "translation": "ngón tay",
+        "example_sentences": [
+          "He wore a silver ring on his index finger."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "toe",
+        "part_of_speech": "noun",
+        "ipa": "/təʊ/",
+        "meaning": "Any of the five digits at the end of the human foot.",
+        "translation": "ngón chân",
+        "example_sentences": [
+          "She accidentally stubbed her big toe on the wooden chair."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "skin",
+        "part_of_speech": "noun",
+        "ipa": "/skɪn/",
+        "meaning": "The thin layer of tissue forming the natural outer covering of the body.",
+        "translation": "làn da, da",
+        "example_sentences": [
+          "Apply sunscreen lotion to protect your skin from ultraviolet rays."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "heart",
+        "part_of_speech": "noun",
+        "ipa": "/hɑːt/",
+        "meaning": "The hollow muscular organ that pumps blood through the circulatory system.",
+        "translation": "trái tim",
+        "example_sentences": [
+          "Regular cardiovascular exercise keeps your heart strong."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "blood",
+        "part_of_speech": "noun",
+        "ipa": "/blʌd/",
+        "meaning": "The red liquid that circulates in the arteries and veins.",
+        "translation": "máu",
+        "example_sentences": [
+          "A laboratory blood test helps doctors diagnose infections accurately."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "a2-hobbies",
+    "level_code": "A2",
+    "topic": "Hobbies",
+    "name": "Hobbies & Free Time",
+    "description": "Essential vocabulary for leisure activities, sports, music, and games.",
+    "entries": [
+      {
+        "word": "badminton",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbæd.mɪn.tən/",
+        "meaning": "A game with rackets in which a shuttlecock is played across a net.",
+        "translation": "môn cầu lông",
+        "example_sentences": [
+          "We play badminton in the community courtyard every afternoon."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "football",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfʊt.bɔːl/",
+        "meaning": "A game played between two teams of eleven players with a round ball.",
+        "translation": "môn bóng đá",
+        "example_sentences": [
+          "Football is the most popular spectator sport in Vietnam."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "basketball",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbɑː.skɪt.bɔːl/",
+        "meaning": "A game played between two teams of five players who score by throwing a ball through a netted hoop.",
+        "translation": "môn bóng rổ",
+        "example_sentences": [
+          "Students practice basketball on the school court after class."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "volleyball",
+        "part_of_speech": "noun",
+        "ipa": "/ˈvɒl.i.bɔːl/",
+        "meaning": "A game in which two teams use their hands to hit a large ball back and forth over a high net.",
+        "translation": "môn bóng chuyền",
+        "example_sentences": [
+          "Playing beach volleyball on the sand is great weekend fun."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "tennis",
+        "part_of_speech": "noun",
+        "ipa": "/ˈten.ɪs/",
+        "meaning": "A game in which two or four players strike a ball with rackets over a net.",
+        "translation": "môn quần vợt, te-nít",
+        "example_sentences": [
+          "He takes weekly tennis lessons to improve his serve."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "swimming",
+        "part_of_speech": "noun",
+        "ipa": "/ˈswɪm.ɪŋ/",
+        "meaning": "The sport or activity of propelling oneself through water using limbs.",
+        "translation": "môn bơi lội",
+        "example_sentences": [
+          "Swimming in the cool pool is refreshing during summer."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "cycling",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsaɪ.klɪŋ/",
+        "meaning": "The sport or activity of riding a bicycle.",
+        "translation": "môn đạp xe",
+        "example_sentences": [
+          "Weekend cycling around the lake helps clear your mind."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "running",
+        "part_of_speech": "noun",
+        "ipa": "/ˈrʌn.ɪŋ/",
+        "meaning": "The action or movement of a runner in a race or for exercise.",
+        "translation": "môn chạy bộ",
+        "example_sentences": [
+          "Morning running boosts your stamina and physical health."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fishing",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfɪʃ.ɪŋ/",
+        "meaning": "The activity of catching fish, either for food or as a sport.",
+        "translation": "việc câu cá",
+        "example_sentences": [
+          "My grandfather enjoys quiet Sunday morning fishing by the river."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "camping",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkæm.pɪŋ/",
+        "meaning": "The activity of spending a vacation living in a tent.",
+        "translation": "việc cắm trại",
+        "example_sentences": [
+          "We organized a weekend camping trip in the pine forest."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "gardening",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɡɑː.dən.ɪŋ/",
+        "meaning": "The activity of tending and cultivating a garden.",
+        "translation": "việc làm vườn",
+        "example_sentences": [
+          "Gardening helps my mother relax after a busy working week."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "photography",
+        "part_of_speech": "noun",
+        "ipa": "/fəˈtɒɡ.rə.fi/",
+        "meaning": "The art or practice of taking and processing photographs.",
+        "translation": "nghệ thuật nhiếp ảnh, việc chụp ảnh",
+        "example_sentences": [
+          "He bought a professional camera to pursue landscape photography."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "guitar",
+        "part_of_speech": "noun",
+        "ipa": "/ɡɪˈtɑːr/",
+        "meaning": "A stringed musical instrument played with fingers or a plectrum.",
+        "translation": "đàn ghi-ta",
+        "example_sentences": [
+          "He plays acoustic guitar and sings songs around the campfire."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "piano",
+        "part_of_speech": "noun",
+        "ipa": "/piˈæn.əʊ/",
+        "meaning": "A large keyboard musical instrument with wooden hammers striking strings.",
+        "translation": "đàn dương cầm, pi-a-nô",
+        "example_sentences": [
+          "She has taken classical piano lessons since she was six."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "drum",
+        "part_of_speech": "noun",
+        "ipa": "/drʌm/",
+        "meaning": "A percussion instrument sounded by being struck with sticks or the hands.",
+        "translation": "cái trống, bộ trống",
+        "example_sentences": [
+          "The school marching band practiced with loud drums."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "music",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmjuː.zɪk/",
+        "meaning": "Vocal or instrumental sounds combined in such a way as to produce beauty of form.",
+        "translation": "âm nhạc",
+        "example_sentences": [
+          "Listening to soft instrumental music helps me concentrate while reading."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "song",
+        "part_of_speech": "noun",
+        "ipa": "/sɒŋ/",
+        "meaning": "A short poem or other set of words set to music.",
+        "translation": "bài hát, ca khúc",
+        "example_sentences": [
+          "We sang traditional folk songs during the cultural festival."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "movie",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmuː.vi/",
+        "meaning": "A story or event recorded by a camera as a set of moving images.",
+        "translation": "bộ phim điện ảnh",
+        "example_sentences": [
+          "We watched an exciting animated movie at the cinema."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "cinema",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɪn.ə.mɑː/",
+        "meaning": "A movie theater where films are shown to the public.",
+        "translation": "rạp chiếu phim",
+        "example_sentences": [
+          "Let's meet outside the cinema fifteen minutes before the show."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "theater",
+        "part_of_speech": "noun",
+        "ipa": "/ˈθɪə.tər/",
+        "meaning": "A building or outdoor area in which plays and other dramatic performances are given.",
+        "translation": "nhà hát, rạp kịch",
+        "example_sentences": [
+          "The municipal theater staged a classical drama last night."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "museum",
+        "part_of_speech": "noun",
+        "ipa": "/mjuːˈziː.əm/",
+        "meaning": "A building in which objects of historical, scientific, or artistic interest are exhibited.",
+        "translation": "viện bảo tàng",
+        "example_sentences": [
+          "The fine arts museum exhibits masterpieces of Vietnamese silk painting."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "concert",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkɒn.sət/",
+        "meaning": "A musical performance given in public by several performers or of several compositions.",
+        "translation": "buổi hòa nhạc, buổi biểu diễn âm nhạc",
+        "example_sentences": [
+          "Thousands of fans attended the outdoor rock concert."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "stadium",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsteɪ.di.əm/",
+        "meaning": "A sports ground with tiers of seats for spectators.",
+        "translation": "sân vận động",
+        "example_sentences": [
+          "My Dinh National Stadium was packed with enthusiastic football fans."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "competition",
+        "part_of_speech": "noun",
+        "ipa": "/ˌkɒm.pəˈtɪʃ.ən/",
+        "meaning": "An event in which people compete with each other to win.",
+        "translation": "cuộc thi, giải đấu",
+        "example_sentences": [
+          "Our school won first place in the city chess competition."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "match",
+        "part_of_speech": "noun",
+        "ipa": "/mætʃ/",
+        "meaning": "A contest in which people or teams compete against each other in a sport.",
+        "translation": "trận đấu thể thao",
+        "example_sentences": [
+          "The final football match ended in an exciting two-one victory."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "player",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpleɪ.ər/",
+        "meaning": "A person taking part in a sport or game.",
+        "translation": "cầu thủ, người chơi",
+        "example_sentences": [
+          "The striker is the most valuable player on the team."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "team",
+        "part_of_speech": "noun",
+        "ipa": "/tiːm/",
+        "meaning": "Two or more people working together in a game or work.",
+        "translation": "đội, nhóm thi đấu",
+        "example_sentences": [
+          "Our basketball team trained hard for the championship tournament."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "winner",
+        "part_of_speech": "noun",
+        "ipa": "/ˈwɪn.ər/",
+        "meaning": "A person or thing that wins something in a contest.",
+        "translation": "người chiến thắng, đội thắng cuộc",
+        "example_sentences": [
+          "The winner of the race received a gold trophy and medal."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "prize",
+        "part_of_speech": "noun",
+        "ipa": "/praɪz/",
+        "meaning": "A reward given to the winner of a race or competition.",
+        "translation": "giải thưởng, phần thưởng",
+        "example_sentences": [
+          "She won the grand prize in the youth photography contest."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "game",
+        "part_of_speech": "noun",
+        "ipa": "/ɡeɪm/",
+        "meaning": "An activity that one engages in for amusement or fun.",
+        "translation": "trò chơi, ván đấu",
+        "example_sentences": [
+          "Board games are fun to play with family on rainy afternoons."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "chess",
+        "part_of_speech": "noun",
+        "ipa": "/tʃes/",
+        "meaning": "A board game of strategic skill for two players.",
+        "translation": "môn cờ vua",
+        "example_sentences": [
+          "Playing chess teaches children strategic patience and concentration."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "draw",
+        "part_of_speech": "verb",
+        "ipa": "/drɔː/",
+        "meaning": "To produce a picture or diagram with pencil or ink.",
+        "translation": "vẽ tranh chì",
+        "example_sentences": [
+          "She loves to draw portraits of her friends and family."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "paint",
+        "part_of_speech": "verb",
+        "ipa": "/peɪnt/",
+        "meaning": "To produce a picture with colors and brushes.",
+        "translation": "vẽ tranh sơn, tô màu",
+        "example_sentences": [
+          "The artist paints serene countryside landscapes with watercolors."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sing",
+        "part_of_speech": "verb",
+        "ipa": "/sɪŋ/",
+        "meaning": "To make musical sounds with the voice.",
+        "translation": "hát, ca hát",
+        "example_sentences": [
+          "The children sing cheerful holiday songs together."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "dance",
+        "part_of_speech": "verb",
+        "ipa": "/dɑːns/",
+        "meaning": "To move rhythmically to music, typically following steps.",
+        "translation": "nhảy múa, khiêu vũ",
+        "example_sentences": [
+          "They dance gracefully to traditional Vietnamese folk music."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "collect",
+        "part_of_speech": "verb",
+        "ipa": "/kəˈlekt/",
+        "meaning": "To bring together things of a specified type as a hobby.",
+        "translation": "sưu tầm, thu thập",
+        "example_sentences": [
+          "He loves to collect antique postal stamps from around the world."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "join",
+        "part_of_speech": "verb",
+        "ipa": "/dʒɔɪn/",
+        "meaning": "To become a member of an organization or group.",
+        "translation": "tham gia, gia nhập",
+        "example_sentences": [
+          "I decided to join the school English debate club this semester."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "win",
+        "part_of_speech": "verb",
+        "ipa": "/wɪn/",
+        "meaning": "To be successful or victorious in a contest or game.",
+        "translation": "chiến thắng, đoạt giải",
+        "example_sentences": [
+          "Our football team worked hard to win the regional cup."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "lose",
+        "part_of_speech": "verb",
+        "ipa": "/luːz/",
+        "meaning": "To be deprived of victory or fail to win a game.",
+        "translation": "thua cuộc, thất bại",
+        "example_sentences": [
+          "Do not be discouraged when you lose a friendly match."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "score",
+        "part_of_speech": "verb",
+        "ipa": "/skɔːr/",
+        "meaning": "To gain points or goals in a competitive game or sport.",
+        "translation": "ghi bàn, ghi điểm",
+        "example_sentences": [
+          "The forward scored a decisive goal in the final minute."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fun",
+        "part_of_speech": "adjective",
+        "ipa": "/fʌn/",
+        "meaning": "Enjoyable, amusing, or lighthearted.",
+        "translation": "vui vẻ, thú vị",
+        "example_sentences": [
+          "Playing board games with classmates is always great fun."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "exciting",
+        "part_of_speech": "adjective",
+        "ipa": "/ɪkˈsaɪ.tɪŋ/",
+        "meaning": "Causing great enthusiasm and eager interest.",
+        "translation": "hào hứng, sôi động",
+        "example_sentences": [
+          "The final minutes of the basketball game were extremely exciting."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "boring",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈbɔː.rɪŋ/",
+        "meaning": "Not interesting or exciting; tedious.",
+        "translation": "nhàm chán, tẻ nhạt",
+        "example_sentences": [
+          "Waiting for hours in a quiet room can feel very boring."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "popular",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈpɒp.jə.lər/",
+        "meaning": "Liked, admired, or enjoyed by many people.",
+        "translation": "phổ biến, được ưa chuộng",
+        "example_sentences": [
+          "Badminton is a very popular sport across all age groups in Vietnam."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "active",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈæk.tɪv/",
+        "meaning": "Engaging or ready to engage in physically energetic pursuits.",
+        "translation": "năng động, tích cực",
+        "example_sentences": [
+          "Leading an active lifestyle keeps you fit, energetic, and happy."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "outdoor",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈaʊtˌdɔːr/",
+        "meaning": "Done, situated, or used in the open air.",
+        "translation": "ngoài trời",
+        "example_sentences": [
+          "We enjoy outdoor activities like hiking and cycling in autumn."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "indoor",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈɪnˌdɔːr/",
+        "meaning": "Situated, conducted, or suitable for use inside a building.",
+        "translation": "trong nhà",
+        "example_sentences": [
+          "Table tennis is a fantastic indoor sport for rainy afternoons."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "instrument",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɪn.strə.mənt/",
+        "meaning": "An object or device for producing musical sounds.",
+        "translation": "nhạc cụ",
+        "example_sentences": [
+          "The acoustic guitar is an accessible musical instrument for beginners."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "leisure",
+        "part_of_speech": "noun",
+        "ipa": "/ˈleʒ.ər/",
+        "meaning": "Use of free time for enjoyment and relaxation.",
+        "translation": "thời gian rảnh rỗi, sự thư nhàn",
+        "example_sentences": [
+          "Reading novels is her favorite leisure activity during weekends."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "champion",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtʃæm.pi.ən/",
+        "meaning": "A person who has surpassed all rivals in a sporting contest.",
+        "translation": "nhà vô địch, quán quân",
+        "example_sentences": [
+          "The national team was crowned champion of the Southeast Asian tournament."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "a2-communication",
+    "level_code": "A2",
+    "topic": "Communication",
+    "name": "Communication & Technology",
+    "description": "Everyday vocabulary for messages, emails, phones, and social conversations.",
+    "entries": [
+      {
+        "word": "message",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmes.ɪdʒ/",
+        "meaning": "A verbal, written, or recorded communication sent to someone.",
+        "translation": "tin nhắn, thông điệp",
+        "example_sentences": [
+          "She sent a text message to confirm our meeting time."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "email",
+        "part_of_speech": "noun",
+        "ipa": "/ˈiː.meɪl/",
+        "meaning": "Messages distributed by electronic means from one computer user to another.",
+        "translation": "thư điện tử, email",
+        "example_sentences": [
+          "I received a confirmation email with my flight tickets attached."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "letter",
+        "part_of_speech": "noun",
+        "ipa": "/ˈlet.ər/",
+        "meaning": "A written, typed, or printed communication sent in an envelope.",
+        "translation": "bức thư, lá thư",
+        "example_sentences": [
+          "My pen pal sent me a handwritten letter from Japan."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "phone",
+        "part_of_speech": "noun",
+        "ipa": "/fəʊn/",
+        "meaning": "A device used for transmitting vocal sound over distance.",
+        "translation": "điện thoại",
+        "example_sentences": [
+          "Please turn off your mobile phone during the examination."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "call",
+        "part_of_speech": "noun",
+        "ipa": "/kɔːl/",
+        "meaning": "An instance of speaking to someone on the phone.",
+        "translation": "cuộc gọi điện thoại",
+        "example_sentences": [
+          "I received an important phone call from the university admissions office."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "text",
+        "part_of_speech": "noun",
+        "ipa": "/tekst/",
+        "meaning": "A text message sent electronically.",
+        "translation": "tin nhắn văn bản",
+        "example_sentences": [
+          "Send me a quick text when you arrive safely at the station."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "internet",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɪn.tə.net/",
+        "meaning": "A global computer network providing a variety of information facilities.",
+        "translation": "mạng internet",
+        "example_sentences": [
+          "You can find abundant English study materials on the internet."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "website",
+        "part_of_speech": "noun",
+        "ipa": "/ˈweb.saɪt/",
+        "meaning": "A set of related web pages located under a single domain name.",
+        "translation": "trang web, trang mạng",
+        "example_sentences": [
+          "The official school website posts exam schedules and news."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "app",
+        "part_of_speech": "noun",
+        "ipa": "/æp/",
+        "meaning": "An application, especially as downloaded by a user to a mobile device.",
+        "translation": "ứng dụng điện thoại",
+        "example_sentences": [
+          "I use a language learning app to practice English vocabulary daily."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "screen",
+        "part_of_speech": "noun",
+        "ipa": "/skriːn/",
+        "meaning": "A flat panel or surface on an electronic device displaying data.",
+        "translation": "màn hình",
+        "example_sentences": [
+          "Avoid looking at computer screens in the dark before sleeping."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "keyboard",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkiː.bɔːd/",
+        "meaning": "A panel of keys that operate a computer or typewriter.",
+        "translation": "bàn phím máy tính",
+        "example_sentences": [
+          "Clean your computer keyboard regularly to keep it dust-free."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "mouse",
+        "part_of_speech": "noun",
+        "ipa": "/maʊs/",
+        "meaning": "A small handheld device used to control a cursor on a computer screen.",
+        "translation": "chuột máy tính",
+        "example_sentences": [
+          "Click the left button on your mouse to select the answer."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "laptop",
+        "part_of_speech": "noun",
+        "ipa": "/ˈlæp.tɒp/",
+        "meaning": "A computer that is portable and suitable for use while traveling.",
+        "translation": "máy tính xách tay",
+        "example_sentences": [
+          "Students bring their laptops to class for group research projects."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "tablet",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtæb.lət/",
+        "meaning": "A small portable touchscreen computer.",
+        "translation": "máy tính bảng",
+        "example_sentences": [
+          "She reads digital textbooks and articles on her tablet."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "camera",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkæm.rə/",
+        "meaning": "A device for recording visual images in the form of photographs or film.",
+        "translation": "máy ảnh, máy quay",
+        "example_sentences": [
+          "Modern smartphones have high-resolution built-in cameras."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "photo",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfəʊ.təʊ/",
+        "meaning": "A photograph.",
+        "translation": "bức ảnh, tấm hình",
+        "example_sentences": [
+          "We took a memorable class photo on our graduation day."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "video",
+        "part_of_speech": "noun",
+        "ipa": "/ˈvɪd.i.əʊ/",
+        "meaning": "A recording of moving visual images made digitally or on videotape.",
+        "translation": "đoạn video, phim ngắn",
+        "example_sentences": [
+          "The teacher showed a short science video about marine ecosystems."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "conversation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌkɒn.vəˈseɪ.ʃən/",
+        "meaning": "A talk, especially an informal one, between two or more people.",
+        "translation": "cuộc trò chuyện, đàm thoại",
+        "example_sentences": [
+          "We had a lively conversation about our summer vacation plans."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "topic",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtɒp.ɪk/",
+        "meaning": "A matter dealt with in a text, discourse, or conversation.",
+        "translation": "chủ đề thảo luận",
+        "example_sentences": [
+          "The teacher selected an engaging topic for today's English debate."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "language",
+        "part_of_speech": "noun",
+        "ipa": "/ˈlæŋ.ɡwɪdʒ/",
+        "meaning": "The principal method of human communication, consisting of words used in a structured way.",
+        "translation": "ngôn ngữ, tiếng",
+        "example_sentences": [
+          "Learning a foreign language opens up exciting global opportunities."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "word",
+        "part_of_speech": "noun",
+        "ipa": "/wɜːd/",
+        "meaning": "A single distinct meaningful element of speech or writing.",
+        "translation": "từ ngữ, tiếng",
+        "example_sentences": [
+          "Look up any unfamiliar word in an English learner's dictionary."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sentence",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsen.təns/",
+        "meaning": "A set of words that is complete in itself, typically containing a subject and predicate.",
+        "translation": "câu văn",
+        "example_sentences": [
+          "Write a complete English sentence using the new vocabulary word."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "send",
+        "part_of_speech": "verb",
+        "ipa": "/send/",
+        "meaning": "To cause to go or be taken to a particular destination.",
+        "translation": "gửi đi",
+        "example_sentences": [
+          "I will send you the presentation slides by email tonight."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "receive",
+        "part_of_speech": "verb",
+        "ipa": "/rɪˈsiːv/",
+        "meaning": "To be given, presented with, or paid something.",
+        "translation": "nhận được",
+        "example_sentences": [
+          "Did you receive my invitation message for the party?"
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "reply",
+        "part_of_speech": "verb",
+        "ipa": "/rɪˈplaɪ/",
+        "meaning": "To say or write something as an answer to someone.",
+        "translation": "trả lời, hồi âm",
+        "example_sentences": [
+          "Please reply to the teacher's email before five this afternoon."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "chat",
+        "part_of_speech": "verb",
+        "ipa": "/tʃæt/",
+        "meaning": "To talk in a friendly and informal way.",
+        "translation": "trò chuyện thân mật, tán gẫu",
+        "example_sentences": [
+          "We chatted about our favorite books over iced tea."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "discuss",
+        "part_of_speech": "verb",
+        "ipa": "/dɪˈskʌs/",
+        "meaning": "To talk about something with another person or group.",
+        "translation": "thảo luận, bàn luận",
+        "example_sentences": [
+          "The committee met to discuss new environmental initiatives."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "share",
+        "part_of_speech": "verb",
+        "ipa": "/ʃeər/",
+        "meaning": "To post or distribute content to others on digital platforms.",
+        "translation": "chia sẻ, lan tỏa",
+        "example_sentences": [
+          "Feel free to share this useful grammar guide with your classmates."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "upload",
+        "part_of_speech": "verb",
+        "ipa": "/ʌpˈləʊd/",
+        "meaning": "To transfer data from a smaller to a larger computer system or cloud.",
+        "translation": "tải lên mạng",
+        "example_sentences": [
+          "Students must upload their completed homework files before midnight."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "download",
+        "part_of_speech": "verb",
+        "ipa": "/ˌdaʊnˈləʊd/",
+        "meaning": "To copy data from one computer system to another, typically over the internet.",
+        "translation": "tải về máy",
+        "example_sentences": [
+          "You can download the practice audio files for offline listening."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "search",
+        "part_of_speech": "verb",
+        "ipa": "/sɜːtʃ/",
+        "meaning": "To look through or examine in order to find something on the web.",
+        "translation": "tìm kiếm, tra cứu",
+        "example_sentences": [
+          "Search the university catalog to find relevant research papers."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "click",
+        "part_of_speech": "verb",
+        "ipa": "/klɪk/",
+        "meaning": "To press and release a button on a computer mouse or screen.",
+        "translation": "nhấp chuột, bấm vào",
+        "example_sentences": [
+          "Click on the link to access the online registration form."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "connect",
+        "part_of_speech": "verb",
+        "ipa": "/kəˈnekt/",
+        "meaning": "To bring together or establish a communication link.",
+        "translation": "kết nối",
+        "example_sentences": [
+          "The laptop connects automatically to the campus Wi-Fi network."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "disconnect",
+        "part_of_speech": "verb",
+        "ipa": "/ˌdɪs.kəˈnekt/",
+        "meaning": "To break the connection of a device with a network.",
+        "translation": "ngắt kết nối",
+        "example_sentences": [
+          "Disconnect your device from public networks after finishing banking tasks."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "online",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈɒn.laɪn/",
+        "meaning": "Controlled by or connected to another computer or to a network.",
+        "translation": "trực tuyến, trên mạng",
+        "example_sentences": [
+          "Many students prefer taking online English courses in the evening."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "offline",
+        "part_of_speech": "adjective",
+        "ipa": "/ˌɒfˈlaɪn/",
+        "meaning": "Not connected to or accessible via a computer network.",
+        "translation": "ngoại tuyến, không nối mạng",
+        "example_sentences": [
+          "Download maps so you can navigate offline while hiking."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "digital",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈdɪdʒ.ɪ.təl/",
+        "meaning": "Expressed in numerical form, especially for use by a computer.",
+        "translation": "kỹ thuật số",
+        "example_sentences": [
+          "Digital textbooks are lighter to carry and easy to update."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "loud",
+        "part_of_speech": "adjective",
+        "ipa": "/laʊd/",
+        "meaning": "Producing or capable of producing much noise.",
+        "translation": "to tiếng, ồn ào",
+        "example_sentences": [
+          "Please turn down the music because it is too loud for studying."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "silent",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈsaɪ.lənt/",
+        "meaning": "Not making or accompanied by any sound.",
+        "translation": "im lặng, không có tiếng động",
+        "example_sentences": [
+          "Keep your mobile phones on silent mode inside the library."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "clear",
+        "part_of_speech": "adjective",
+        "ipa": "/klɪər/",
+        "meaning": "Easy to perceive, understand, or interpret.",
+        "translation": "rõ ràng, mạch lạc",
+        "example_sentences": [
+          "Her explanation of the scientific formula was very clear and helpful."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "social media",
+        "part_of_speech": "noun",
+        "ipa": "/ˌsəʊ.ʃəl ˈmiː.di.ə/",
+        "meaning": "Websites and applications that enable users to create and share content.",
+        "translation": "mạng xã hội",
+        "example_sentences": [
+          "Use social media responsibly to avoid wasting study time."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "link",
+        "part_of_speech": "noun",
+        "ipa": "/lɪŋk/",
+        "meaning": "A code on an electronic page that connects to another document.",
+        "translation": "đường dẫn liên kết",
+        "example_sentences": [
+          "Click the registration link sent in the confirmation email."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "file",
+        "part_of_speech": "noun",
+        "ipa": "/faɪl/",
+        "meaning": "A folder or digital collection of data stored on a computer.",
+        "translation": "tệp tin, tập tin dữ liệu",
+        "example_sentences": [
+          "Attach the PDF file to your job application email."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "password",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpɑːs.wɜːd/",
+        "meaning": "A secret word or phrase that must be used to gain admission to a system.",
+        "translation": "mật khẩu bảo vệ",
+        "example_sentences": [
+          "Create a strong password containing letters, numbers, and symbols."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "account",
+        "part_of_speech": "noun",
+        "ipa": "/əˈkaʊnt/",
+        "meaning": "A profile or arrangement by which a user accesses an online service.",
+        "translation": "tài khoản người dùng",
+        "example_sentences": [
+          "Log into your student account to check exam results."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "post",
+        "part_of_speech": "noun",
+        "ipa": "/pəʊst/",
+        "meaning": "A piece of writing or media placed online on a social network.",
+        "translation": "bài đăng trên mạng",
+        "example_sentences": [
+          "His informative post about study tips received hundreds of likes."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "comment",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkɒm.ent/",
+        "meaning": "A verbal or written remark expressing an opinion or reaction.",
+        "translation": "lời bình luận, nhận xét",
+        "example_sentences": [
+          "She left a thoughtful comment on the educational blog article."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "inbox",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɪn.bɒks/",
+        "meaning": "An electronic folder in which emails or messages are received.",
+        "translation": "hộp thư đến",
+        "example_sentences": [
+          "Check your email inbox for the verification code."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "network",
+        "part_of_speech": "noun",
+        "ipa": "/ˈnet.wɜːk/",
+        "meaning": "A group of interconnected people or things, especially computers.",
+        "translation": "mạng lưới kết nối",
+        "example_sentences": [
+          "A reliable broadband network is essential for remote learning."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "information",
+        "part_of_speech": "noun",
+        "ipa": "/ˌɪn.fəˈmeɪ.ʃən/",
+        "meaning": "Facts provided or learned about something or someone.",
+        "translation": "thông tin, dữ liệu",
+        "example_sentences": [
+          "The brochure contains detailed information on admission requirements."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "a2-daily-services",
+    "level_code": "A2",
+    "topic": "Daily Services",
+    "name": "Daily Services & Community",
+    "description": "Essential words for post offices, banks, repair shops, and community facilities.",
+    "entries": [
+      {
+        "word": "bank",
+        "part_of_speech": "noun",
+        "ipa": "/bæŋk/",
+        "meaning": "A financial establishment that invests money, pays interest, and provides loans.",
+        "translation": "ngân hàng",
+        "example_sentences": [
+          "I went to the commercial bank to open a savings account."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "post office",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpəʊst ˌɒf.ɪs/",
+        "meaning": "A public department responsible for postal services.",
+        "translation": "bưu điện",
+        "example_sentences": [
+          "Send the package by express parcel at the central post office."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "police station",
+        "part_of_speech": "noun",
+        "ipa": "/pəˈliːs ˌsteɪ.ʃən/",
+        "meaning": "The office or headquarters of a local police force.",
+        "translation": "đồn công an, đồn cảnh sát",
+        "example_sentences": [
+          "Report lost property to the officer at the nearest police station."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fire station",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfaɪə ˌsteɪ.ʃən/",
+        "meaning": "A building where fire engines are kept and firefighters await calls.",
+        "translation": "trạm cứu hỏa",
+        "example_sentences": [
+          "The fire station dispatched two emergency trucks immediately."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "laundromat",
+        "part_of_speech": "noun",
+        "ipa": "/ˈlɔːn.drə.mæt/",
+        "meaning": "An establishment equipped with coin-operated washing machines and dryers.",
+        "translation": "tiệm giặt là tự động",
+        "example_sentences": [
+          "He washed his blankets at the neighborhood laundromat on Saturday."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "barbershop",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbɑː.bə.ʃɒp/",
+        "meaning": "A shop where a barber cuts men's hair and shaves beards.",
+        "translation": "tiệm cắt tóc nam",
+        "example_sentences": [
+          "My brother visits the local barbershop once every month."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "hair salon",
+        "part_of_speech": "noun",
+        "ipa": "/ˈheə səˌlɒn/",
+        "meaning": "An establishment where a hairdresser styles women's or men's hair.",
+        "translation": "tiệm làm tóc, thẩm mỹ viện tóc",
+        "example_sentences": [
+          "She booked an appointment at the hair salon before the wedding."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "garage",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɡær.ɑːʒ/",
+        "meaning": "An establishment which sells fuel or repairs and services motor vehicles.",
+        "translation": "tiệm sửa xe, nhà để xe",
+        "example_sentences": [
+          "Take your motorbike to the repair garage for an oil change."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "mechanic",
+        "part_of_speech": "noun",
+        "ipa": "/məˈkæn.ɪk/",
+        "meaning": "A person who repairs and maintains machinery or vehicles.",
+        "translation": "thợ sửa xe, thợ máy",
+        "example_sentences": [
+          "The skilled mechanic fixed the car brakes in under an hour."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "dentist",
+        "part_of_speech": "noun",
+        "ipa": "/ˈden.tɪst/",
+        "meaning": "A person qualified to treat the diseases and conditions that affect teeth and gums.",
+        "translation": "nha sĩ",
+        "example_sentences": [
+          "Visit the dentist twice a year to maintain healthy teeth."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "letter",
+        "part_of_speech": "noun",
+        "ipa": "/ˈlet.ər/",
+        "meaning": "A written message addressed to a person, sent by post in an envelope.",
+        "translation": "bức thư",
+        "example_sentences": [
+          "She mailed a birthday letter to her grandmother in the countryside."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "envelope",
+        "part_of_speech": "noun",
+        "ipa": "/ˈen.və.ləʊp/",
+        "meaning": "A flat paper container used for enclosing a letter or document.",
+        "translation": "phong bì thư",
+        "example_sentences": [
+          "Seal the official document inside a stamped envelope."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "stamp",
+        "part_of_speech": "noun",
+        "ipa": "/stæmp/",
+        "meaning": "A small adhesive piece of paper stuck to an envelope to show postage paid.",
+        "translation": "con tem thư",
+        "example_sentences": [
+          "Stick a commemorative postage stamp on the postcard."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "parcel",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpɑː.səl/",
+        "meaning": "A package wrapped in paper for delivery by post.",
+        "translation": "bưu kiện hàng",
+        "example_sentences": [
+          "The mail carrier delivered a heavy parcel of books to our door."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "delivery",
+        "part_of_speech": "noun",
+        "ipa": "/dɪˈlɪv.ər.i/",
+        "meaning": "The action of delivering letters, packages, or ordered goods.",
+        "translation": "việc giao hàng, chuyển phát",
+        "example_sentences": [
+          "Express delivery ensures your package arrives within twenty-four hours."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "courier",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkʊr.i.ər/",
+        "meaning": "A company or employee that transports packages and documents.",
+        "translation": "nhân viên giao hàng, công ty chuyển phát",
+        "example_sentences": [
+          "The motorbike courier called to confirm my delivery address."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "service",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɜː.vɪs/",
+        "meaning": "An act of helpful activity or provision of assistance to customers.",
+        "translation": "dịch vụ",
+        "example_sentences": [
+          "The customer service at this hotel is exceptional and attentive."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "repair",
+        "part_of_speech": "verb",
+        "ipa": "/rɪˈpeər/",
+        "meaning": "To restore something damaged or broken to good condition.",
+        "translation": "sửa chữa",
+        "example_sentences": [
+          "Can you repair my bicycle chain before this afternoon?"
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fix",
+        "part_of_speech": "verb",
+        "ipa": "/fɪks/",
+        "meaning": "To fasten or mend something so that it operates properly.",
+        "translation": "khắc phục, sửa lại",
+        "example_sentences": [
+          "The technician came to fix the air conditioning unit."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "install",
+        "part_of_speech": "verb",
+        "ipa": "/ɪnˈstɔːl/",
+        "meaning": "To set up equipment or software ready for use.",
+        "translation": "lắp đặt, cài đặt",
+        "example_sentences": [
+          "They will install high-speed fiber internet in our apartment tomorrow."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "deliver",
+        "part_of_speech": "verb",
+        "ipa": "/dɪˈlɪv.ər/",
+        "meaning": "To bring and hand over goods or parcels to a recipient.",
+        "translation": "giao phát hàng",
+        "example_sentences": [
+          "The online bookstore delivers orders across all provinces."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "open",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈəʊ.pən/",
+        "meaning": "Allowing access or available for business.",
+        "translation": "mở cửa phục vụ",
+        "example_sentences": [
+          "The post office is open from seven in the morning until six."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "closed",
+        "part_of_speech": "adjective",
+        "ipa": "/kləʊzd/",
+        "meaning": "Not open for business or access.",
+        "translation": "đóng cửa",
+        "example_sentences": [
+          "The local bank branch is closed on Sunday afternoons."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "convenient",
+        "part_of_speech": "adjective",
+        "ipa": "/kənˈviː.ni.ənt/",
+        "meaning": "Fitting in well with a person's needs or ease of access.",
+        "translation": "tiện lợi, thuận tiện",
+        "example_sentences": [
+          "Having a 24-hour convenience store on the corner is very convenient."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "helpful",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈhelp.fəl/",
+        "meaning": "Giving or ready to give help; useful.",
+        "translation": "hữu ích, tận tình giúp đỡ",
+        "example_sentences": [
+          "The bank teller was very helpful in explaining foreign transfer fees."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "community",
+        "part_of_speech": "noun",
+        "ipa": "/kəˈmjuː.nə.ti/",
+        "meaning": "A group of people living in the same place or having a particular characteristic in common.",
+        "translation": "cộng đồng dân cư",
+        "example_sentences": [
+          "Our neighborhood community organized a park cleanup day."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "center",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsen.tər/",
+        "meaning": "A building or place that is a focus for a particular activity.",
+        "translation": "trung tâm dịch vụ",
+        "example_sentences": [
+          "The community center offers free evening computer classes for seniors."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "hall",
+        "part_of_speech": "noun",
+        "ipa": "/hɔːl/",
+        "meaning": "A large room used for public gatherings, meetings, or concerts.",
+        "translation": "hội trường, sảnh lớn",
+        "example_sentences": [
+          "Town residents gathered in the public hall to discuss zoning plans."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "gym",
+        "part_of_speech": "noun",
+        "ipa": "/dʒɪm/",
+        "meaning": "A membership club or hall equipped for physical exercise.",
+        "translation": "phòng tập thể hình, phòng gym",
+        "example_sentences": [
+          "He works out at the fitness gym four mornings a week."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "playground",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpleɪ.ɡraʊnd/",
+        "meaning": "An outdoor area provided for children to play on equipment.",
+        "translation": "sân chơi trẻ em",
+        "example_sentences": [
+          "Children laugh and play on swings in the neighborhood playground."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "park",
+        "part_of_speech": "noun",
+        "ipa": "/pɑːk/",
+        "meaning": "A large public green area in a town used for recreation.",
+        "translation": "công viên công cộng",
+        "example_sentences": [
+          "Families take evening walks along shaded paths in the central park."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "square",
+        "part_of_speech": "noun",
+        "ipa": "/skweər/",
+        "meaning": "An open, typically four-sided area surrounded by buildings in a village or city.",
+        "translation": "quảng trường",
+        "example_sentences": [
+          "Locals and tourists gather at Ba Dinh Square for holiday celebrations."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "monument",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmɒn.jə.mənt/",
+        "meaning": "A statue, building, or structure erected to commemorate a notable person or event.",
+        "translation": "đài tưởng niệm, tượng đài",
+        "example_sentences": [
+          "The historic stone monument honors national heroes."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "neighborhood",
+        "part_of_speech": "noun",
+        "ipa": "/ˈneɪ.bə.hʊd/",
+        "meaning": "A district or community within a town or city.",
+        "translation": "khu phố, khu dân cư lân cận",
+        "example_sentences": [
+          "Our quiet neighborhood has plenty of shady trees and clean streets."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "neighbor",
+        "part_of_speech": "noun",
+        "ipa": "/ˈneɪ.bər/",
+        "meaning": "A person living next door to or very near to the person specified.",
+        "translation": "người hàng xóm",
+        "example_sentences": [
+          "Our friendly neighbors helped water our flowers while we were away."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "address",
+        "part_of_speech": "noun",
+        "ipa": "/əˈdres/",
+        "meaning": "The particulars of the place where someone lives or an organization is situated.",
+        "translation": "địa chỉ nhà",
+        "example_sentences": [
+          "Write your full postal address clearly on the shipping label."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "form",
+        "part_of_speech": "noun",
+        "ipa": "/fɔːm/",
+        "meaning": "A printed or digital document with spaces in which to write information.",
+        "translation": "mẫu đơn, tờ khai",
+        "example_sentences": [
+          "Fill out the registration form with your personal contact details."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "signature",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɪɡ.nə.tʃər/",
+        "meaning": "A person's name written in a distinctive way, as a form of identification.",
+        "translation": "chữ ký",
+        "example_sentences": [
+          "Please provide your official signature at the bottom of the form."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "identity card",
+        "part_of_speech": "noun",
+        "ipa": "/aɪˈden.tə.ti ˌkɑːd/",
+        "meaning": "A card carrying personal information verifying a person's identity.",
+        "translation": "thẻ căn cước công dân",
+        "example_sentences": [
+          "You must present your citizen identity card at the administrative desk."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fee",
+        "part_of_speech": "noun",
+        "ipa": "/fiː/",
+        "meaning": "A payment made to a professional person or company in exchange for advice or services.",
+        "translation": "phí dịch vụ, lệ phí",
+        "example_sentences": [
+          "The postal service charges a modest fee for parcel insurance."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "tax",
+        "part_of_speech": "noun",
+        "ipa": "/tæks/",
+        "meaning": "A compulsory contribution to state revenue, levied by the government on workers' income and goods.",
+        "translation": "thuế nhà nước",
+        "example_sentences": [
+          "The sales price includes value-added tax."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "public",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈpʌb.lɪk/",
+        "meaning": "Of or concerning the people as a whole; open to all.",
+        "translation": "công cộng, của chung",
+        "example_sentences": [
+          "Investments in public transportation help reduce urban traffic jams."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "private",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈpraɪ.vət/",
+        "meaning": "Belonging to or for the use of one particular person or group only.",
+        "translation": "tư nhân, riêng tư",
+        "example_sentences": [
+          "The clinic is a private medical center with modern facilities."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "waste",
+        "part_of_speech": "noun",
+        "ipa": "/weɪst/",
+        "meaning": "Material that is not wanted or is left over after use.",
+        "translation": "rác thải, chất thải",
+        "example_sentences": [
+          "Recycle paper and plastics to reduce household waste."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "recycle",
+        "part_of_speech": "verb",
+        "ipa": "/ˌriːˈsaɪ.kəl/",
+        "meaning": "To convert waste into reusable material.",
+        "translation": "tái chế",
+        "example_sentences": [
+          "We recycle plastic bottles and aluminum cans to protect the environment."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "a2-people-relationships",
+    "level_code": "A2",
+    "topic": "People & Relationships",
+    "name": "People & Social Relationships",
+    "description": "Essential words for personality traits, friendships, and interpersonal feelings.",
+    "entries": [
+      {
+        "word": "friendship",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfrend.ʃɪp/",
+        "meaning": "The state of being friends; a relationship between mutual friends.",
+        "translation": "tình bạn, tình hữu nghị",
+        "example_sentences": [
+          "Their close friendship has lasted since their primary school years."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "companion",
+        "part_of_speech": "noun",
+        "ipa": "/kəmˈpæn.jən/",
+        "meaning": "A person with whom one spends a lot of time or with whom one travels.",
+        "translation": "người bạn đồng hành",
+        "example_sentences": [
+          "My dog is my loyal companion during long country walks."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "partner",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpɑːt.nər/",
+        "meaning": "A person with whom one shares an activity or business.",
+        "translation": "đối tác, người bạn đời",
+        "example_sentences": [
+          "Work with a study partner to practice conversational English dialogue."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "stranger",
+        "part_of_speech": "noun",
+        "ipa": "/ˈstreɪn.dʒər/",
+        "meaning": "A person whom one does not know or with whom one is not familiar.",
+        "translation": "người lạ mặt",
+        "example_sentences": [
+          "Do not give personal banking details to an unknown stranger on the phone."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "guest",
+        "part_of_speech": "noun",
+        "ipa": "/ɡest/",
+        "meaning": "A person who is invited to visit someone's home or attend an event.",
+        "translation": "vị khách mời",
+        "example_sentences": [
+          "We prepared a lavish feast to welcome our weekend house guests."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "host",
+        "part_of_speech": "noun",
+        "ipa": "/həʊst/",
+        "meaning": "A person who receives or entertains guests.",
+        "translation": "chủ nhà, người chủ trì",
+        "example_sentences": [
+          "The gracious host offered everyone warm tea and fresh fruit."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "personality",
+        "part_of_speech": "noun",
+        "ipa": "/ˌpɜː.sənˈæl.ə.ti/",
+        "meaning": "The combination of characteristics or qualities that form an individual's distinctive character.",
+        "translation": "tính cách, nhân cách",
+        "example_sentences": [
+          "Her cheerful personality brightens the mood of the entire office."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "character",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkær.ək.tər/",
+        "meaning": "The mental and moral qualities distinctive to an individual.",
+        "translation": "phẩm chất, tính nết",
+        "example_sentences": [
+          "Honesty and loyalty are the most admirable traits of his character."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "polite",
+        "part_of_speech": "adjective",
+        "ipa": "/pəˈlaɪt/",
+        "meaning": "Having or showing behavior that is respectful and considerate of other people.",
+        "translation": "lịch sự, lễ phép",
+        "example_sentences": [
+          "It is polite to say thank you whenever someone assists you."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "impolite",
+        "part_of_speech": "adjective",
+        "ipa": "/ˌɪm.pəˈlaɪt/",
+        "meaning": "Not having or showing good manners; rude.",
+        "translation": "bất lịch sự, thô lỗ",
+        "example_sentences": [
+          "Interrupting while another person is speaking is considered impolite."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "honest",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈɒn.ɪst/",
+        "meaning": "Free of deceit and untruthfulness; sincere.",
+        "translation": "trung thực, chân thật",
+        "example_sentences": [
+          "An honest student never cheats during examinations."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "dishonest",
+        "part_of_speech": "adjective",
+        "ipa": "/dɪˈsɒn.ɪst/",
+        "meaning": "Behaving or prone to behave in an untrustworthy or fraudulent way.",
+        "translation": "không trung thực, gian dối",
+        "example_sentences": [
+          "Dishonest behavior ruins trust in personal relationships."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "generous",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈdʒen.ər.əs/",
+        "meaning": "Showing a readiness to give more of something, especially money, than is strictly necessary.",
+        "translation": "hào phóng, rộng lượng",
+        "example_sentences": [
+          "The generous donor contributed books and computers to the village school."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "selfish",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈsel.fɪʃ/",
+        "meaning": "Lacking consideration for other people; concerned chiefly with one's own profit or pleasure.",
+        "translation": "ích kỷ",
+        "example_sentences": [
+          "A selfish person rarely thinks about the feelings or needs of others."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "patient",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈpeɪ.ʃənt/",
+        "meaning": "Able to accept or tolerate delays, problems, or suffering without becoming annoyed.",
+        "translation": "kiên nhẫn, nhẫn nại",
+        "example_sentences": [
+          "A good teacher is always patient with students who struggle with new concepts."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "impatient",
+        "part_of_speech": "adjective",
+        "ipa": "/ɪmˈpeɪ.ʃənt/",
+        "meaning": "Having or showing a tendency to be quickly irritated or provoked by delay.",
+        "translation": "nóng vội, thiếu kiên nhẫn",
+        "example_sentences": [
+          "Do not be impatient while waiting for the train to arrive."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "lazy",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈleɪ.zi/",
+        "meaning": "Unwilling to work or use energy.",
+        "translation": "lười biếng",
+        "example_sentences": [
+          "He used to be lazy, but now he exercises diligently every morning."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "shy",
+        "part_of_speech": "adjective",
+        "ipa": "/ʃaɪ/",
+        "meaning": "Being reserved or having or showing nervousness or timidity in the company of other people.",
+        "translation": "nhút nhát, e thẹn",
+        "example_sentences": [
+          "The new student was a bit shy during her first week in class."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "confident",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈkɒn.fɪ.dənt/",
+        "meaning": "Feeling or showing confidence in oneself; self-assured.",
+        "translation": "tự tin",
+        "example_sentences": [
+          "Public speaking classes helped her become a confident communicator."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "brave",
+        "part_of_speech": "adjective",
+        "ipa": "/breɪv/",
+        "meaning": "Ready to face and endure danger or pain; courageous.",
+        "translation": "dũng cảm, can đảm",
+        "example_sentences": [
+          "The brave firefighter rescued a kitten from the burning building."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "clever",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈklev.ər/",
+        "meaning": "Quick to understand, learn, and devise or apply ideas; intelligent.",
+        "translation": "thông minh, khéo léo",
+        "example_sentences": [
+          "The clever detective solved the mysterious puzzle within hours."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "humorous",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈhjuː.mər.əs/",
+        "meaning": "Causing lighthearted laughter and amusement; comic.",
+        "translation": "hài hước, hóm hỉnh",
+        "example_sentences": [
+          "His humorous stories made everyone laugh out loud around the table."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "serious",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈsɪə.ri.əs/",
+        "meaning": "Acting with careful thought and not lightheartedly; demanding earnest attention.",
+        "translation": "nghiêm túc, đứng đắn",
+        "example_sentences": [
+          "She has a serious attitude toward her academic career and goals."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "calm",
+        "part_of_speech": "adjective",
+        "ipa": "/kɑːm/",
+        "meaning": "Not showing or feeling nervousness, anger, or other strong emotions.",
+        "translation": "bình tĩnh, điềm đạm",
+        "example_sentences": [
+          "Stay calm and follow the emergency exit signs during a drill."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "nervous",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈnɜː.vəs/",
+        "meaning": "Easily agitated or alarmed; tending to be anxious.",
+        "translation": "lo lắng, hồi hộp",
+        "example_sentences": [
+          "He felt nervous right before giving his graduation speech."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "proud",
+        "part_of_speech": "adjective",
+        "ipa": "/praʊd/",
+        "meaning": "Feeling deep pleasure or satisfaction as a result of one's own or others' achievements.",
+        "translation": "tự hào, hãnh diện",
+        "example_sentences": [
+          "Her parents were immensely proud when she graduated with top honors."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "jealous",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈdʒel.əs/",
+        "meaning": "Feeling or showing an envious resentment of someone or their achievements.",
+        "translation": "ghen tị, đố kỵ",
+        "example_sentences": [
+          "Try not to feel jealous when colleagues receive praise for good work."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "trust",
+        "part_of_speech": "verb",
+        "ipa": "/trʌst/",
+        "meaning": "To believe in the reliability, truth, ability, or strength of someone.",
+        "translation": "tin tưởng, tín nhiệm",
+        "example_sentences": [
+          "Good friends trust each other completely with personal secrets."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "admire",
+        "part_of_speech": "verb",
+        "ipa": "/ədˈmaɪər/",
+        "meaning": "To regard with respect or warm approval.",
+        "translation": "ngưỡng mộ, khâm phục",
+        "example_sentences": [
+          "I admire her dedication to environmental conservation projects."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "forgive",
+        "part_of_speech": "verb",
+        "ipa": "/fəˈɡɪv/",
+        "meaning": "To stop feeling angry or resentful toward someone for an offense.",
+        "translation": "tha thứ, tha lỗi",
+        "example_sentences": [
+          "True friends learn to forgive small mistakes and move forward."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "apologize",
+        "part_of_speech": "verb",
+        "ipa": "/əˈpɒl.ə.dʒaɪz/",
+        "meaning": "To express regret for something that one has done wrong.",
+        "translation": "xin lỗi",
+        "example_sentences": [
+          "He called to apologize sincerely for missing our lunch meeting."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "promise",
+        "part_of_speech": "verb",
+        "ipa": "/ˈprɒm.ɪs/",
+        "meaning": "To assure someone that one will definitely do, give, or arrange something.",
+        "translation": "hứa, cam kết",
+        "example_sentences": [
+          "I promise to return your book as soon as I finish the final chapter."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "encourage",
+        "part_of_speech": "verb",
+        "ipa": "/ɪnˈkʌr.ɪdʒ/",
+        "meaning": "To give support, confidence, or hope to someone.",
+        "translation": "động viên, khuyến khích",
+        "example_sentences": [
+          "Teachers always encourage students to ask questions when in doubt."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "introduce",
+        "part_of_speech": "verb",
+        "ipa": "/ˌɪn.trəˈdʒuːs/",
+        "meaning": "To make someone known by name to another in person.",
+        "translation": "giới thiệu",
+        "example_sentences": [
+          "Let me introduce my new colleague to the rest of the design team."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "agree",
+        "part_of_speech": "verb",
+        "ipa": "/əˈɡriː/",
+        "meaning": "To have the same opinion about something.",
+        "translation": "đồng ý, tán thành",
+        "example_sentences": [
+          "We all agree that regular review is the key to mastering English vocabulary."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "disagree",
+        "part_of_speech": "verb",
+        "ipa": "/ˌdɪs.əˈɡriː/",
+        "meaning": "To have or express a different opinion from someone else.",
+        "translation": "bất đồng, không đồng ý",
+        "example_sentences": [
+          "It is acceptable to disagree politely during academic debates."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "complain",
+        "part_of_speech": "verb",
+        "ipa": "/kəmˈpleɪn/",
+        "meaning": "To express dissatisfaction or annoyance about something.",
+        "translation": "phàn nàn, khiếu nại",
+        "example_sentences": [
+          "Customers rarely complain because the hotel service is so attentive."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "emotion",
+        "part_of_speech": "noun",
+        "ipa": "/ɪˈməʊ.ʃən/",
+        "meaning": "A natural instinctive state of mind deriving from one's circumstances.",
+        "translation": "cảm xúc",
+        "example_sentences": [
+          "Music has the power to evoke deep emotions and memories."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "feeling",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfiː.lɪŋ/",
+        "meaning": "An emotional state or reaction.",
+        "translation": "cảm giác, cảm nghĩ",
+        "example_sentences": [
+          "Share your genuine feelings openly with family members."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "opinion",
+        "part_of_speech": "noun",
+        "ipa": "/əˈpɪn.jən/",
+        "meaning": "A view or judgment formed about something, not necessarily based on fact.",
+        "translation": "ý kiến, quan điểm",
+        "example_sentences": [
+          "Everyone in the study group is entitled to express their opinion."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "relationship",
+        "part_of_speech": "noun",
+        "ipa": "/rɪˈleɪ.ʃən.ʃɪp/",
+        "meaning": "The way in which two or more people are connected or behave toward each other.",
+        "translation": "mối quan hệ",
+        "example_sentences": [
+          "Building a healthy relationship requires honest communication and mutual respect."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "behavior",
+        "part_of_speech": "noun",
+        "ipa": "/bɪˈheɪ.vjər/",
+        "meaning": "The way in which one acts or conducts oneself, especially toward others.",
+        "translation": "hành vi, cách ứng xử",
+        "example_sentences": [
+          "Polite behavior leaves a positive and lasting impression on strangers."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "loyalty",
+        "part_of_speech": "noun",
+        "ipa": "/ˈlɔɪ.əl.ti/",
+        "meaning": "The quality of being loyal to someone or something.",
+        "translation": "lòng trung thành",
+        "example_sentences": [
+          "Loyalty among team members builds a solid foundation for success."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sympathy",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɪm.pə.θi/",
+        "meaning": "Feelings of pity and sorrow for someone else's misfortune.",
+        "translation": "sự đồng cảm, thương cảm",
+        "example_sentences": [
+          "We expressed our deepest sympathy to the grieving family."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "gratitude",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɡræt.ɪ.tʃuːd/",
+        "meaning": "The quality of being thankful; readiness to show appreciation.",
+        "translation": "lòng biết ơn",
+        "example_sentences": [
+          "She expressed her sincere gratitude for the scholarship support."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  }
+]

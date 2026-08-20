@@ -4,11 +4,12 @@ import json
 import logging
 import unicodedata
 import uuid
+from datetime import datetime, timedelta, timezone
 
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.ai.provider import ExerciseAIProvider
 from app.models.exercise import Exercise
@@ -18,6 +19,7 @@ from app.schemas.ai_exercise import (
     AIFillInBlankBatch,
     AIMultipleChoiceBatch,
 )
+from app.services.ai_guard import ai_guard, AICooldownError, AIDuplicateRequestError
 from app.services.normalization import normalize_topic
 
 
@@ -58,6 +60,45 @@ AI_SOURCE_CONTEXT_LIMIT = 20
 def _normalized(value: str) -> str:
     normalized = unicodedata.normalize("NFKC", value.strip())
     return " ".join(normalized.split()).casefold()
+
+
+def get_active_unfinished_exercises(
+    db: Session,
+    user_id: uuid.UUID,
+) -> list[Exercise]:
+    """Return active unfinished AI exercises for the user, if any."""
+    latest_exercise = db.scalar(
+        select(Exercise)
+        .where(Exercise.user_id == user_id, Exercise.source == "ai")
+        .order_by(Exercise.created_at.desc(), Exercise.id.desc())
+        .limit(1)
+    )
+    if latest_exercise is None or latest_exercise.created_at is None:
+        return []
+
+    time_min = latest_exercise.created_at - timedelta(seconds=10)
+    time_max = latest_exercise.created_at + timedelta(seconds=10)
+
+    statement = (
+        select(Exercise)
+        .options(selectinload(Exercise.vocabularies), selectinload(Exercise.attempts))
+        .where(
+            Exercise.user_id == user_id,
+            Exercise.source == "ai",
+            Exercise.created_at >= time_min,
+            Exercise.created_at <= time_max,
+        )
+        .order_by(Exercise.created_at.asc(), Exercise.id.asc())
+    )
+    batch = list(db.scalars(statement))
+    if not batch:
+        return []
+
+    # If any exercise in this batch has not been attempted, the session is unfinished
+    unattempted = [item for item in batch if len(item.attempts) == 0]
+    if unattempted:
+        return batch
+    return []
 
 
 def _load_owned_vocabularies(
@@ -243,109 +284,141 @@ def generate_and_store_exercises(
     provider: ExerciseAIProvider,
     user_id: uuid.UUID,
     payload: AIExerciseGenerationRequest,
-) -> list[Exercise]:
-    source_vocabularies = _resolve_vocabulary_source(db, user_id, payload)
-    learning_track_id = _validate_selection(source_vocabularies, payload.exercise_type)
-    provider_vocabularies = _select_provider_vocabularies(source_vocabularies)
-    provider_vocabulary_ids = [item.id for item in provider_vocabularies]
-    context = _provider_context(provider_vocabularies)
+) -> tuple[list[Exercise], bool]:
+    """Generate and store AI exercises.
 
-    # End the read transaction before waiting on the external provider.
-    db.rollback()
-    requested_count = 1 if payload.exercise_type == "fill_in_blank" else payload.count
-    raw = provider.generate_exercises(context, payload.exercise_type, requested_count)
-    batch = _parse_batch(raw, payload.exercise_type)
-
-    # Re-check ownership after the provider call so stale/deleted records cannot be used.
-    vocabularies = _load_owned_vocabularies(db, user_id, provider_vocabulary_ids)
-    if _validate_selection(vocabularies, payload.exercise_type) != learning_track_id:
-        raise VocabularyTrackMismatchError
-    selected_by_id = {item.id: item for item in vocabularies}
-    _validate_candidate_semantics(
-        batch,
-        exercise_type=payload.exercise_type,
-        requested_count=requested_count,
-        selected_by_id=selected_by_id,
-    )
-
-    exercises: list[Exercise] = []
-    for candidate in batch.exercises:
-        if payload.exercise_type == "multiple_choice":
-            options = [option.model_dump() for option in candidate.options]
-            accepted_answers: list[object] = []
-            correct_answer = candidate.correct_answer
-            explanation = candidate.explanation
-            word_to_vocabulary = {
-                _normalized(item.word): item for item in vocabularies
-            }
-            # The target must be owned, but a natural English distractor does
-            # not need to be another owned word. Link any matching owned
-            # options plus the mandatory target, without treating a safe
-            # external distractor as a persistence error.
-            linked_vocabularies = list(
-                {
-                    item.id: item
-                    for option in candidate.options
-                    if (item := word_to_vocabulary.get(_normalized(option.text)))
-                    is not None
-                }.values()
-            )
-            if candidate.target_vocabulary_id not in {
-                item.id for item in linked_vocabularies
-            }:
-                linked_vocabularies.append(
-                    selected_by_id[candidate.target_vocabulary_id]
-                )
-            prompt = candidate.prompt
-        else:
-            options = [
-                {
-                    "number": blank.number,
-                    "options": [option.model_dump() for option in blank.options],
-                }
-                for blank in candidate.blanks
-            ]
-            answer_key = {
-                str(blank.number): blank.correct_answer for blank in candidate.blanks
-            }
-            correct_answer = json.dumps(answer_key, sort_keys=True)
-            accepted_answers = []
-            explanation = json.dumps(
-                {
-                    str(blank.number): blank.explanation
-                    for blank in candidate.blanks
-                },
-                ensure_ascii=False,
-                sort_keys=True,
-            )
-            linked_vocabularies = list(
-                {
-                    blank.target_vocabulary_id: selected_by_id[
-                        blank.target_vocabulary_id
-                    ]
-                    for blank in candidate.blanks
-                }.values()
-            )
-            prompt = f"{candidate.title}\n\n{candidate.passage}"
-
-        exercise = Exercise(
-            user_id=user_id,
-            learning_track_id=learning_track_id,
-            exercise_type=payload.exercise_type,
-            prompt=prompt,
-            options=options,
-            correct_answer=correct_answer,
-            accepted_answers=accepted_answers,
-            explanation=explanation,
-            source="ai",
-            vocabularies=linked_vocabularies,
+    Returns (exercises, resumed). If an unfinished active session exists, it is
+    returned directly without calling AI.
+    """
+    # 1. Check for active unfinished practice session
+    active_exercises = get_active_unfinished_exercises(db, user_id)
+    if active_exercises:
+        logger.info(
+            "Resuming existing unfinished practice session (user_id=%s, count=%s)",
+            user_id,
+            len(active_exercises),
         )
-        exercises.append(exercise)
+        return active_exercises, True
+
+    # 2. Acquire generation guard (rate limit & in-flight deduplication)
+    payload_dict = {
+        "source_mode": payload.source_mode,
+        "topic": payload.topic,
+        "vocabulary_ids": [str(v) for v in payload.vocabulary_ids],
+        "exercise_type": payload.exercise_type,
+        "count": payload.count,
+    }
+    fingerprint = ai_guard.compute_fingerprint(user_id, "exercise_generation", payload_dict)
+    ai_guard.check_and_acquire(user_id, "exercise_generation", fingerprint, cooldown_seconds=30)
 
     try:
-        db.add_all(exercises)
-        db.commit()
-    except SQLAlchemyError as exc:
+        source_vocabularies = _resolve_vocabulary_source(db, user_id, payload)
+        learning_track_id = _validate_selection(source_vocabularies, payload.exercise_type)
+        provider_vocabularies = _select_provider_vocabularies(source_vocabularies)
+        provider_vocabulary_ids = [item.id for item in provider_vocabularies]
+        context = _provider_context(provider_vocabularies)
+
+        # End the read transaction before waiting on the external provider.
         db.rollback()
-        raise AIExercisePersistenceError from exc
-    return exercises
+        requested_count = 1 if payload.exercise_type == "fill_in_blank" else payload.count
+        raw = provider.generate_exercises(context, payload.exercise_type, requested_count)
+        batch = _parse_batch(raw, payload.exercise_type)
+
+        # Re-check ownership after the provider call so stale/deleted records cannot be used.
+        vocabularies = _load_owned_vocabularies(db, user_id, provider_vocabulary_ids)
+        if _validate_selection(vocabularies, payload.exercise_type) != learning_track_id:
+            raise VocabularyTrackMismatchError
+        selected_by_id = {item.id: item for item in vocabularies}
+        _validate_candidate_semantics(
+            batch,
+            exercise_type=payload.exercise_type,
+            requested_count=requested_count,
+            selected_by_id=selected_by_id,
+        )
+
+        now = datetime.now(timezone.utc)
+        exercises: list[Exercise] = []
+        for candidate in batch.exercises:
+            if payload.exercise_type == "multiple_choice":
+                options = [option.model_dump() for option in candidate.options]
+                accepted_answers: list[object] = []
+                correct_answer = candidate.correct_answer
+                explanation = candidate.explanation
+                word_to_vocabulary = {
+                    _normalized(item.word): item for item in vocabularies
+                }
+                linked_vocabularies = list(
+                    {
+                        item.id: item
+                        for option in candidate.options
+                        if (item := word_to_vocabulary.get(_normalized(option.text)))
+                        is not None
+                    }.values()
+                )
+                if candidate.target_vocabulary_id not in {
+                    item.id for item in linked_vocabularies
+                }:
+                    linked_vocabularies.append(
+                        selected_by_id[candidate.target_vocabulary_id]
+                    )
+                prompt = candidate.prompt
+            else:
+                options = [
+                    {
+                        "number": blank.number,
+                        "options": [option.model_dump() for option in blank.options],
+                    }
+                    for blank in candidate.blanks
+                ]
+                answer_key = {
+                    str(blank.number): blank.correct_answer for blank in candidate.blanks
+                }
+                correct_answer = json.dumps(answer_key, sort_keys=True)
+                accepted_answers = []
+                explanation = json.dumps(
+                    {
+                        str(blank.number): blank.explanation
+                        for blank in candidate.blanks
+                    },
+                    ensure_ascii=False,
+                    sort_keys=True,
+                )
+                linked_vocabularies = list(
+                    {
+                        blank.target_vocabulary_id: selected_by_id[
+                            blank.target_vocabulary_id
+                        ]
+                        for blank in candidate.blanks
+                    }.values()
+                )
+                prompt = f"{candidate.title}\n\n{candidate.passage}"
+
+            exercise = Exercise(
+                user_id=user_id,
+                learning_track_id=learning_track_id,
+                exercise_type=payload.exercise_type,
+                prompt=prompt,
+                options=options,
+                correct_answer=correct_answer,
+                accepted_answers=accepted_answers,
+                explanation=explanation,
+                source="ai",
+                created_at=now,
+                updated_at=now,
+                vocabularies=linked_vocabularies,
+            )
+            exercises.append(exercise)
+
+        try:
+            db.add_all(exercises)
+            db.commit()
+        except SQLAlchemyError as exc:
+            db.rollback()
+            raise AIExercisePersistenceError from exc
+
+        ai_guard.release(user_id, "exercise_generation", fingerprint, mark_success=True)
+        return exercises, False
+
+    except Exception:
+        ai_guard.release(user_id, "exercise_generation", fingerprint, mark_success=False)
+        raise

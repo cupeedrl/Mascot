@@ -52,6 +52,7 @@ class VocabularyEntry(Base):
     )
     word: Mapped[str] = mapped_column(String(255), nullable=False)
     normalized_word: Mapped[str] = mapped_column(String(255), nullable=False)
+    ipa: Mapped[str | None] = mapped_column(String(100), nullable=True)
     part_of_speech: Mapped[str] = mapped_column(String(64), nullable=False)
     meaning: Mapped[str] = mapped_column(Text, nullable=False)
     translation: Mapped[str] = mapped_column(Text, nullable=False)

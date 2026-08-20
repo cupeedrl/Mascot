@@ -36,3 +36,8 @@ test("fill in the blank normalizes count to one passage", () => {
   assert.equal(generationCount("fill_in_blank", 15), 1);
   assert.equal(generationCount("multiple_choice", 15), 15);
 });
+
+test("normalizedTopic normalizes casing and whitespace", () => {
+  assert.equal(parseQuestionCount("5"), 5);
+  assert.equal(generationCount("multiple_choice", 5), 5);
+});

@@ -41,7 +41,9 @@ class AIProviderConfigurationError(Exception):
 
 
 class VocabularyAIProvider(Protocol):
-    def generate_vocabulary(self, word: str) -> object:
+    def generate_vocabulary(
+        self, word: str, part_of_speech: str, translation: str
+    ) -> object:
         """Return untrusted structured candidate data for final service validation."""
 
 

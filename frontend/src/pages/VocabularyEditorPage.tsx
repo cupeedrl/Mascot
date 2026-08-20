@@ -21,8 +21,10 @@ import {
   getExistingVocabularyId,
   getVocabularyEditRoute,
 } from "../features/vocabulary/duplicateConflict";
+import { PARTS_OF_SPEECH } from "../features/vocabulary/partsOfSpeech";
 
 const CEFR_LEVELS: CefrLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
+
 const STATUSES: Array<{ value: LearningStatus; label: string }> = [
   { value: "new", label: "Mới" },
   { value: "learning", label: "Đang học" },
@@ -33,6 +35,7 @@ const STATUSES: Array<{ value: LearningStatus; label: string }> = [
 interface FormState {
   learningTrackId: string;
   word: string;
+  ipa: string;
   partOfSpeech: string;
   meaning: string;
   translation: string;
@@ -46,7 +49,8 @@ function emptyForm(): FormState {
   return {
     learningTrackId: "",
     word: "",
-    partOfSpeech: "",
+    ipa: "",
+    partOfSpeech: "noun",
     meaning: "",
     translation: "",
     example: "",
@@ -60,7 +64,8 @@ function fromVocabulary(item: Vocabulary): FormState {
   return {
     learningTrackId: item.learning_track_id,
     word: item.word,
-    partOfSpeech: item.part_of_speech,
+    ipa: item.ipa ?? "",
+    partOfSpeech: item.part_of_speech || "noun",
     meaning: item.meaning,
     translation: item.translation,
     example: item.example_sentences[0] ?? "",
@@ -118,22 +123,36 @@ export function VocabularyEditorPage() {
   async function handleAIGeneration() {
     setAIError("");
     const word = form.word.trim();
+    const pos = form.partOfSpeech.trim();
+    const translation = form.translation.trim();
+
     if (!word) {
-      setAIError("Hãy nhập một từ tiếng Anh trước khi tạo gợi ý.");
+      setAIError("Vui lòng nhập Từ tiếng Anh trước khi hoàn thiện với AI.");
+      return;
+    }
+    if (!pos) {
+      setAIError("Vui lòng chọn Từ loại trước khi hoàn thiện với AI.");
+      return;
+    }
+    if (!translation) {
+      setAIError("Vui lòng nhập Nghĩa tiếng Việt (nét nghĩa mong muốn) trước khi hoàn thiện với AI.");
       return;
     }
 
     setIsGenerating(true);
     try {
-      const candidate = await generateAIVocabulary(word);
+      const candidate = await generateAIVocabulary({
+        word,
+        part_of_speech: pos,
+        translation,
+      });
       setForm((current) => ({
         ...current,
-        word: candidate.word,
-        partOfSpeech: candidate.part_of_speech,
+        ipa: candidate.ipa || current.ipa,
         meaning: candidate.definition,
-        translation: candidate.translation,
         example: candidate.examples[0] ?? "",
         level: candidate.cefr_level,
+        topic: current.topic.trim() ? current.topic : (candidate.topic || "Khác"),
         status: "new",
       }));
       setHasAIPreview(true);
@@ -149,6 +168,8 @@ export function VocabularyEditorPage() {
       ...emptyForm(),
       learningTrackId: current.learningTrackId,
       word: current.word,
+      partOfSpeech: current.partOfSpeech,
+      translation: current.translation,
     }));
     setHasAIPreview(false);
     setAIError("");
@@ -164,14 +185,15 @@ export function VocabularyEditorPage() {
     }
     const payload: VocabularyInput = {
       learning_track_id: form.learningTrackId,
-      word: form.word,
-      part_of_speech: form.partOfSpeech,
-      meaning: form.meaning,
-      translation: form.translation,
+      word: form.word.trim(),
+      ipa: form.ipa.trim() || null,
+      part_of_speech: form.partOfSpeech.trim(),
+      meaning: form.meaning.trim(),
+      translation: form.translation.trim(),
       translation_language_code: "vi",
       example_sentences: form.example.trim() ? [form.example.trim()] : [],
       level_code: form.level,
-      topic: form.topic.trim() || null,
+      topic: form.topic.trim() || "Khác",
       learning_status: form.status,
     };
     setIsSaving(true);
@@ -206,7 +228,7 @@ export function VocabularyEditorPage() {
           <h1 id="editor-heading">{isEditing ? "Cập nhật từ vựng" : "Tạo từ vựng mới"}</h1>
           <p>{isEditing
             ? "Cập nhật nội dung từ vựng đang học."
-            : "Nhập thủ công hoặc dùng AI để điền bản nháp, sau đó kiểm tra và tự lưu."}</p>
+            : "Nhập từ, từ loại và nghĩa tiếng Việt rồi chọn Hoàn thiện với AI để điền tự động các trường còn lại."}</p>
         </div>
       </div>
 
@@ -225,13 +247,36 @@ export function VocabularyEditorPage() {
             </select>
           </label>
           <label>
-            Từ
+            Từ tiếng Anh <span className="field-required">*</span>
             <input
               value={form.word}
               onChange={(event) => setForm({ ...form, word: event.target.value })}
               required
               maxLength={255}
               placeholder="solely"
+            />
+          </label>
+          <label>
+            Từ loại (Part of speech) <span className="field-required">*</span>
+            <select
+              value={form.partOfSpeech}
+              onChange={(event) => setForm({ ...form, partOfSpeech: event.target.value })}
+              required
+            >
+              {PARTS_OF_SPEECH.map((pos) => (
+                <option key={pos.value} value={pos.value}>{pos.label}</option>
+              ))}
+            </select>
+          </label>
+          <label className="wide-field">
+            Nghĩa tiếng Việt (Nét nghĩa cần học) <span className="field-required">*</span>
+            <textarea
+              value={form.translation}
+              onChange={(event) => setForm({ ...form, translation: event.target.value })}
+              required
+              maxLength={2000}
+              rows={2}
+              placeholder="duy nhất, chỉ..."
             />
           </label>
           {!isEditing && (
@@ -243,17 +288,17 @@ export function VocabularyEditorPage() {
                 disabled={isGenerating || isSaving}
                 onClick={() => void handleAIGeneration()}
               >
-                <Sparkles size={17} /> {isGenerating ? "Đang tạo gợi ý…" : "Tạo gợi ý với AI"}
+                <Sparkles size={17} /> {isGenerating ? "Đang hoàn thiện…" : "Hoàn thiện với Mascot AI"}
               </button>
-              <small>AI đưa ra bản nháp; chưa có dữ liệu nào được lưu.</small>
+              <small>AI sử dụng Từ, Từ loại và Nghĩa tiếng Việt của bạn để sinh IPA, định nghĩa, ví dụ và CEFR chuẩn xác.</small>
             </div>
           )}
           {aiError && <div className="form-error wide-field" role="alert">{aiError}</div>}
           {hasAIPreview && !isEditing && (
             <div className="ai-preview-notice wide-field" role="status">
               <div>
-                <strong><ShieldCheck size={17} /> Bản nháp do AI tạo</strong>
-                <span>CEFR chỉ là ước lượng. Hãy đọc và sửa mọi trường trước khi lưu.</span>
+                <strong><ShieldCheck size={17} /> Bản nháp do AI hoàn thiện</strong>
+                <span>Nét nghĩa của bạn được giữ nguyên. Hãy đọc và chỉnh sửa thêm nếu muốn trước khi lưu.</span>
               </div>
               <button className="text-button" type="button" onClick={discardAIPreview}>
                 <X size={15} /> Bỏ gợi ý
@@ -261,25 +306,12 @@ export function VocabularyEditorPage() {
             </div>
           )}
           <label>
-            Từ loại
-            <input value={form.partOfSpeech} onChange={(event) => setForm({ ...form, partOfSpeech: event.target.value })} required maxLength={64} placeholder="adverb" />
-          </label>
-          <label className="wide-field">
-            Định nghĩa tiếng Anh
-            <textarea value={form.meaning} onChange={(event) => setForm({ ...form, meaning: event.target.value })} required maxLength={4000} rows={3} />
-          </label>
-          <label className="wide-field">
-            Nghĩa tiếng Việt
-            <textarea value={form.translation} onChange={(event) => setForm({ ...form, translation: event.target.value })} required maxLength={2000} rows={2} />
-          </label>
-          <label className="wide-field">
-            Câu ví dụ
-            <textarea
-              value={form.example}
-              onChange={(event) => setForm({ ...form, example: event.target.value })}
-              rows={3}
-              maxLength={500}
-              placeholder="The decision was based solely on cost."
+            Phiên âm IPA
+            <input
+              value={form.ipa}
+              onChange={(event) => setForm({ ...form, ipa: event.target.value })}
+              maxLength={100}
+              placeholder="/ˈsəʊl.li/"
             />
           </label>
           <label>
@@ -288,11 +320,32 @@ export function VocabularyEditorPage() {
               {CEFR_LEVELS.map((level) => <option key={level}>{level}</option>)}
             </select>
           </label>
+          <label className="wide-field">
+            Định nghĩa tiếng Anh
+            <textarea
+              value={form.meaning}
+              onChange={(event) => setForm({ ...form, meaning: event.target.value })}
+              required
+              maxLength={4000}
+              rows={3}
+              placeholder="Not involving anyone or anything else; only."
+            />
+          </label>
+          <label className="wide-field">
+            Câu ví dụ
+            <textarea
+              value={form.example}
+              onChange={(event) => setForm({ ...form, example: event.target.value })}
+              rows={2}
+              maxLength={500}
+              placeholder="The decision was based solely on cost."
+            />
+          </label>
           <TopicCombobox
             label="Chủ đề"
             value={form.topic}
             onChange={(topic) => setForm((current) => ({ ...current, topic }))}
-            placeholder="Work"
+            placeholder="Khác"
           />
           <label>
             Trạng thái học

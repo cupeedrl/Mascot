@@ -55,10 +55,12 @@ def test_groq_provider_uses_responses_parse_and_configured_base_url(
     candidate = VocabularyCandidate(
         word="solely",
         part_of_speech="adverb",
-        definition="Only and not involving anything else.",
         translation="chỉ, duy nhất",
+        ipa="/ˈsəʊl.li/",
+        definition="Only and not involving anything else.",
         cefr_level="B2",
         examples=["The decision was based solely on cost."],
+        topic="Khác",
     )
 
     class FakeResponses:
@@ -82,7 +84,7 @@ def test_groq_provider_uses_responses_parse_and_configured_base_url(
         max_output_tokens=800,
     )
 
-    result = provider.generate_vocabulary("solely")
+    result = provider.generate_vocabulary("solely", "adverb", "chỉ, duy nhất")
 
     assert captured["client"] == {
         "api_key": "groq-test-key",

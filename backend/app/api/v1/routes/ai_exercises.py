@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
 from app.ai.dependencies import get_exercise_ai_provider
@@ -33,10 +33,26 @@ from app.services.ai_exercise import (
     VocabularySourceEmptyError,
     VocabularyTrackMismatchError,
     generate_and_store_exercises,
+    get_active_unfinished_exercises,
 )
+from app.services.ai_guard import AICooldownError, AIDuplicateRequestError
 
 router = APIRouter(prefix="/ai/exercises")
 logger = logging.getLogger(__name__)
+
+
+@router.get("/active", response_model=AIExerciseGenerationResponse)
+def get_active_session(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> AIExerciseGenerationResponse:
+    exercises = get_active_unfinished_exercises(db, current_user.id)
+    items = [ExerciseResponse.model_validate(exercise) for exercise in exercises]
+    return AIExerciseGenerationResponse(
+        items=items,
+        created_count=len(items),
+        resumed=True if items else False,
+    )
 
 
 @router.post("/generate", response_model=AIExerciseGenerationResponse)
@@ -45,14 +61,27 @@ def generate_exercises(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
     provider: Annotated[ExerciseAIProvider, Depends(get_exercise_ai_provider)],
+    response: Response,
 ) -> AIExerciseGenerationResponse:
     try:
-        exercises = generate_and_store_exercises(
+        exercises, resumed = generate_and_store_exercises(
             db,
             provider,
             current_user.id,
             payload,
         )
+    except AICooldownError as exc:
+        response.headers["Retry-After"] = str(exc.retry_after)
+        raise HTTPException(
+            status_code=429,
+            detail=str(exc),
+            headers={"Retry-After": str(exc.retry_after)},
+        ) from exc
+    except AIDuplicateRequestError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail=str(exc),
+        ) from exc
     except VocabularySelectionNotFoundError as exc:
         raise HTTPException(
             status_code=404,
@@ -114,4 +143,8 @@ def generate_exercises(
         raise HTTPException(status_code=502, detail="Dịch vụ AI tạm thời không khả dụng.") from exc
 
     items = [ExerciseResponse.model_validate(exercise) for exercise in exercises]
-    return AIExerciseGenerationResponse(items=items, created_count=len(items))
+    return AIExerciseGenerationResponse(
+        items=items,
+        created_count=len(items),
+        resumed=resumed,
+    )

@@ -24,6 +24,7 @@ import {
   ExerciseType,
   Vocabulary,
   generateAIExercises,
+  getActiveAIExercises,
   listAllVocabularies,
   submitExerciseAttempt,
 } from "../api/client";
@@ -90,6 +91,7 @@ function optionLabel(options: ExerciseOption[], optionId: string): string {
 
 export function PracticePage() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [activeSessionExercises, setActiveSessionExercises] = useState<Exercise[]>([]);
   const [vocabularies, setVocabularies] = useState<Vocabulary[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sourceMode, setSourceMode] = useState<PracticeSourceMode>("recent");
@@ -126,7 +128,16 @@ export function PracticePage() {
     setCompletedCount(0);
     try {
       setExercises([]);
-      setVocabularies(await listAllVocabularies());
+      const [vocabList, activeResp] = await Promise.all([
+        listAllVocabularies(),
+        getActiveAIExercises().catch(() => ({ items: [], created_count: 0, resumed: false })),
+      ]);
+      setVocabularies(vocabList);
+      if (activeResp.items && activeResp.items.length > 0) {
+        setActiveSessionExercises(activeResp.items);
+      } else {
+        setActiveSessionExercises([]);
+      }
       setSessionReview([]);
     } catch (loadError) {
       setError(errorMessage(loadError));
@@ -261,11 +272,18 @@ export function PracticePage() {
         ),
       });
       resetPracticeSession(generated.items);
-      setGenerationSuccess(
-        generationType === "fill_in_blank"
-          ? "Đã tạo 1 đoạn văn với 4 chỗ trống. Bạn có thể luyện ngay bên dưới."
-          : `Đã tạo ${generated.created_count} câu hỏi. Bạn có thể luyện ngay bên dưới.`,
-      );
+      setActiveSessionExercises([]);
+      if (generated.resumed) {
+        setGenerationSuccess(
+          `Tiếp tục bài tập đang làm (${generated.created_count} câu). Bạn có thể hoàn thành bên dưới.`,
+        );
+      } else {
+        setGenerationSuccess(
+          generationType === "fill_in_blank"
+            ? "Đã tạo 1 đoạn văn với 4 chỗ trống. Bạn có thể luyện ngay bên dưới."
+            : `Đã tạo ${generated.created_count} câu hỏi. Bạn có thể luyện ngay bên dưới.`,
+        );
+      }
     } catch (generateError) {
       setGenerationError(errorMessage(generateError));
     } finally {
@@ -349,6 +367,33 @@ export function PracticePage() {
             <p>Chọn nội dung bạn muốn luyện; Mascot sẽ tạo số câu riêng từ nguồn đó.</p>
           </div>
         </div>
+
+        {activeSessionExercises.length > 0 && exercises.length === 0 && (
+          <div className="active-session-banner" role="region" aria-label="Bài tập đang dở">
+            <div className="active-session-content">
+              <span className="active-session-icon" aria-hidden="true">
+                <Sparkles size={20} />
+              </span>
+              <div>
+                <strong>Bạn có bài luyện tập chưa hoàn thành ({activeSessionExercises.length} câu)</strong>
+                <p>Tiếp tục bài đang làm để củng cố từ vựng thay vì phải tạo bài mới.</p>
+              </div>
+            </div>
+            <button
+              className="primary-button active-session-resume-btn"
+              type="button"
+              onClick={() => {
+                resetPracticeSession(activeSessionExercises);
+                setActiveSessionExercises([]);
+                setGenerationSuccess(
+                  `Đã tải lại bài tập chưa hoàn thành (${activeSessionExercises.length} câu).`,
+                );
+              }}
+            >
+              Tiếp tục bài đang làm <ArrowRight size={16} />
+            </button>
+          </div>
+        )}
 
         {availableVocabularies.length === 0 ? (
           <div className="empty-state generator-empty">

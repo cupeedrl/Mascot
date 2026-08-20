@@ -1,0 +1,61 @@
+﻿from __future__ import annotations
+
+B2_ENVIRONMENT = {
+    "code": "b2-environment",
+    "level_code": "B2",
+    "topic": "Environment",
+    "name": "Ecology & Sustainable Systems",
+    "description": "Upper-intermediate vocabulary for environmental policy, renewable systems, and ecological balance.",
+    "entries": [
+        ("conservationist", "noun", "/ˌkɒn.səˈveɪ.ʃən.ɪst/", "A person who advocates or acts for the protection and preservation of the environment and wildlife.", "nhà bảo tồn thiên nhiên", "Conservationists worked tirelessly to establish a protected marine sanctuary around the coral reefs."),
+        ("preservation", "noun", "/ˌprez.əˈveɪ.ʃən/", "The action of preserving something, especially historic monuments or natural wilderness.", "sự giữ gìn, bảo tồn nguyên trạng", "The preservation of virgin rainforests is critical for global carbon sequestration."),
+        ("depletion", "noun", "/dɪˈpliː.ʃən/", "Reduction in the number or quantity of something, especially natural resources.", "sự cạn kiệt tài nguyên", "Overfishing causes severe depletion of commercial fish stocks in coastal waters."),
+        ("degradation", "noun", "/ˌdeɡ.rəˈdeɪ.ʃən/", "The condition or process of degrading or being degraded, especially environmental quality.", "sự suy thoái môi trường", "Soil degradation caused by excessive chemical fertilizer use threatens agricultural productivity."),
+        ("contamination", "noun", "/kənˌtæm.ɪˈneɪ.ʃən/", "The action or state of making or being made impure by polluting or poisoning.", "sự nhiễm bẩn, nhiễm độc", "Laboratory tests confirmed groundwater contamination from the abandoned chemical facility."),
+        ("pollutant", "noun", "/pəˈluː.tənt/", "A substance that pollutes something, especially water or the atmosphere.", "chất gây ô nhiễm", "Heavy industrial pollutants emitted by coal power plants contribute to severe regional smog."),
+        ("sequestration", "noun", "/ˌsiː.kwesˈtreɪ.ʃən/", "The removal of greenhouse gases from the atmosphere, typically into plant biomass or underground reservoirs.", "sự hấp thụ và lưu trữ các-bon", "Mangrove wetlands provide exceptionally high rates of blue carbon sequestration."),
+        ("combustion", "noun", "/kəmˈbʌs.tʃən/", "The process of burning something, especially fossil fuels.", "sự đốt cháy nhiên liệu", "The internal combustion engine emits particulate matter and greenhouse gases during operation."),
+        ("photovoltaic", "adjective", "/ˌfəʊ.təʊ.vɒlˈteɪ.ɪk/", "Relating to the production of electric current at the junction of two substances exposed to light.", "thuộc quang điện", "Photovoltaic solar panels convert incident sunlight directly into clean electrical energy."),
+        ("geothermal", "adjective", "/ˌdʒiː.əʊˈθɜː.məl/", "Relating to or produced by the internal heat of the earth.", "thuộc địa nhiệt", "Geothermal power plants tap into underground hot springs to generate continuous baseload electricity."),
+        ("biofuel", "noun", "/ˈbaɪ.əʊˌfjuː.əl/", "A fuel derived directly from living matter such as agricultural crops or vegetable oils.", "nhiên liệu sinh học", "Airlines are experimenting with sustainable aviation biofuels to reduce long-haul flight emissions."),
+        ("biomass", "noun", "/ˈbaɪ.əʊˌmæs/", "The total quantity or weight of organisms in a given area or volume, or plant material used as fuel.", "sinh khối", "Rice husks and wood chips can be converted into clean biomass fuel for local heating plants."),
+        ("reforestation", "noun", "/ˌriː.fɒr.ɪˈsteɪ.ʃən/", "The process of replanting an area with trees.", "hoạt động tái trồng rừng", "The national reforestation campaign successfully planted twenty million native saplings on barren hills."),
+        ("afforestation", "noun", "/æfˌɒr.ɪˈsteɪ.ʃən/", "The establishment of a forest or stand of trees in an area where there was no previous tree cover.", "trồng rừng mới", "Afforestation projects along desert borders prevent sand dunes from encroaching on villages."),
+        ("microplastic", "noun", "/ˈmaɪ.krəʊˌplæs.tɪk/", "Extremely small pieces of plastic debris in the environment resulting from the disposal and breakdown of consumer products.", "hạt vi nhựa", "Marine biologists detected tiny microplastics in the digestive tracts of deep-sea fishes."),
+        ("ecotourism", "noun", "/ˈiː.kəʊˌtʊə.rɪ.zəm/", "Tourism directed toward exotic, often threatened, natural environments, especially to support conservation.", "du lịch sinh thái", "Community-based ecotourism provides sustainable livelihoods for ethnic minorities in national park buffers."),
+        ("sustainable", "adjective", "/səˈsteɪ.nə.bəl/", "Able to be maintained at a certain rate or level without ecological exhaustion.", "phát triển bền vững", "Sustainable agricultural practices preserve freshwater tables and fertile topsoil for future generations."),
+        ("unsustainable", "adjective", "/ˌʌn.səˈsteɪ.nə.bəl/", "Not able to be maintained at the current rate or level; causing environmental exhaustion.", "không bền vững, gây hại lâu dài", "Relying on single-use plastics and fossil fuels is ecologically unsustainable in the 21st century."),
+        ("equilibrium", "noun", "/ˌiː.kwɪˈlɪb.ri.əm/", "A state in which opposing forces or influences are balanced.", "trạng thái cân bằng sinh thái", "Predators play an indispensable role in maintaining the ecological equilibrium of forest food webs."),
+        ("catastrophe", "noun", "/kəˈtæs.trə.fi/", "An event causing great and often sudden damage or suffering; a disaster.", "thảm họa môi trường", "The oil tanker spill caused an unprecedented ecological catastrophe along five hundred miles of coastline."),
+    ]
+}
+
+B2_TECHNOLOGY = {
+    "code": "b2-technology",
+    "level_code": "B2",
+    "topic": "Technology",
+    "name": "Advanced Technology & Architecture",
+    "description": "Upper-intermediate vocabulary for system architecture, machine intelligence, networks, and automation.",
+    "entries": [
+        ("infrastructure", "noun", "/ˈɪn.frəˌstrʌk.tʃər/", "The underlying framework of a system, especially cloud server networks.", "hạ tầng công nghệ", "Cloud infrastructure engineers design resilient high-availability distributed server clusters."),
+        ("scalability", "noun", "/ˌskeɪ.ləˈbɪl.ə.ti/", "The capacity to be changed in size or scale to handle growing amounts of work.", "khả năng mở rộng hệ thống", "Modern microservice architectures offer superior scalability during traffic surges."),
+        ("latency", "noun", "/ˈleɪ.tən.si/", "The delay before a transfer of data begins following an instruction for its transfer.", "độ trễ mạng, thời gian đáp ứng", "Edge computing reduces network latency for real-time multiplayer gaming and video streams."),
+        ("bandwidth", "noun", "/ˈbænd.wɪtθ/", "The maximum data transfer rate of a network or internet connection.", "băng thông đường truyền", "High bandwidth fiber optic cables carry terabits of data beneath oceanic seafloors."),
+        ("cryptography", "noun", "/krɪpˈtɒɡ.rə.fi/", "The art of writing or solving codes; the study of secure communication techniques.", "ngành mật mã học", "Modern banking systems rely on advanced public-key cryptography to secure online transactions."),
+        ("biometrics", "noun", "/ˌbaɪ.əʊˈmet.rɪks/", "The measurement and statistical analysis of people's unique physical characteristics.", "công nghệ sinh trắc học", "Smartphones utilize facial biometrics and fingerprint sensors for frictionless biometric authentication."),
+        ("neural network", "noun", "/ˌnjʊə.rəl ˈnet.wɜːk/", "A computer system modeled on the human brain and nervous system, designed to recognize patterns.", "mạng nơ-ron nhân tạo", "Deep neural networks are trained on millions of labeled images to recognize medical anomalies."),
+        ("machine learning", "noun", "/məˈʃiːn ˌlɜː.nɪŋ/", "The use and development of computer systems that are able to learn and adapt without following explicit instructions.", "máy học, học máy", "Recommendation engines apply machine learning models to predict user entertainment preferences."),
+        ("deep learning", "noun", "/ˌdiːp ˈlɜː.nɪŋ/", "A subset of machine learning based on artificial neural networks with multiple layers.", "học sâu", "Deep learning algorithms enable autonomous vehicles to identify pedestrians in poor visibility."),
+        ("natural language processing", "noun", "/ˌnætʃ.ər.əl ˈlæŋ.ɡwɪdʒ ˌprəʊ.ses.ɪŋ/", "The branch of artificial intelligence concerned with giving computers the ability to understand human speech and text.", "xử lý ngôn ngữ tự nhiên", "Smart assistants leverage natural language processing to comprehend voice commands and answer inquiries."),
+        ("computer vision", "noun", "/kəmˈpjuː.tər ˌvɪʒ.ən/", "The field of computer science that enables computers to gain high-level understanding from digital images.", "thị giác máy tính", "Automated manufacturing lines use computer vision cameras to detect micro-defects in silicon wafers."),
+        ("blockchain", "noun", "/ˈblɒk.tʃeɪn/", "A decentralized distributed and public digital ledger that is used to record transactions across many computers.", "công nghệ chuỗi khối", "Supply chain tracking platforms use blockchain records to verify ethical cocoa sourcing."),
+        ("decentralized", "adjective", "/diːˈsen.trə.laɪzd/", "Controlled by several local offices or authorities rather than one single one.", "phi tập trung", "Decentralized networks eliminate single points of failure in mission-critical operations."),
+        ("augmented reality", "noun", "/ɔːɡˌmen.tɪd riˈæl.ə.ti/", "An enhanced version of reality created by the use of technology to overlay digital information on an image of something.", "thực tế tăng cường", "Architects use augmented reality headsets to visualize digital building designs on physical construction plots."),
+        ("telecommunications", "noun", "/ˌtel.ɪ.kəˌmjuː.nɪˈkeɪ.ʃənz/", "Communication over a distance by cable, telegraph, telephone, or broadcasting.", "ngành viễn thông", "The deployment of fifth-generation mobile telecommunications accelerated smart city initiatives."),
+        ("automation", "noun", "/ˌɔː.təˈmeɪ.ʃən/", "The technique, method, or system of operating or controlling a process by highly automatic means.", "hệ thống tự động hóa", "Warehouse logistics automation utilizes autonomous mobile robots to sort parcel deliveries."),
+        ("firmware", "noun", "/ˈfɜːm.weər/", "Permanent software programmed into a read-only memory on a hardware device.", "phần mềm nhúng, phần mềm vi điều khiển", "Manufacturers release updated device firmware to patch vulnerabilities and improve battery longevity."),
+        ("microcontroller", "noun", "/ˌmaɪ.krəʊ.kənˈtrəʊ.lər/", "A compact integrated circuit designed to govern a specific operation in an embedded system.", "vi điều khiển", "Automotive engine control units rely on embedded microcontrollers for real-time fuel injection."),
+        ("supercomputer", "noun", "/ˈsuː.pə.kəmˌpjuː.tər/", "A particularly powerful mainframe computer used for large-scale scientific simulations.", "siêu máy tính", "Meteorologists use supercomputers to model long-term global climate trajectories and hurricane paths."),
+        ("semiconductor", "noun", "/ˌsem.i.kənˈdʌk.tər/", "A solid substance that has a conductivity between that of an insulator and that of most metals, used in chips.", "chất bán dẫn, chíp bán dẫn", "The global automotive industry suffered production bottlenecks due to shortages of essential semiconductors."),
+    ]
+}

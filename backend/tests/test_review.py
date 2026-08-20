@@ -220,3 +220,58 @@ def test_no_review_due_returns_empty_queue(
     assert response.status_code == 200
     assert response.json()["total"] == 0
     assert response.json()["items"] == []
+
+
+def test_manual_review_with_force_updates_schedule_even_if_not_due(
+    client: TestClient,
+    general_english_track_id: uuid.UUID,
+    session_factory: sessionmaker[Session],
+) -> None:
+    headers = authenticate(client)
+    item = create_item(client, headers, general_english_track_id, learning_status="learning")
+    _update_review_state(
+        session_factory,
+        item["id"],
+        next_review_at=datetime.now(UTC) + timedelta(days=2),
+    )
+
+    response = client.post(
+        f"/api/v1/vocabularies/{item['id']}/reviews",
+        headers=headers,
+        json={"is_correct": True, "force": True},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["review_count"] == 1
+    assert body["correct_count"] == 1
+    assert body["learning_status"] == "review"
+    _assert_delay(body["next_review_at"], timedelta(days=3))
+
+
+def test_manual_incorrect_review_with_force_reschedules_soon(
+    client: TestClient,
+    general_english_track_id: uuid.UUID,
+    session_factory: sessionmaker[Session],
+) -> None:
+    headers = authenticate(client)
+    item = create_item(client, headers, general_english_track_id, learning_status="review")
+    _update_review_state(
+        session_factory,
+        item["id"],
+        next_review_at=datetime.now(UTC) + timedelta(days=5),
+    )
+
+    response = client.post(
+        f"/api/v1/vocabularies/{item['id']}/reviews",
+        headers=headers,
+        json={"is_correct": False, "force": True},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["review_count"] == 1
+    assert body["incorrect_count"] == 1
+    assert body["learning_status"] == "learning"
+    _assert_delay(body["next_review_at"], timedelta(hours=1))
+

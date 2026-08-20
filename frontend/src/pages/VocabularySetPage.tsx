@@ -156,6 +156,7 @@ export function VocabularySetPage() {
                 />
                 <div className="entry-word">
                   <strong>{entry.word}</strong>
+                  {entry.ipa && <small className="entry-ipa">{entry.ipa}</small>}
                   <span>{entry.part_of_speech}</span>
                 </div>
                 <div className="entry-definition">

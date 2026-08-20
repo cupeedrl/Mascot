@@ -19,14 +19,26 @@ def _normalized(value: str) -> str:
 def generate_vocabulary_candidate(
     provider: VocabularyAIProvider,
     word: str,
+    part_of_speech: str,
+    translation: str,
 ) -> VocabularyCandidate:
-    raw_candidate = provider.generate_vocabulary(word)
+    raw_candidate = provider.generate_vocabulary(
+        word=word,
+        part_of_speech=part_of_speech,
+        translation=translation,
+    )
     try:
         candidate = VocabularyCandidate.model_validate(raw_candidate)
     except (ValidationError, TypeError, ValueError) as exc:
         raise InvalidAIVocabularyResponseError from exc
 
-    if _normalized(candidate.word) != _normalized(word):
-        raise InvalidAIVocabularyResponseError
-    return candidate
+    # Enforce strictly that user inputs are never overwritten by AI
+    return candidate.model_copy(
+        update={
+            "word": word.strip(),
+            "part_of_speech": part_of_speech.strip().lower(),
+            "translation": translation.strip(),
+            "topic": candidate.topic if candidate.topic and candidate.topic.strip() else "Khác",
+        }
+    )
 

@@ -129,16 +129,22 @@ export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 export interface AIVocabularyCandidate {
   word: string;
   part_of_speech: string;
-  definition: string;
   translation: string;
+  ipa: string;
+  definition: string;
   cefr_level: CefrLevel;
   examples: string[];
+  topic?: string | null;
 }
 
-export function generateAIVocabulary(word: string): Promise<AIVocabularyCandidate> {
+export function generateAIVocabulary(params: {
+  word: string;
+  part_of_speech: string;
+  translation: string;
+}): Promise<AIVocabularyCandidate> {
   return request<AIVocabularyCandidate>("/ai/vocabulary", {
     method: "POST",
-    body: JSON.stringify({ word }),
+    body: JSON.stringify(params),
   });
 }
 
@@ -174,6 +180,7 @@ export interface Vocabulary {
   } | null;
   word: string;
   normalized_word: string;
+  ipa: string | null;
   part_of_speech: string;
   meaning: string;
   translation: string;
@@ -194,6 +201,7 @@ export interface Vocabulary {
 export interface VocabularyInput {
   learning_track_id: string;
   word: string;
+  ipa?: string | null;
   part_of_speech: string;
   meaning: string;
   translation: string;
@@ -330,10 +338,11 @@ export function getDueVocabularies(limit = 50): Promise<ReviewQueueResponse> {
 export function submitVocabularyReview(
   vocabularyId: string,
   isCorrect: boolean,
+  force = true,
 ): Promise<Vocabulary> {
   return request<Vocabulary>(`/vocabularies/${vocabularyId}/reviews`, {
     method: "POST",
-    body: JSON.stringify({ is_correct: isCorrect }),
+    body: JSON.stringify({ is_correct: isCorrect, force }),
   });
 }
 
@@ -421,6 +430,7 @@ export interface ExerciseBlankResult {
 export interface AIExerciseGenerationResponse {
   items: Exercise[];
   created_count: number;
+  resumed?: boolean;
 }
 
 export type ExerciseSourceMode = "recent" | "topic" | "custom";
@@ -447,6 +457,10 @@ export function submitExerciseAttempt(
       typeof response === "string" ? { answer: response } : { answers: response },
     ),
   });
+}
+
+export function getActiveAIExercises(): Promise<AIExerciseGenerationResponse> {
+  return request<AIExerciseGenerationResponse>("/ai/exercises/active");
 }
 
 export function generateAIExercises(
@@ -485,6 +499,7 @@ export interface VocabularyLibraryEntry {
   id: string;
   word: string;
   normalized_word: string;
+  ipa: string | null;
   part_of_speech: string;
   meaning: string;
   translation: string;

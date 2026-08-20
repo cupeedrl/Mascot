@@ -205,3 +205,5 @@ class AIFillInBlankBatch(BaseModel):
 class AIExerciseGenerationResponse(BaseModel):
     items: list[ExerciseResponse]
     created_count: int
+    resumed: bool = False
+

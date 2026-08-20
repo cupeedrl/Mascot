@@ -539,3 +539,74 @@ def test_vocabulary_accepts_at_most_one_example_sentence(
     assert one.status_code == 201
     assert one.json()["example_sentences"] == ["One natural example."]
     assert many.status_code == 422
+
+
+def test_vocabulary_ipa_saved_and_updated(
+    client: TestClient, general_english_track_id: uuid.UUID
+) -> None:
+    headers = authenticate(client)
+    item = create_item(
+        client,
+        headers,
+        general_english_track_id,
+        word="solely",
+        ipa="/ˈsəʊl.li/",
+    )
+    assert item["ipa"] == "/ˈsəʊl.li/"
+
+    # Check detail
+    detail = client.get(f"/api/v1/vocabularies/{item['id']}", headers=headers)
+    assert detail.status_code == 200
+    assert detail.json()["ipa"] == "/ˈsəʊl.li/"
+
+    # Check update
+    updated = client.patch(
+        f"/api/v1/vocabularies/{item['id']}",
+        headers=headers,
+        json={"ipa": "/ˈsoʊl.li/"},
+    )
+    assert updated.status_code == 200
+    assert updated.json()["ipa"] == "/ˈsoʊl.li/"
+
+
+def test_topic_fallback_to_khac_when_omitted_or_none(
+    client: TestClient, general_english_track_id: uuid.UUID
+) -> None:
+    headers = authenticate(client)
+    item = create_item(
+        client,
+        headers,
+        general_english_track_id,
+        word="wander",
+        topic=None,
+    )
+    assert item["topic"] == "Khác"
+
+
+def test_duplicate_rule_not_bypassed_by_different_part_of_speech(
+    client: TestClient, general_english_track_id: uuid.UUID
+) -> None:
+    headers = authenticate(client)
+    create_item(
+        client,
+        headers,
+        general_english_track_id,
+        word="run",
+        part_of_speech="verb",
+        meaning="Move rapidly on foot.",
+        translation="chạy",
+    )
+    # Attempt to create duplicate with part_of_speech="noun"
+    duplicate = client.post(
+        "/api/v1/vocabularies",
+        headers=headers,
+        json=vocabulary_payload(
+            general_english_track_id,
+            word="run",
+            part_of_speech="noun",
+            meaning="Move rapidly on foot.",
+            translation="chạy",
+        ),
+    )
+    assert duplicate.status_code == 409
+

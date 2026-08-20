@@ -2,6 +2,7 @@ import { useEffect, useState, type ComponentType } from "react";
 import {
   BookOpen,
   Dumbbell,
+  Info,
   LayoutDashboard,
   Library,
   LogOut,
@@ -15,23 +16,25 @@ import { PenguinMark } from "./PenguinMark";
 interface NavigationItem {
   to: string;
   label: string;
+  shortLabel?: string;
   icon: ComponentType<{ size?: number; strokeWidth?: number }>;
   end?: boolean;
 }
 
 const navigation: NavigationItem[] = [
   { to: "/app", label: "Trang chủ", icon: LayoutDashboard, end: true },
-  { to: "/app/learn", label: "Học từ vựng", icon: BookOpen },
-  { to: "/app/vocabulary", label: "Từ vựng của tôi", icon: Library },
+  { to: "/app/learn", label: "Học từ vựng", shortLabel: "Học từ", icon: BookOpen },
+  { to: "/app/vocabulary", label: "Từ vựng của tôi", shortLabel: "Từ của tôi", icon: Library },
   { to: "/app/review", label: "Ôn tập", icon: RefreshCw },
   { to: "/app/practice", label: "Luyện tập", icon: Dumbbell },
+  { to: "/app/about", label: "Giới thiệu", icon: Info },
 ];
 
 function NavigationLinks({ mobile = false }: { mobile?: boolean }) {
-  return navigation.map(({ to, label, icon: Icon, end }) => (
+  return navigation.map(({ to, label, shortLabel, icon: Icon, end }) => (
     <NavLink key={to} to={to} end={end} aria-label={label}>
-      <Icon size={mobile ? 21 : 19} strokeWidth={2} aria-hidden="true" />
-      <span>{label}</span>
+      <Icon size={mobile ? 20 : 19} strokeWidth={2} aria-hidden="true" />
+      <span>{mobile ? (shortLabel ?? label) : label}</span>
     </NavLink>
   ));
 }

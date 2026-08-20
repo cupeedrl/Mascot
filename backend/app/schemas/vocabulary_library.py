@@ -14,6 +14,7 @@ class VocabularyEntryResponse(BaseModel):
     id: uuid.UUID
     word: str
     normalized_word: str
+    ipa: str | None = None
     part_of_speech: str
     meaning: str
     translation: str

@@ -1,0 +1,4034 @@
+[
+  {
+    "code": "b2-work-business",
+    "level_code": "B2",
+    "topic": "Business",
+    "name": "Corporate Business & Finance",
+    "description": "Upper-intermediate vocabulary for corporate management, finance, investments, and global commerce.",
+    "entries": [
+      {
+        "word": "strategy",
+        "part_of_speech": "noun",
+        "ipa": "/ˈstræt.ə.dʒi/",
+        "meaning": "A plan of action designed to achieve a long-term or overall aim.",
+        "translation": "chiến lược kinh doanh",
+        "example_sentences": [
+          "The company developed a comprehensive five-year expansion strategy."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "stakeholder",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsteɪkˌhəʊl.dər/",
+        "meaning": "A person with an interest or concern in a business.",
+        "translation": "bên liên quan, đối tác hữu quan",
+        "example_sentences": [
+          "The board of directors presented quarterly earnings to key institutional stakeholders."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "revenue",
+        "part_of_speech": "noun",
+        "ipa": "/ˈrev.ən.juː/",
+        "meaning": "Income, especially when of a company or organization and of a substantial nature.",
+        "translation": "tổng doanh thu",
+        "example_sentences": [
+          "Annual corporate revenue grew fifteen percent due to strong export demand."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "compliance",
+        "part_of_speech": "noun",
+        "ipa": "/kəmˈplaɪ.əns/",
+        "meaning": "The action or fact of complying with a wish, rule, or policy.",
+        "translation": "sự tuân thủ quy định",
+        "example_sentences": [
+          "Strict compliance with international banking regulations is mandatory."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "expenditure",
+        "part_of_speech": "noun",
+        "ipa": "/ɪkˈspen.dɪ.tʃər/",
+        "meaning": "The action of spending funds, or an amount of money spent.",
+        "translation": "chi phí chi tiêu, khoản chi ngân sách",
+        "example_sentences": [
+          "The firm reduced capital expenditure to conserve cash reserves during the downturn."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "liability",
+        "part_of_speech": "noun",
+        "ipa": "/ˌlaɪ.əˈbɪl.ə.ti/",
+        "meaning": "A thing for which someone is responsible, especially a debt or financial obligation.",
+        "translation": "nghĩa vụ tài chính, khoản nợ phải trả",
+        "example_sentences": [
+          "The balance sheet details current corporate assets and long-term liabilities."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "asset",
+        "part_of_speech": "noun",
+        "ipa": "/ˈæs.et/",
+        "meaning": "A useful or valuable quality, person, or thing; property owned by a person or company.",
+        "translation": "tài sản hữu hình và vô hình",
+        "example_sentences": [
+          "Intellectual property patents represent the software company's most valuable assets."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "equity",
+        "part_of_speech": "noun",
+        "ipa": "/ˈek.wɪ.ti/",
+        "meaning": "The value of the shares issued by a company.",
+        "translation": "vốn chủ sở hữu, cổ phần",
+        "example_sentences": [
+          "Private equity investors acquired a thirty percent stake in the retail startup."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "merger",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmɜː.dʒər/",
+        "meaning": "A combination of two things, especially companies, into one.",
+        "translation": "sự sáp nhập doanh nghiệp",
+        "example_sentences": [
+          "The telecommunications merger created the nation's largest mobile carrier."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "acquisition",
+        "part_of_speech": "noun",
+        "ipa": "/ˌæk.wɪˈzɪʃ.ən/",
+        "meaning": "An asset or object bought or obtained, typically by a corporation.",
+        "translation": "sự thâu tóm, mua lại doanh nghiệp",
+        "example_sentences": [
+          "The technology giant funded the strategic acquisition of the AI research firm."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "synergy",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɪn.ə.dʒi/",
+        "meaning": "The interaction of elements that when combined produce a total effect greater than the sum.",
+        "translation": "sức mạnh cộng hưởng",
+        "example_sentences": [
+          "The merger created substantial operational synergies and reduced overhead costs."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "dividend",
+        "part_of_speech": "noun",
+        "ipa": "/ˈdɪv.ɪ.dend/",
+        "meaning": "A sum of money paid regularly by a company to its shareholders out of its profits.",
+        "translation": "cổ tức chi trả cho cổ đông",
+        "example_sentences": [
+          "Shareholders received a ten percent annual dividend payout on preferred shares."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "shareholder",
+        "part_of_speech": "noun",
+        "ipa": "/ˈʃeəˌhəʊl.dər/",
+        "meaning": "An owner of shares in a company.",
+        "translation": "cổ đông công ty",
+        "example_sentences": [
+          "The annual general meeting allows shareholders to vote on executive compensation."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "portfolio",
+        "part_of_speech": "noun",
+        "ipa": "/pɔːtˈfəʊ.li.əʊ/",
+        "meaning": "A range of investments held by a person or organization.",
+        "translation": "danh mục đầu tư",
+        "example_sentences": [
+          "Diversifying your investment portfolio minimizes exposure to market volatility."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "volatility",
+        "part_of_speech": "noun",
+        "ipa": "/ˌvɒl.əˈtɪl.ə.ti/",
+        "meaning": "Liability to change rapidly and unpredictably, especially for the worse in markets.",
+        "translation": "sự biến động giá cả thị trường",
+        "example_sentences": [
+          "Financial analysts track stock market volatility during macroeconomic shifts."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "benchmark",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbentʃ.mɑːk/",
+        "meaning": "A standard or point of reference against which things may be compared or assessed.",
+        "translation": "tiêu chuẩn đánh giá, chuẩn đối sánh",
+        "example_sentences": [
+          "Customer satisfaction ratings serve as the primary benchmark for service quality."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "franchise",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfræn.tʃaɪz/",
+        "meaning": "An authorization granted by a government or company enabling an individual to carry out commercial activities.",
+        "translation": "nhượng quyền thương mại",
+        "example_sentences": [
+          "The popular coffee brand opened twenty new franchise outlets this quarter."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "logistics",
+        "part_of_speech": "noun",
+        "ipa": "/ləˈdʒɪs.tɪks/",
+        "meaning": "The detailed coordination of a complex operation involving many people, facilities, or supplies.",
+        "translation": "ngành hậu cần, điều phối kho vận",
+        "example_sentences": [
+          "Optimized freight logistics shortened delivery lead times across provinces."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "procurement",
+        "part_of_speech": "noun",
+        "ipa": "/prəˈkjʊə.mənt/",
+        "meaning": "The action of obtaining or procuring something, especially for business purposes.",
+        "translation": "hoạt động thu mua vật tư",
+        "example_sentences": [
+          "The procurement department negotiates bulk purchasing agreements with suppliers."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "outsourcing",
+        "part_of_speech": "noun",
+        "ipa": "/ˈaʊtˌsɔː.sɪŋ/",
+        "meaning": "The business practice of hiring a party outside a company to perform services.",
+        "translation": "thuê ngoài dịch vụ",
+        "example_sentences": [
+          "Outsourcing non-core IT functions allows management to focus on product design."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "subsidiary",
+        "part_of_speech": "noun",
+        "ipa": "/səbˈsɪd.jə.ri/",
+        "meaning": "A company controlled by a holding company.",
+        "translation": "công ty con trực thuộc",
+        "example_sentences": [
+          "The multinational conglomerate opened a manufacturing subsidiary in Hai Phong."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "conglomerate",
+        "part_of_speech": "noun",
+        "ipa": "/kənˈɡlɒm.ər.ət/",
+        "meaning": "A number of different things or parts that are put or grouped together to form a whole.",
+        "translation": "tập đoàn đa ngành",
+        "example_sentences": [
+          "The industrial conglomerate operates in real estate, retail, and automotive sectors."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "restructure",
+        "part_of_speech": "verb",
+        "ipa": "/ˌriːˈstrʌk.tʃər/",
+        "meaning": "To organize differently, especially a company or system.",
+        "translation": "tái cơ cấu doanh nghiệp",
+        "example_sentences": [
+          "Management decided to restructure regional sales operations to boost agility."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "turnover",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtɜːnˌəʊ.vər/",
+        "meaning": "The amount of money taken by a business in a particular period, or rate of employee turnover.",
+        "translation": "doanh số luân chuyển, tỷ lệ luân chuyển nhân sự",
+        "example_sentences": [
+          "The factory experienced high employee turnover due to competitive market wages."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "feasibility",
+        "part_of_speech": "noun",
+        "ipa": "/ˌfiː.zəˈbɪl.ə.ti/",
+        "meaning": "The state or degree of being easily or conveniently done.",
+        "translation": "tính khả thi của dự án",
+        "example_sentences": [
+          "Engineers completed a technical feasibility study for the proposed solar plant."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "leverage",
+        "part_of_speech": "verb",
+        "ipa": "/ˈliː.vər.ɪdʒ/",
+        "meaning": "To use something to maximum advantage.",
+        "translation": "tận dụng đòn bẩy, khai thác tối đa",
+        "example_sentences": [
+          "The enterprise leveraged digital analytics to improve personalized marketing."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "streamline",
+        "part_of_speech": "verb",
+        "ipa": "/ˈstriːm.laɪn/",
+        "meaning": "To make an organization or system more efficient and effective by employing faster or simpler methods.",
+        "translation": "tinh gọn hóa quy trình",
+        "example_sentences": [
+          "The company streamlined administrative procedures to accelerate client onboarding."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "speculate",
+        "part_of_speech": "verb",
+        "ipa": "/ˈspek.jə.leɪt/",
+        "meaning": "To invest in stocks, property, or other ventures in the hope of gain but with risk of loss.",
+        "translation": "đầu cơ tài chính",
+        "example_sentences": [
+          "Investors were warned not to speculate blindly in unverified digital assets."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "liquidate",
+        "part_of_speech": "verb",
+        "ipa": "/ˈlɪk.wɪ.deɪt/",
+        "meaning": "To wind up the affairs of a business by ascertaining liabilities and apportioning assets.",
+        "translation": "thanh lý tài sản, giải thể",
+        "example_sentences": [
+          "The court ordered the bankrupt trading firm to liquidate remaining inventories."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "deficit",
+        "part_of_speech": "noun",
+        "ipa": "/ˈdef.ɪ.sɪt/",
+        "meaning": "The amount by which something, especially a sum of money, is too small.",
+        "translation": "sự thâm hụt ngân sách",
+        "example_sentences": [
+          "The national trade deficit narrowed as electronics exports surged."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "surplus",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɜː.pləs/",
+        "meaning": "An amount of something left over when requirements have been met; an excess of income.",
+        "translation": "sự thặng dư cán cân thương mại",
+        "example_sentences": [
+          "Vietnam recorded an agricultural export surplus for the third consecutive year."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "monopoly",
+        "part_of_speech": "noun",
+        "ipa": "/məˈnɒp.əl.i/",
+        "meaning": "The exclusive possession or control of the supply of or trade in a commodity or service.",
+        "translation": "sự độc quyền thị trường",
+        "example_sentences": [
+          "Antitrust regulators prevent telecom monopolies from suppressing competition."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "inflation",
+        "part_of_speech": "noun",
+        "ipa": "/ɪnˈfleɪ.ʃən/",
+        "meaning": "A general increase in prices and fall in the purchasing value of money.",
+        "translation": "tình trạng lạm phát",
+        "example_sentences": [
+          "Central banks adjust benchmark interest rates to contain domestic inflation."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "recession",
+        "part_of_speech": "noun",
+        "ipa": "/rɪˈseʃ.ən/",
+        "meaning": "A period of temporary economic decline during which trade and industrial activity are reduced.",
+        "translation": "thời kỳ suy thoái kinh tế",
+        "example_sentences": [
+          "During the global economic recession, businesses trimmed discretionary spending."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fiscal",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈfɪs.kəl/",
+        "meaning": "Relating to government revenue, especially taxes.",
+        "translation": "thuộc tài khóa, tài chính công",
+        "example_sentences": [
+          "Government implemented fiscal stimulus packages to support struggling businesses."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "lucrative",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈluː.krə.tɪv/",
+        "meaning": "Producing a great deal of profit.",
+        "translation": "sinh lời cao, béo bở",
+        "example_sentences": [
+          "Renewable energy infrastructure has become a lucrative sector for global funds."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "bankrupt",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈbæŋ.krʌpt/",
+        "meaning": "Declared in law unable to pay outstanding debts.",
+        "translation": "phá sản",
+        "example_sentences": [
+          "The struggling airline was declared bankrupt following prolonged travel halts."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "insolvent",
+        "part_of_speech": "adjective",
+        "ipa": "/ɪnˈsɒl.vənt/",
+        "meaning": "Unable to pay debts owed.",
+        "translation": "mất khả năng thanh toán",
+        "example_sentences": [
+          "The commercial bank froze accounts of the insolvent construction developer."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "monetary",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈmʌn.ɪ.tri/",
+        "meaning": "Relating to money or currency.",
+        "translation": "thuộc tiền tệ",
+        "example_sentences": [
+          "The central bank formulated cautious monetary policies to stabilize exchange rates."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "prosperous",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈprɒs.pər.əs/",
+        "meaning": "Successful in material terms; flourishing financially.",
+        "translation": "thịnh vượng, phát đạt",
+        "example_sentences": [
+          "The coastal economic zone developed into a prosperous trade corridor."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "proprietor",
+        "part_of_speech": "noun",
+        "ipa": "/prəˈpraɪə.tər/",
+        "meaning": "The owner of a business or a holder of property.",
+        "translation": "chủ sở hữu doanh nghiệp",
+        "example_sentences": [
+          "The sole proprietor registered the business under national commercial law."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "solvent",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈsɒl.vənt/",
+        "meaning": "Having assets in excess of liabilities; able to pay debts.",
+        "translation": "có khả năng thanh toán nợ",
+        "example_sentences": [
+          "The commercial airline remained solvent throughout the economic downturn."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "cartel",
+        "part_of_speech": "noun",
+        "ipa": "/kɑːˈtel/",
+        "meaning": "An association of suppliers maintaining prices at a high level.",
+        "translation": "hiệp hội các-ten độc quyền",
+        "example_sentences": [
+          "The international oil cartel agreed on production quotas to stabilize petroleum prices."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "oligopoly",
+        "part_of_speech": "noun",
+        "ipa": "/ˌɒl.ɪˈɡɒp.əl.i/",
+        "meaning": "A state of limited competition, in which a market is shared by a small number of producers.",
+        "translation": "thị trường thiểu số độc quyền",
+        "example_sentences": [
+          "The domestic aviation market operates as an oligopoly among three major carriers."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "consortium",
+        "part_of_speech": "noun",
+        "ipa": "/kənˈsɔː.ti.əm/",
+        "meaning": "An association, typically of several companies.",
+        "translation": "tập đoàn liên danh",
+        "example_sentences": [
+          "An international consortium was awarded the contract to build the metro line."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "contingency",
+        "part_of_speech": "noun",
+        "ipa": "/kənˈtɪn.dʒən.si/",
+        "meaning": "A future event or circumstance which is possible but cannot be predicted with certainty.",
+        "translation": "tình huống bất ngờ phát sinh",
+        "example_sentences": [
+          "The business budget reserves ten percent for unexpected project contingencies."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "overhead",
+        "part_of_speech": "noun",
+        "ipa": "/ˈəʊ.və.hed/",
+        "meaning": "An ongoing expense of operating a business, such as rent or utilities.",
+        "translation": "chi phí quản lý doanh nghiệp",
+        "example_sentences": [
+          "Remote work arrangements reduced the company's monthly office overhead by half."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "amortization",
+        "part_of_speech": "noun",
+        "ipa": "/əˌmɔː.tɪˈzeɪ.ʃən/",
+        "meaning": "The action or process of gradually writing off the initial cost of an asset.",
+        "translation": "sự khấu hao tài sản",
+        "example_sentences": [
+          "Accountants calculate annual amortization schedules for intangible digital assets."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "depreciation",
+        "part_of_speech": "noun",
+        "ipa": "/dɪˌpriː.ʃiˈeɪ.ʃən/",
+        "meaning": "A reduction in the value of an asset over time, due in particular to wear and tear.",
+        "translation": "sự hao mòn tài sản cố định",
+        "example_sentences": [
+          "Factory machinery experiences ten percent annual depreciation for tax purposes."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "liquidity",
+        "part_of_speech": "noun",
+        "ipa": "/lɪˈkwɪd.ə.ti/",
+        "meaning": "The availability of liquid assets to a market or company.",
+        "translation": "tính thanh khoản tài chính",
+        "example_sentences": [
+          "Maintaining adequate cash liquidity protects businesses against credit freezes."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "solvency",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɒl.vən.si/",
+        "meaning": "The possession of assets in excess of liabilities; ability to pay one's debts.",
+        "translation": "khả năng thanh toán nợ",
+        "example_sentences": [
+          "Auditors verified the long-term solvency of the commercial insurance firm."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "arbitration",
+        "part_of_speech": "noun",
+        "ipa": "/ˌɑː.bɪˈtreɪ.ʃən/",
+        "meaning": "The use of an arbitrator to settle a dispute.",
+        "translation": "sự phân xử trọng tài thương mại",
+        "example_sentences": [
+          "International commercial disputes are often settled through binding arbitration."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "indemnity",
+        "part_of_speech": "noun",
+        "ipa": "/ɪnˈdem.nə.ti/",
+        "meaning": "Security or protection against a loss or other financial burden.",
+        "translation": "khoản bồi thường bảo hiểm",
+        "example_sentences": [
+          "The construction contract includes a comprehensive indemnity clause for delays."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fiduciary",
+        "part_of_speech": "adjective",
+        "ipa": "/fɪˈdʒuː.ʃi.ər.i/",
+        "meaning": "Involving trust, especially with regard to the relationship between a trustee and beneficiary.",
+        "translation": "mang tính ủy thác trách nhiệm",
+        "example_sentences": [
+          "Corporate directors have a fiduciary duty to act in the best interests of shareholders."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "remittance",
+        "part_of_speech": "noun",
+        "ipa": "/rɪˈmɪt.əns/",
+        "meaning": "A sum of money sent in payment or as a gift, especially across borders.",
+        "translation": "tiền kiều hối gửi về",
+        "example_sentences": [
+          "Overseas remittances from the diaspora contribute significantly to the domestic economy."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "underwrite",
+        "part_of_speech": "verb",
+        "ipa": "/ˌʌn.dəˈraɪt/",
+        "meaning": "To sign and accept liability under an insurance policy, thus guaranteeing payment.",
+        "translation": "bảo lãnh phát hành, nhận bảo hiểm",
+        "example_sentences": [
+          "Major investment banks agreed to underwrite the corporate bond offering."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "turnaround",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtɜːn.ə.raʊnd/",
+        "meaning": "An abrupt change resulting in a more favorable business situation.",
+        "translation": "sự chuyển biến tích cực",
+        "example_sentences": [
+          "The new CEO orchestrated a remarkable business turnaround within twelve months."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "franchisee",
+        "part_of_speech": "noun",
+        "ipa": "/ˌfræn.tʃaɪˈziː/",
+        "meaning": "An individual or company that holds a franchise for the sale of goods.",
+        "translation": "bên nhận nhượng quyền",
+        "example_sentences": [
+          "The local franchisee opened three new burger restaurants across the city."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "franchisor",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfræn.tʃaɪ.zər/",
+        "meaning": "A company that grants a franchise.",
+        "translation": "bên trao nhượng quyền",
+        "example_sentences": [
+          "The franchisor provides continuous marketing support and proprietary recipes."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "downsizing",
+        "part_of_speech": "noun",
+        "ipa": "/ˈdaʊnˌsaɪ.zɪŋ/",
+        "meaning": "The reduction of the number of employees in a company.",
+        "translation": "việc cắt giảm nhân sự",
+        "example_sentences": [
+          "Corporate downsizing was implemented to improve operational efficiency."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "b2-media",
+    "level_code": "B2",
+    "topic": "Media",
+    "name": "Mass Media & Journalism",
+    "description": "Upper-intermediate vocabulary for mass media, journalistic ethics, broadcasting, and digital platforms.",
+    "entries": [
+      {
+        "word": "journalism",
+        "part_of_speech": "noun",
+        "ipa": "/ˈdʒɜː.nə.lɪ.zəm/",
+        "meaning": "The activity or profession of writing for newspapers, magazines, or news websites.",
+        "translation": "ngành báo chí, hoạt động làm báo",
+        "example_sentences": [
+          "Investigative journalism plays a vital role in exposing corporate corruption."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "investigative",
+        "part_of_speech": "adjective",
+        "ipa": "/ɪnˈves.tɪ.ɡə.tɪv/",
+        "meaning": "Intended to examine a situation in order to discover the truth.",
+        "translation": "mang tính điều tra",
+        "example_sentences": [
+          "The documentary is an impressive piece of investigative reporting."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "correspondent",
+        "part_of_speech": "noun",
+        "ipa": "/ˌkɒr.ɪˈspɒn.dənt/",
+        "meaning": "A person employed by a news organization to report on a particular subject or from a specific place.",
+        "translation": "phóng viên thường trú",
+        "example_sentences": [
+          "The foreign correspondent reported live from the climate treaty negotiations."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "editorial",
+        "part_of_speech": "noun",
+        "ipa": "/ˌed.ɪˈtɔː.ri.əl/",
+        "meaning": "A newspaper article written by or on behalf of an editor that gives an opinion.",
+        "translation": "bài xã luận, bài tổng biên tập",
+        "example_sentences": [
+          "Today's newspaper editorial calls for increased investment in public transit."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "censorship",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsen.sə.ʃɪp/",
+        "meaning": "The suppression or prohibition of any parts of books, news, or films considered politically unacceptable.",
+        "translation": "sự kiểm duyệt truyền thông",
+        "example_sentences": [
+          "The freedom of speech index measures levels of government media censorship."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "propaganda",
+        "part_of_speech": "noun",
+        "ipa": "/ˌprɒp.əˈɡæn.də/",
+        "meaning": "Information, especially of a biased or misleading nature, used to promote a political cause.",
+        "translation": "tuyên truyền mang tính định hướng",
+        "example_sentences": [
+          "Media literacy workshops teach teenagers how to spot political propaganda online."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "circulation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌsɜː.kjəˈleɪ.ʃən/",
+        "meaning": "The number of copies distributed of a newspaper or magazine.",
+        "translation": "số lượng phát hành báo chí",
+        "example_sentences": [
+          "Print newspaper circulation has declined as readers migrate to digital news apps."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "coverage",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkʌv.ər.ɪdʒ/",
+        "meaning": "The treatment of an issue, especially by the media.",
+        "translation": "sự đưa tin, mức độ phủ sóng truyền thông",
+        "example_sentences": [
+          "International media coverage highlighted the historic environmental pact."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "exclusive",
+        "part_of_speech": "adjective",
+        "ipa": "/ɪkˈskluː.sɪv/",
+        "meaning": "Not published or broadcast elsewhere; restricted to a specific outlet.",
+        "translation": "độc quyền tin tức",
+        "example_sentences": [
+          "The business journal published an exclusive interview with the central bank governor."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "tabloid",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtæb.lɔɪd/",
+        "meaning": "A newspaper having pages half the size of those of a standard newspaper, typically popular in style.",
+        "translation": "báo lá cải",
+        "example_sentences": [
+          "Sensational celebrity scandals frequently dominate tabloid newspaper front pages."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "broadsheet",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbrɔːd.ʃiːt/",
+        "meaning": "A newspaper with a large format, typically regarded as more serious than a tabloid.",
+        "translation": "báo chính luận khổ lớn",
+        "example_sentences": [
+          "The national broadsheet provides comprehensive political and economic analysis."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "paparazzi",
+        "part_of_speech": "noun",
+        "ipa": "/ˌpæp.ərˈæt.si/",
+        "meaning": "Freelance photographers who pursue celebrities to take photographs of them.",
+        "translation": "thợ săn ảnh người nổi tiếng",
+        "example_sentences": [
+          "Security guards shielded the film actress from aggressive crowds of paparazzi."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sensationalism",
+        "part_of_speech": "noun",
+        "ipa": "/senˈseɪ.ʃən.əl.ɪ.zəm/",
+        "meaning": "The use of exciting or shocking stories or language at the expense of accuracy.",
+        "translation": "xu hướng giật gân câu khách",
+        "example_sentences": [
+          "Critics condemned the news channel for resorting to sensationalism during the trial."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "clickbait",
+        "part_of_speech": "noun",
+        "ipa": "/ˈklɪk.beɪt/",
+        "meaning": "Content whose main purpose is to attract attention and encourage visitors to click on a link.",
+        "translation": "mồi nhử lượt nhấp chuột",
+        "example_sentences": [
+          "Many digital publishers rely on deceptive clickbait headlines to drive ad traffic."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "algorithm",
+        "part_of_speech": "noun",
+        "ipa": "/ˈæl.ɡə.rɪ.ðəm/",
+        "meaning": "A process followed by software, especially social media news feed curators.",
+        "translation": "thuật toán điều hướng tin tức",
+        "example_sentences": [
+          "Social feed algorithms tend to amplify sensational and emotionally charged stories."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "misinformation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌmɪs.ɪn.fəˈmeɪ.ʃən/",
+        "meaning": "False or inaccurate information, especially that which is deliberately intended to deceive.",
+        "translation": "thông tin sai lệch",
+        "example_sentences": [
+          "Health authorities launched a campaign to counter online vaccine misinformation."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "disinformation",
+        "part_of_speech": "noun",
+        "ipa": "/dɪsˌɪn.fəˈmeɪ.ʃən/",
+        "meaning": "False information which is intended to mislead, especially propaganda issued by government agencies.",
+        "translation": "thông tin xuyên tạc có chủ đích",
+        "example_sentences": [
+          "Fact-checking organizations work diligently to debunk geopolitical disinformation."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fact-check",
+        "part_of_speech": "verb",
+        "ipa": "/ˈfækt.tʃek/",
+        "meaning": "To investigate an issue in order to verify the facts.",
+        "translation": "kiểm chứng sự thật",
+        "example_sentences": [
+          "Journalists must independently fact-check breaking news before publishing alerts."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "credibility",
+        "part_of_speech": "noun",
+        "ipa": "/ˌkred.əˈbɪl.ə.ti/",
+        "meaning": "The quality of being trusted and believed in.",
+        "translation": "độ tin cậy, uy tín",
+        "example_sentences": [
+          "Publishing unverified rumors severely damages a newspaper's professional credibility."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "bias",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbaɪ.əs/",
+        "meaning": "Prejudice in favor of or against one thing, person, or group compared with another.",
+        "translation": "sự thiên vị, định kiến truyền thông",
+        "example_sentences": [
+          "Discerning readers compare multiple news sources to identify political bias."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "impartial",
+        "part_of_speech": "adjective",
+        "ipa": "/ɪmˈpɑː.ʃəl/",
+        "meaning": "Treating all rivals or disputants equally; fair and just.",
+        "translation": "vô tư, khách quan",
+        "example_sentences": [
+          "Public broadcasters have a statutory duty to provide balanced and impartial reporting."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "anchor",
+        "part_of_speech": "noun",
+        "ipa": "/ˈæŋ.kər/",
+        "meaning": "A person who presents and coordinates a television or radio news program.",
+        "translation": "người dẫn chương trình thời sự",
+        "example_sentences": [
+          "The veteran news anchor announced his retirement after thirty years on the evening news."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "commentator",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkɒm.ən.teɪ.tər/",
+        "meaning": "A person who comments on events or on a text in the media.",
+        "translation": "bình luận viên truyền hình",
+        "example_sentences": [
+          "Political commentators debated the potential impact of the upcoming general election."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "spokesperson",
+        "part_of_speech": "noun",
+        "ipa": "/ˈspəʊksˌpɜː.sən/",
+        "meaning": "A person who speaks on behalf of someone else or an organization.",
+        "translation": "người phát ngôn chính thức",
+        "example_sentences": [
+          "The ministry spokesperson held a press conference to clarify trade policies."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "press release",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpres rɪˌliːs/",
+        "meaning": "An official statement issued to newspapers giving information on a particular matter.",
+        "translation": "thông cáo báo chí",
+        "example_sentences": [
+          "The technology firm distributed a formal press release announcing the merger."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "briefing",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbriː.fɪŋ/",
+        "meaning": "A meeting for giving information or instructions.",
+        "translation": "buổi thông tin nhanh, họp báo ngắn",
+        "example_sentences": [
+          "Journalists attended the morning White House press briefing on foreign policy."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "leak",
+        "part_of_speech": "verb",
+        "ipa": "/liːk/",
+        "meaning": "To intentionally disclose secret information to unauthorized persons or the public.",
+        "translation": "làm lộ tin mật",
+        "example_sentences": [
+          "An anonymous whistleblower leaked confidential internal documents to the press."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "whistleblower",
+        "part_of_speech": "noun",
+        "ipa": "/ˈwɪs.əlˌbləʊ.ər/",
+        "meaning": "A person who informs on a person or organization engaged in an illicit activity.",
+        "translation": "người tố giác sai phạm",
+        "example_sentences": [
+          "The corporate whistleblower provided evidence of illegal offshore tax evasion."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "scrutiny",
+        "part_of_speech": "noun",
+        "ipa": "/ˈskruː.tɪ.ni/",
+        "meaning": "Critical observation or examination.",
+        "translation": "sự soi xét kỹ lưỡng của công chúng",
+        "example_sentences": [
+          "Public officials must expect their financial affairs to face intense media scrutiny."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "infotainment",
+        "part_of_speech": "noun",
+        "ipa": "/ˌɪn.fəʊˈteɪn.mənt/",
+        "meaning": "Broadcast material which is intended both to entertain and to inform.",
+        "translation": "truyền thông kết hợp giải trí",
+        "example_sentences": [
+          "Morning television blends serious news headlines with lifestyle infotainment segments."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "syndicate",
+        "part_of_speech": "verb",
+        "ipa": "/ˈsɪn.dɪ.keɪt/",
+        "meaning": "To publish or broadcast simultaneously in a number of newspapers or television channels.",
+        "translation": "phát hành rộng rãi qua nhiều kênh",
+        "example_sentences": [
+          "The popular political column is syndicated across fifty regional newspapers."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "retract",
+        "part_of_speech": "verb",
+        "ipa": "/rɪˈtrækt/",
+        "meaning": "To draw back or withdraw a statement or accusation as false or unproven.",
+        "translation": "đính chính, rút lại phát ngôn",
+        "example_sentences": [
+          "The publication had to retract the defamatory article and issue a full apology."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "defamation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌdef.əˈmeɪ.ʃən/",
+        "meaning": "The action of damaging the good reputation of someone; slander or libel.",
+        "translation": "hành vi bôi nhọ danh dự",
+        "example_sentences": [
+          "The minister filed a defamation lawsuit against the sensationalist tabloid."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "libel",
+        "part_of_speech": "noun",
+        "ipa": "/ˈlaɪ.bəl/",
+        "meaning": "A published false statement that is damaging to a person's reputation.",
+        "translation": "tội phỉ báng bằng văn bản",
+        "example_sentences": [
+          "Journalists must verify accusations with documentation to avoid civil libel lawsuits."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "slander",
+        "part_of_speech": "noun",
+        "ipa": "/ˈslɑːn.dər/",
+        "meaning": "The action or crime of making a false spoken statement damaging to a person's reputation.",
+        "translation": "tội vu khống bằng lời nói",
+        "example_sentences": [
+          "He was accused of slander after making unfounded allegations at the public meeting."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "infographic",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɪn.fəʊˌɡræf.ɪk/",
+        "meaning": "A visual image such as a chart or diagram used to represent information or data.",
+        "translation": "đồ họa thông tin",
+        "example_sentences": [
+          "The online article featured an interactive infographic illustrating global trade flows."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "mainstream",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈmeɪn.striːm/",
+        "meaning": "Belonging to or characteristic of all the dominant culture, trends, or media.",
+        "translation": "chính thống, xu hướng chủ lưu",
+        "example_sentences": [
+          "Mainstream news outlets verified the scientific breakthrough with independent experts."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "viral",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈvaɪə.rəl/",
+        "meaning": "Relating to or involving an image, video, or piece of information that is circulated rapidly.",
+        "translation": "lan truyền chóng mặt trên mạng",
+        "example_sentences": [
+          "The heartwarming rescue video went viral and garnered twenty million views."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "subscriber",
+        "part_of_speech": "noun",
+        "ipa": "/səbˈskraɪ.bər/",
+        "meaning": "A person who pays for or receives regular issues of a publication or service.",
+        "translation": "độc giả đặt báo định kỳ",
+        "example_sentences": [
+          "The digital news site attracted two hundred thousand paid subscribers in one year."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "monetize",
+        "part_of_speech": "verb",
+        "ipa": "/ˈmʌn.ɪ.taɪz/",
+        "meaning": "To convert an asset, content, or platform into or express in the form of currency.",
+        "translation": "kiếm tiền từ nội dung số",
+        "example_sentences": [
+          "Content creators monetize educational podcasts through sponsorships and premium memberships."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sensationalize",
+        "part_of_speech": "verb",
+        "ipa": "/senˈseɪ.ʃən.əl.aɪz/",
+        "meaning": "To present information about something in a way that provokes public interest and excitement.",
+        "translation": "giật gân hóa tin tức",
+        "example_sentences": [
+          "Tabloid media outlets tend to sensationalize minor celebrity disputes."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "editorialise",
+        "part_of_speech": "verb",
+        "ipa": "/ˌed.ɪˈtɔː.ri.ə.laɪz/",
+        "meaning": "To make comments or express opinions in a news report rather than reporting facts.",
+        "translation": "lồng ý kiến chủ quan vào bài báo",
+        "example_sentences": [
+          "Reporters must avoid editorializing when covering sensitive political trials."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "photojournalism",
+        "part_of_speech": "noun",
+        "ipa": "/ˌfəʊ.təʊˈdʒɜː.nə.lɪ.zəm/",
+        "meaning": "The art or practice of communicating news by photographs.",
+        "translation": "ngành báo ảnh",
+        "example_sentences": [
+          "Her striking photojournalism captured the human resilience of flood survivors."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "infomercial",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɪn.fəʊˌmɜː.ʃəl/",
+        "meaning": "A television program that promotes a product in an informative style.",
+        "translation": "chương trình quảng cáo tiếp thị",
+        "example_sentences": [
+          "Late-night television broadcasts infomercials demonstrating kitchen gadgets."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "newscaster",
+        "part_of_speech": "noun",
+        "ipa": "/ˈnjuːzˌkɑː.stər/",
+        "meaning": "A presenter of a news bulletin on television or radio.",
+        "translation": "phát thanh viên tin tức",
+        "example_sentences": [
+          "The veteran newscaster delivered breaking reports from the disaster zone."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "telecast",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtel.ɪ.kɑːst/",
+        "meaning": "A television broadcast.",
+        "translation": "buổi phát sóng truyền hình",
+        "example_sentences": [
+          "Millions of households tuned in for the live telecast of the cultural gala."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "paywall",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpeɪ.wɔːl/",
+        "meaning": "A system that prevents internet users from accessing webpage content without a paid subscription.",
+        "translation": "hệ thống thu phí đọc báo",
+        "example_sentences": [
+          "The investigative broadsheet placed premium long-form analysis behind a digital paywall."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "plagiarism",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpleɪ.dʒər.ɪ.zəm/",
+        "meaning": "The practice of taking someone else's work and passing it off as one's own.",
+        "translation": "nạn đạo văn trong báo chí",
+        "example_sentences": [
+          "The journalist was dismissed following allegations of deliberate plagiarism."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "soundbite",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsaʊnd.baɪt/",
+        "meaning": "A short extract from a recorded interview, chosen for its pungency or appropriateness.",
+        "translation": "đoạn trích phát biểu ngắn",
+        "example_sentences": [
+          "Politicians craft concise soundbites tailored for thirty-second television news segments."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "spin",
+        "part_of_speech": "noun",
+        "ipa": "/spɪn/",
+        "meaning": "A particular bias, interpretation, or point of view, intended to create a favorable impression.",
+        "translation": "sự định hướng dư luận",
+        "example_sentences": [
+          "Public relations experts placed a positive spin on the declining quarterly profits."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "press conference",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpres ˌkɒn.fər.əns/",
+        "meaning": "An interview given to journalists by a prominent person in order to make an announcement.",
+        "translation": "buổi họp báo",
+        "example_sentences": [
+          "The health minister called an emergency press conference to update quarantine guidelines."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "freelance",
+        "part_of_speech": "verb",
+        "ipa": "/ˈfriː.lɑːns/",
+        "meaning": "To work for different companies on temporary assignments.",
+        "translation": "làm báo tự do",
+        "example_sentences": [
+          "She freelances as an environmental reporter for international travel magazines."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "broadcaster",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbrɔːdˌkɑː.stər/",
+        "meaning": "An organization that transmits programs on radio or television.",
+        "translation": "đài truyền hình, đài phát thanh",
+        "example_sentences": [
+          "The national public broadcaster launched a twenty-four-hour educational network."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "exclusive",
+        "part_of_speech": "noun",
+        "ipa": "/ɪkˈskluː.sɪv/",
+        "meaning": "An item or story published or broadcast by only one newspaper or television station.",
+        "translation": "tin tức độc quyền",
+        "example_sentences": [
+          "The magazine scored a major exclusive on the corporate merger negotiations."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "columnist",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkɒl.əm.nɪst/",
+        "meaning": "A journalist contributing regularly to a newspaper or magazine.",
+        "translation": "nhà bình luận chuyên mục",
+        "example_sentences": [
+          "The economic columnist analyzes real estate trends in every weekend edition."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "bylines",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbaɪ.laɪnz/",
+        "meaning": "Lines in a newspaper naming the writer of an article.",
+        "translation": "dòng ghi tên tác giả bài báo",
+        "example_sentences": [
+          "Young reporters aspire to see their bylines on the front page of national dailies."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "retraction",
+        "part_of_speech": "noun",
+        "ipa": "/rɪˈtræk.ʃən/",
+        "meaning": "The withdrawal of a statement, accusation, or undertaking.",
+        "translation": "sự rút lại bài viết, đính chính",
+        "example_sentences": [
+          "The editor published a prominent front-page retraction of the unverified claim."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "vlog",
+        "part_of_speech": "noun",
+        "ipa": "/vlɒɡ/",
+        "meaning": "A blog in which the postings are primarily in video form.",
+        "translation": "nhật ký video, vlog",
+        "example_sentences": [
+          "Travel vloggers showcase hidden culinary gems across Vietnamese provinces."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "vlogger",
+        "part_of_speech": "noun",
+        "ipa": "/ˈvlɒɡ.ər/",
+        "meaning": "A person who produces regular video blogs.",
+        "translation": "người sáng tạo vlog",
+        "example_sentences": [
+          "The food vlogger visited twenty traditional street food stalls in the Old Quarter."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "monetization",
+        "part_of_speech": "noun",
+        "ipa": "/ˌmʌn.ɪ.taɪˈzeɪ.ʃən/",
+        "meaning": "The process of earning revenue from digital content.",
+        "translation": "sự kiếm tiền từ nội dung",
+        "example_sentences": [
+          "Video monetization allows digital educators to fund high-quality production equipment."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "b2-culture",
+    "level_code": "B2",
+    "topic": "Culture",
+    "name": "Art, Culture & Heritage",
+    "description": "Upper-intermediate vocabulary for artistic traditions, aesthetics, cultural philosophy, and performance.",
+    "entries": [
+      {
+        "word": "aesthetic",
+        "part_of_speech": "adjective",
+        "ipa": "/esˈθet.ɪk/",
+        "meaning": "Concerned with beauty or the appreciation of beauty.",
+        "translation": "có tính thẩm mỹ",
+        "example_sentences": [
+          "Traditional Vietnamese architecture displays a harmonious aesthetic balance with surrounding nature."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "contemporary",
+        "part_of_speech": "adjective",
+        "ipa": "/kənˈtem.pər.ər.i/",
+        "meaning": "Living or occurring at the same time; belonging to or occurring in the present.",
+        "translation": "đương đại, hiện đại",
+        "example_sentences": [
+          "The museum exhibits provocative works by emerging contemporary Vietnamese painters."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "masterpiece",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmɑː.stə.piːs/",
+        "meaning": "A work of outstanding artistry, skill, or workmanship.",
+        "translation": "kiệt tác nghệ thuật",
+        "example_sentences": [
+          "Nguyen Gia Tri is celebrated for his lacquer painting masterpieces."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "exhibition",
+        "part_of_speech": "noun",
+        "ipa": "/ˌek.sɪˈbɪʃ.ən/",
+        "meaning": "A public display of works of art or other items of interest, held in an art gallery or museum.",
+        "translation": "triển lãm nghệ thuật",
+        "example_sentences": [
+          "The fine arts exhibition drew thousands of visitors over the weekend."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sculpture",
+        "part_of_speech": "noun",
+        "ipa": "/ˈskʌlp.tʃər/",
+        "meaning": "The art of making two- or three-dimensional representative or abstract forms, especially by carving.",
+        "translation": "nghệ thuật điêu khắc, bức tượng",
+        "example_sentences": [
+          "The bronze sculpture commemorates historical peace treaties."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sculptor",
+        "part_of_speech": "noun",
+        "ipa": "/ˈskʌlp.tər/",
+        "meaning": "An artist who makes sculptures.",
+        "translation": "nhà điêu khắc",
+        "example_sentences": [
+          "The skilled sculptor carved intricate lotus motifs out of white marble."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "architecture",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɑː.kɪ.tek.tʃər/",
+        "meaning": "The art or practice of designing and constructing buildings.",
+        "translation": "nghệ thuật kiến trúc",
+        "example_sentences": [
+          "Hanoi's old quarter features a charming blend of French colonial and traditional Vietnamese architecture."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "heritage",
+        "part_of_speech": "noun",
+        "ipa": "/ˈher.ɪ.tɪdʒ/",
+        "meaning": "Valued objects and qualities such as historic buildings and cultural traditions passed down from generations.",
+        "translation": "di sản văn hóa phi vật thể và vật thể",
+        "example_sentences": [
+          "Preserving tangible and intangible cultural heritage is vital for national identity."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "folklore",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfəʊk.lɔːr/",
+        "meaning": "The traditional beliefs, customs, and stories of a community, passed through the generations by word of mouth.",
+        "translation": "văn hóa dân gian, truyện dân gian",
+        "example_sentences": [
+          "Vietnamese folklore is rich in mythological legends explaining nature and origins."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "ritual",
+        "part_of_speech": "noun",
+        "ipa": "/ˈrɪtʃ.u.əl/",
+        "meaning": "A religious or solemn ceremony consisting of a series of actions performed according to a prescribed order.",
+        "translation": "nghi lễ truyền thống",
+        "example_sentences": [
+          "The village elders conducted an ancient ancestral ritual to pray for a bountiful harvest."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "ceremony",
+        "part_of_speech": "noun",
+        "ipa": "/ˈser.ɪ.mə.ni/",
+        "meaning": "A formal religious or public occasion, typically one celebrating a particular event.",
+        "translation": "buổi lễ long trọng",
+        "example_sentences": [
+          "The university graduation ceremony honored top academic scholars."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "symbolism",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɪm.bəl.ɪ.zəm/",
+        "meaning": "The use of symbols to represent ideas or qualities.",
+        "translation": "nghệ thuật tượng trưng, tính biểu tượng",
+        "example_sentences": [
+          "In Eastern art, the crane embodies rich symbolism of longevity and wisdom."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "abstract",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈæb.strækt/",
+        "meaning": "Existing in thought or as an idea but not having a physical or concrete existence; art that does not attempt to represent external reality.",
+        "translation": "trừu tượng",
+        "example_sentences": [
+          "Abstract expressionist paintings evoke powerful emotional responses through color and texture."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "realism",
+        "part_of_speech": "noun",
+        "ipa": "/ˈrɪə.lɪ.zəm/",
+        "meaning": "The quality or fact of representing a person, thing, or situation accurately or in a way that is true to life.",
+        "translation": "chủ nghĩa hiện thực",
+        "example_sentences": [
+          "Nineteenth-century literary realism depicted the daily struggles of working-class families."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "metaphor",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmet.ə.fɔːr/",
+        "meaning": "A figure of speech in which a word or phrase is applied to an object or action to which it is not literally applicable.",
+        "translation": "phép ẩn dụ",
+        "example_sentences": [
+          "Poets use the lotus flower as a metaphor for purity rising above muddy waters."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "allegory",
+        "part_of_speech": "noun",
+        "ipa": "/ˈæl.ə.ɡər.i/",
+        "meaning": "A story, poem, or picture that can be interpreted to reveal a hidden meaning, typically a moral one.",
+        "translation": "truyện ngụ ngôn, tính biểu ý",
+        "example_sentences": [
+          "George Orwell's Animal Farm is a famous political allegory about totalitarianism."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "genre",
+        "part_of_speech": "noun",
+        "ipa": "/ˈʒɑːn.rə/",
+        "meaning": "A category of artistic, musical, or literary composition characterized by a particular style, form, or content.",
+        "translation": "thể loại nghệ thuật",
+        "example_sentences": [
+          "Historical fiction is an increasingly popular literary genre among young adult readers."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "manuscript",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmæn.jə.skrɪpt/",
+        "meaning": "A book, document, or piece of music written by hand rather than typed or printed.",
+        "translation": "bản thảo cổ, thủ bản",
+        "example_sentences": [
+          "Scholars restored the fragile ancient manuscript in the national archive."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "curator",
+        "part_of_speech": "noun",
+        "ipa": "/kjʊəˈreɪ.tər/",
+        "meaning": "A keeper or custodian of a museum or other collection of art.",
+        "translation": "người phụ trách giám tuyển triển lãm",
+        "example_sentences": [
+          "The museum curator organized an international retrospective of Southeast Asian ceramics."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "patron",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpeɪ.trən/",
+        "meaning": "A person who gives financial or other support to a person, organization, cause, or activity.",
+        "translation": "nhà bảo trợ nghệ thuật",
+        "example_sentences": [
+          "Wealthy patrons supported classical composers and painters throughout the Renaissance."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "philanthropy",
+        "part_of_speech": "noun",
+        "ipa": "/fɪˈlæn.θrə.pi/",
+        "meaning": "The desire to promote the welfare of others, expressed especially by the generous donation of money.",
+        "translation": "hoạt động từ thiện, lòng bác ái",
+        "example_sentences": [
+          "Corporate philanthropy contributed ten million dollars toward the arts preservation endowment."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "craftsman",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkrɑːfts.mən/",
+        "meaning": "A worker skilled in a particular craft.",
+        "translation": "nghệ nhân thủ công",
+        "example_sentences": [
+          "The master craftsman has spent fifty years crafting traditional bamboo flutes."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "craftsmanship",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkrɑːfts.mən.ʃɪp/",
+        "meaning": "Skill in a particular craft; the quality of design and work shown in something made by hand.",
+        "translation": "tay nghề thủ công tinh xảo",
+        "example_sentences": [
+          "Foreign buyers admire the exquisite craftsmanship of Bat Trang ceramic pottery."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "authenticity",
+        "part_of_speech": "noun",
+        "ipa": "/ˌɔː.θenˈtɪs.ə.ti/",
+        "meaning": "The quality of being authentic; genuineness.",
+        "translation": "tính xác thực, tính nguyên bản",
+        "example_sentences": [
+          "Art historians verified the authenticity of the centuries-old royal silk painting."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "restoration",
+        "part_of_speech": "noun",
+        "ipa": "/ˌres.təˈreɪ.ʃən/",
+        "meaning": "The action of returning something to a former owner, place, or condition.",
+        "translation": "công tác trùng tu di tích",
+        "example_sentences": [
+          "The restoration of Hue Imperial Citadel took over a decade of meticulous work."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "acoustics",
+        "part_of_speech": "noun",
+        "ipa": "/əˈkuː.stɪks/",
+        "meaning": "The properties or qualities of a room or building that determine how sound is transmitted in it.",
+        "translation": "âm học, chất lượng âm thanh hội trường",
+        "example_sentences": [
+          "The Hanoi Opera House was engineered with superb natural acoustics for classical concerts."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "orchestra",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɔː.kɪ.strə/",
+        "meaning": "A large group of musicians playing different instruments together.",
+        "translation": "dàn nhạc giao hưởng",
+        "example_sentences": [
+          "The national symphony orchestra performed Beethoven's Ninth Symphony to a standing ovation."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "conductor",
+        "part_of_speech": "noun",
+        "ipa": "/kənˈdʌk.tər/",
+        "meaning": "A person who directs the performance of an orchestra or choir.",
+        "translation": "nhạc trưởng chỉ huy dàn nhạc",
+        "example_sentences": [
+          "The guest conductor guided the musicians with passionate and precise gestures."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "choreography",
+        "part_of_speech": "noun",
+        "ipa": "/ˌkɒr.iˈɒɡ.rə.fi/",
+        "meaning": "The sequence of steps and movements in dance or figure skating.",
+        "translation": "nghệ thuật biên đạo múa",
+        "example_sentences": [
+          "The contemporary ballet performance featured breathtaking and athletic choreography."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "costume",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkɒs.tʃuːm/",
+        "meaning": "A set of clothes in a style typical of a particular country or historical period.",
+        "translation": "trang phục biểu diễn, y phục cổ",
+        "example_sentences": [
+          "The actors wore elaborate period costumes for the imperial palace drama."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "mural",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmjʊə.rəl/",
+        "meaning": "A piece of artwork painted or applied directly on a wall or ceiling.",
+        "translation": "bức tranh bích họa",
+        "example_sentences": [
+          "Artists painted a vibrant ceramic mosaic mural along the river wall."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fresco",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfres.kəʊ/",
+        "meaning": "A painting done rapidly in watercolor on wet plaster on a wall or ceiling.",
+        "translation": "tranh bích họa trên vữa ướt",
+        "example_sentences": [
+          "Restorers preserved Renaissance frescos inside the ancient cathedral."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "mosaic",
+        "part_of_speech": "noun",
+        "ipa": "/məʊˈzeɪ.ɪk/",
+        "meaning": "A picture or pattern produced by arranging together small colored pieces of hard material.",
+        "translation": "tranh khảm ghép gốm",
+        "example_sentences": [
+          "Hanoi is home to the world's longest ceramic mosaic road."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "pottery",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpɒt.ər.i/",
+        "meaning": "Pots, dishes, and other articles made of earthenware or baked clay.",
+        "translation": "đồ gốm sứ thủ công",
+        "example_sentences": [
+          "Bat Trang village is world-famous for its traditional glazed pottery."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "ceramics",
+        "part_of_speech": "noun",
+        "ipa": "/səˈræm.ɪks/",
+        "meaning": "Pots and other articles made from clay hardened by heat.",
+        "translation": "nghệ thuật đồ gốm",
+        "example_sentences": [
+          "The museum exhibits rare archaeological ceramics from the Ly Dynasty."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "tapestry",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtæp.ə.stri/",
+        "meaning": "A piece of thick textile fabric with pictures or designs formed by weaving colored threads.",
+        "translation": "tấm thảm dệt nghệ thuật",
+        "example_sentences": [
+          "An antique silk tapestry hung proudly on the drawing room wall."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "engraving",
+        "part_of_speech": "noun",
+        "ipa": "/ɪnˈɡreɪ.vɪŋ/",
+        "meaning": "A print made from an engraved plate, block, or other surface.",
+        "translation": "bản khắc in tranh",
+        "example_sentences": [
+          "Dong Ho woodblock engravings represent traditional folk blessings."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "calligraphy",
+        "part_of_speech": "noun",
+        "ipa": "/kəˈlɪɡ.rə.fi/",
+        "meaning": "Decorative handwriting or handwritten lettering.",
+        "translation": "nghệ thuật thư pháp",
+        "example_sentences": [
+          "Scholars practice Vietnamese calligraphy using traditional ink and brushes at Tet."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sonnet",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɒn.ɪt/",
+        "meaning": "A poem of fourteen lines using any of a number of formal rhyme schemes.",
+        "translation": "thơ mười bốn câu son-nê",
+        "example_sentences": [
+          "Shakespeare composed over one hundred and fifty timeless romantic sonnets."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "ballad",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbæl.əd/",
+        "meaning": "A poem or song narrating a story in short stanzas.",
+        "translation": "bài ca dao, bản ballad",
+        "example_sentences": [
+          "Traditional folk ballads were passed down orally through generations."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "stanza",
+        "part_of_speech": "noun",
+        "ipa": "/ˈstæn.zə/",
+        "meaning": "A group of lines forming the basic recurring metrical unit in a poem; a verse.",
+        "translation": "khổ thơ",
+        "example_sentences": [
+          "The poignant final stanza reveals the hidden emotional depth of the poem."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "prose",
+        "part_of_speech": "noun",
+        "ipa": "/prəʊz/",
+        "meaning": "Written or spoken language in its ordinary form, without metrical structure.",
+        "translation": "văn xuôi",
+        "example_sentences": [
+          "Her elegant narrative prose captivates readers across all age groups."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "memoir",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmem.wɑːr/",
+        "meaning": "A historical account or biography written from personal knowledge.",
+        "translation": "hồi ký cá nhân",
+        "example_sentences": [
+          "The veteran diplomat published an insightful memoir of Southeast Asian diplomacy."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "anthology",
+        "part_of_speech": "noun",
+        "ipa": "/ænˈθɒl.ə.dʒi/",
+        "meaning": "A published collection of poems or other pieces of writing.",
+        "translation": "tuyển tập văn học",
+        "example_sentences": [
+          "The university press released an anthology of contemporary Vietnamese short stories."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "protagonist",
+        "part_of_speech": "noun",
+        "ipa": "/prəˈtæɡ.ən.ɪst/",
+        "meaning": "The leading character or one of the major characters in a drama, movie, or novel.",
+        "translation": "nhân vật chính trong truyện",
+        "example_sentences": [
+          "The brave young protagonist navigates complex family expectations and societal change."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "antagonist",
+        "part_of_speech": "noun",
+        "ipa": "/ænˈtæɡ.ən.ɪst/",
+        "meaning": "A person who actively opposes or is hostile to someone or something; an adversary.",
+        "translation": "nhân vật phản diện",
+        "example_sentences": [
+          "The novel's clever antagonist presents a formidable psychological challenge."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "climax",
+        "part_of_speech": "noun",
+        "ipa": "/ˈklaɪ.mæks/",
+        "meaning": "The most intense, exciting, or important point of something.",
+        "translation": "cao trào câu chuyện",
+        "example_sentences": [
+          "The suspenseful courtroom scene marks the dramatic climax of the movie."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "foreshadow",
+        "part_of_speech": "verb",
+        "ipa": "/fɔːˈʃæd.əʊ/",
+        "meaning": "To be a warning or indication of a future event.",
+        "translation": "báo hiệu trước, điềm báo",
+        "example_sentences": [
+          "Early subtle scenes in the novel foreshadow the tragic ending."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "irony",
+        "part_of_speech": "noun",
+        "ipa": "/ˈaɪ.rə.ni/",
+        "meaning": "The expression of one's meaning by using language that normally signifies the opposite.",
+        "translation": "sự mỉa mai, nghịch lý trớ trêu",
+        "example_sentences": [
+          "The story concludes with a bitter twist of dramatic irony."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "satire",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsæt.aɪər/",
+        "meaning": "The use of humor, irony, or exaggeration to expose and criticize people's stupidity or vices.",
+        "translation": "nghệ thuật châm biếm",
+        "example_sentences": [
+          "The satirical comedy lampoons political corruption and greed."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "b2-science",
+    "level_code": "B2",
+    "topic": "Science",
+    "name": "Scientific Discovery & Inquiry",
+    "description": "Upper-intermediate vocabulary for scientific methodology, laboratories, astronomy, and physics.",
+    "entries": [
+      {
+        "word": "phenomenon",
+        "part_of_speech": "noun",
+        "ipa": "/fɪˈnɒm.ɪ.nən/",
+        "meaning": "A fact or situation that is observed to exist or happen, especially one whose cause is in question.",
+        "translation": "hiện tượng khoa học",
+        "example_sentences": [
+          "Total solar eclipses are rare astronomical phenomena that attract global observers."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "empirical",
+        "part_of_speech": "adjective",
+        "ipa": "/ɪmˈpɪr.ɪ.kəl/",
+        "meaning": "Based on, concerned with, or verifiable by observation or experience rather than theory.",
+        "translation": "mang tính thực nghiệm",
+        "example_sentences": [
+          "The scientist presented rigorous empirical evidence supporting the new physics theorem."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "variable",
+        "part_of_speech": "noun",
+        "ipa": "/ˈveə.ri.ə.bəl/",
+        "meaning": "An element, feature, or factor that is liable to vary or change in an experiment.",
+        "translation": "biến số thí nghiệm",
+        "example_sentences": [
+          "Researchers controlled the temperature variable while measuring the rate of chemical reaction."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "correlation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌkɒr.əˈleɪ.ʃən/",
+        "meaning": "A mutual relationship or connection between two or more things.",
+        "translation": "sự tương quan",
+        "example_sentences": [
+          "Epidemiological studies revealed a strong correlation between dietary fiber and cardiovascular health."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "causation",
+        "part_of_speech": "noun",
+        "ipa": "/kɔːˈzeɪ.ʃən/",
+        "meaning": "The action of causing something; the relationship between cause and effect.",
+        "translation": "mối quan hệ nhân quả",
+        "example_sentences": [
+          "Scientists remind researchers that statistical correlation does not inherently prove causation."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "methodology",
+        "part_of_speech": "noun",
+        "ipa": "/ˌmeθ.əˈdɒl.ə.dʒi/",
+        "meaning": "A system of methods used in a particular area of study or activity.",
+        "translation": "phương pháp luận nghiên cứu",
+        "example_sentences": [
+          "The research paper outlines the experimental methodology and sampling protocols in detail."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sample",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɑːm.pəl/",
+        "meaning": "A small part or quantity intended to show what the whole is like.",
+        "translation": "mẫu thử nghiệm",
+        "example_sentences": [
+          "The laboratory analyzed two hundred soil samples from agricultural regions across the delta."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "apparatus",
+        "part_of_speech": "noun",
+        "ipa": "/ˌæp.əˈreɪ.təs/",
+        "meaning": "The technical equipment or machinery needed for a particular activity or purpose.",
+        "translation": "bộ dụng cụ thí nghiệm",
+        "example_sentences": [
+          "Ensure that all glass apparatus is thoroughly sterilized before beginning the microbiological assay."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "specimen",
+        "part_of_speech": "noun",
+        "ipa": "/ˈspes.ə.mɪn/",
+        "meaning": "An individual animal, plant, piece of a mineral, etc. used as an example of its species.",
+        "translation": "mẫu vật sinh học",
+        "example_sentences": [
+          "The botanist preserved a rare orchid specimen in the university herbarium."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "microscope",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmaɪ.krə.skəʊp/",
+        "meaning": "An optical instrument used for viewing very small objects, such as mineral samples or animal or plant cells.",
+        "translation": "kính hiển vi",
+        "example_sentences": [
+          "High-powered electron microscopes allow researchers to visualize viral structures at atomic scale."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "telescope",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtel.ɪ.skəʊp/",
+        "meaning": "An optical instrument designed to make distant objects appear nearer.",
+        "translation": "kính thiên văn",
+        "example_sentences": [
+          "The James Webb Space Telescope captured deep images of the earliest galaxies in the universe."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "astronomy",
+        "part_of_speech": "noun",
+        "ipa": "/əˈstrɒn.ə.mi/",
+        "meaning": "The branch of science which deals with celestial objects, space, and the physical universe as a whole.",
+        "translation": "ngành thiên văn học",
+        "example_sentences": [
+          "Studying astronomy provides profound insights into the formation and evolution of cosmic systems."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "galaxy",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɡæl.ək.si/",
+        "meaning": "A system of millions or billions of stars, together with gas and dust, held together by gravitational attraction.",
+        "translation": "thiên hà",
+        "example_sentences": [
+          "The Milky Way galaxy contains over one hundred billion stars and planetary systems."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "gravity",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɡræv.ə.ti/",
+        "meaning": "The force that attracts a body toward the center of the earth, or toward any other physical body having mass.",
+        "translation": "lực hấp dẫn, trọng lực",
+        "example_sentences": [
+          "Newton formulated the universal law of gravity after observing the motion of celestial bodies."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "orbit",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɔː.bɪt/",
+        "meaning": "The curved path of a celestial object or spacecraft around a star, planet, or moon.",
+        "translation": "quỹ đạo chuyển động",
+        "example_sentences": [
+          "The communication satellite was placed into a geostationary orbit thirty-six thousand kilometers above Earth."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "orbit",
+        "part_of_speech": "verb",
+        "ipa": "/ˈɔː.bɪt/",
+        "meaning": "To move in orbit around a star or planet.",
+        "translation": "chuyển động quanh quỹ đạo",
+        "example_sentences": [
+          "Eight major planets orbit the sun in our solar system."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "radiation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌreɪ.diˈeɪ.ʃən/",
+        "meaning": "The emission of energy as electromagnetic waves or as moving subatomic particles.",
+        "translation": "bức xạ, phóng xạ",
+        "example_sentences": [
+          "Earth's magnetic field shields living organisms from harmful cosmic radiation."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "molecule",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmɒl.ɪ.kjuːl/",
+        "meaning": "A group of atoms bonded together, representing the smallest fundamental unit of a chemical compound.",
+        "translation": "phân tử hóa học",
+        "example_sentences": [
+          "A water molecule consists of two hydrogen atoms bonded to one oxygen atom."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "atom",
+        "part_of_speech": "noun",
+        "ipa": "/ˈæt.əm/",
+        "meaning": "The basic unit of a chemical element.",
+        "translation": "nguyên tử",
+        "example_sentences": [
+          "Atoms consist of a central nucleus surrounded by a cloud of orbiting electrons."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "compound",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkɒm.paʊnd/",
+        "meaning": "A thing that is composed of two or more separate elements; a mixture.",
+        "translation": "hợp chất hóa học",
+        "example_sentences": [
+          "Organic compounds containing carbon form the chemical basis of all known life."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "reaction",
+        "part_of_speech": "noun",
+        "ipa": "/riˈæk.ʃən/",
+        "meaning": "A chemical process in which two or more substances act mutually on each other and are changed.",
+        "translation": "phản ứng hóa học",
+        "example_sentences": [
+          "The exothermic chemical reaction released considerable heat and light energy."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "catalyst",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkæt.əl.ɪst/",
+        "meaning": "A substance that increases the rate of a chemical reaction without itself undergoing any permanent change.",
+        "translation": "chất xúc tác phản ứng",
+        "example_sentences": [
+          "Enzymes act as biological catalysts that accelerate biochemical reactions in living cells."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "genetics",
+        "part_of_speech": "noun",
+        "ipa": "/dʒəˈnet.ɪks/",
+        "meaning": "The study of heredity and the variation of inherited characteristics.",
+        "translation": "ngành di truyền học",
+        "example_sentences": [
+          "Advancements in genetics enable targeted gene therapies for rare inherited disorders."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "genome",
+        "part_of_speech": "noun",
+        "ipa": "/ˈdʒiː.nəʊm/",
+        "meaning": "The complete set of genes or genetic material present in a cell or organism.",
+        "translation": "hệ gen sinh vật",
+        "example_sentences": [
+          "Scientists mapped the complete human genome to identify markers for hereditary illnesses."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "mutation",
+        "part_of_speech": "noun",
+        "ipa": "/mjuːˈteɪ.ʃən/",
+        "meaning": "The changing of the structure of a gene, resulting in a variant form that may be transmitted to subsequent generations.",
+        "translation": "sự đột biến gen",
+        "example_sentences": [
+          "Genetic mutations provide the raw biological material upon which natural selection operates."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "evolution",
+        "part_of_speech": "noun",
+        "ipa": "/ˌiː.vəˈluː.ʃən/",
+        "meaning": "The process by which different kinds of living organisms are thought to have developed from earlier forms.",
+        "translation": "sự tiến hóa sinh học",
+        "example_sentences": [
+          "Darwin's theory of evolution explains the diversification of species through natural selection."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fossil",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfɒs.əl/",
+        "meaning": "The remains or impression of a prehistoric organism preserved in petrified form or as a mold in rock.",
+        "translation": "hóa thạch cổ sinh vật",
+        "example_sentences": [
+          "Paleontologists excavated dinosaur fossils from the ancient sandstone quarry."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "quantum",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈkwɒn.təm/",
+        "meaning": "Relating to the branch of physics that studies the behavior of matter and energy at the atomic and subatomic level.",
+        "translation": "thuộc lượng tử",
+        "example_sentences": [
+          "Quantum computing leverages the principles of superposition to solve calculations at immense speeds."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "thermodynamics",
+        "part_of_speech": "noun",
+        "ipa": "/ˌθɜː.məʊ.daɪˈnæm.ɪks/",
+        "meaning": "The branch of physical science that deals with the relations between heat and other forms of energy.",
+        "translation": "ngành nhiệt động lực học",
+        "example_sentences": [
+          "The second law of thermodynamics dictates that the entropy of an isolated system always increases."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "entropy",
+        "part_of_speech": "noun",
+        "ipa": "/ˈen.trə.pi/",
+        "meaning": "A thermodynamic quantity representing the unavailability of a system's thermal energy; a measure of disorder.",
+        "translation": "độ hỗn loạn entropy",
+        "example_sentences": [
+          "Entropy measures the degree of disorder and randomness within a closed physical system."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "astrophysics",
+        "part_of_speech": "noun",
+        "ipa": "/ˌæs.trəʊˈfɪz.ɪks/",
+        "meaning": "The branch of astronomy concerned with the physical nature of stars and celestial bodies.",
+        "translation": "vật lý thiên văn",
+        "example_sentences": [
+          "Research in astrophysics explores the mysterious origins of black holes and dark energy."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "quantum mechanics",
+        "part_of_speech": "noun",
+        "ipa": "/ˌkwɒn.təm məˈkæn.ɪks/",
+        "meaning": "The branch of mechanics that deals with the mathematical description of the motion and interaction of subatomic particles.",
+        "translation": "cơ học lượng tử",
+        "example_sentences": [
+          "Quantum mechanics underpins modern semiconductor physics and laser technologies."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "nanotechnology",
+        "part_of_speech": "noun",
+        "ipa": "/ˌnæn.əʊ.tekˈnɒl.ə.dʒi/",
+        "meaning": "The branch of technology that deals with dimensions and tolerances of less than 100 nanometers.",
+        "translation": "công nghệ na-nô",
+        "example_sentences": [
+          "Medical researchers utilize nanotechnology to deliver targeted cancer treatments directly to cells."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "biochemistry",
+        "part_of_speech": "noun",
+        "ipa": "/ˌbaɪ.əʊˈkem.ɪ.stri/",
+        "meaning": "The branch of science concerned with the chemical and physicochemical processes in organisms.",
+        "translation": "hóa sinh học",
+        "example_sentences": [
+          "Biochemistry investigations elucidated how enzymes break down metabolic toxins."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "neuroscience",
+        "part_of_speech": "noun",
+        "ipa": "/ˈnjʊə.rəʊˌsaɪ.əns/",
+        "meaning": "Any or all of the sciences which deal with the structure or function of the nervous system and brain.",
+        "translation": "khoa học thần kinh",
+        "example_sentences": [
+          "Advances in neuroscience illuminate how sleep consolidates long-term semantic memory."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "paleontology",
+        "part_of_speech": "noun",
+        "ipa": "/ˌpeɪ.li.ɒnˈtɒl.ə.dʒi/",
+        "meaning": "The branch of science concerned with fossil animals and plants.",
+        "translation": "ngành cổ sinh vật học",
+        "example_sentences": [
+          "Paleontology excavations yielded well-preserved fossilized plant fronds in the cave."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "particle",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpɑː.tɪ.kəl/",
+        "meaning": "A minute portion of matter, such as a proton, neutron, or electron.",
+        "translation": "hạt hạ nguyên tử",
+        "example_sentences": [
+          "Physicists accelerate subatomic particles to near the speed of light in the collider."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "collider",
+        "part_of_speech": "noun",
+        "ipa": "/kəˈlaɪ.dər/",
+        "meaning": "An accelerator in which two beams of particles are made to collide.",
+        "translation": "máy gia tốc va chạm hạt",
+        "example_sentences": [
+          "The Large Hadron Collider discovered experimental proof of the Higgs boson particle."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "wavelength",
+        "part_of_speech": "noun",
+        "ipa": "/ˈweɪv.leŋθ/",
+        "meaning": "The distance between successive crests of a wave, especially points in a sound wave or electromagnetic wave.",
+        "translation": "bước sóng ánh sáng",
+        "example_sentences": [
+          "Different colors of visible light correspond to distinct electromagnetic wavelengths."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "frequency",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfriː.kwən.si/",
+        "meaning": "The rate at which a vibration occurs that constitutes a wave.",
+        "translation": "tần số sóng",
+        "example_sentences": [
+          "Radio communication devices operate across precise regulated transmission frequencies."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "velocity",
+        "part_of_speech": "noun",
+        "ipa": "/vəˈlɒs.ə.ti/",
+        "meaning": "The speed of something in a given direction.",
+        "translation": "vận tốc chuyển động",
+        "example_sentences": [
+          "The space probe reached escape velocity and broke free from Earth's gravitational pull."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "acceleration",
+        "part_of_speech": "noun",
+        "ipa": "/əkˌsel.əˈreɪ.ʃən/",
+        "meaning": "The rate of change of velocity per unit of time.",
+        "translation": "gia tốc",
+        "example_sentences": [
+          "Electric sports vehicles achieve breathtaking acceleration from zero to one hundred kilometers per hour."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "friction",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfrɪk.ʃən/",
+        "meaning": "The resistance that one surface or object encounters when moving over another.",
+        "translation": "lực ma sát",
+        "example_sentences": [
+          "Special ceramic lubricants reduce mechanical friction and wear inside the turbine."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "momentum",
+        "part_of_speech": "noun",
+        "ipa": "/məˈmen.təm/",
+        "meaning": "The quantity of motion of a moving body, measured as a product of its mass and velocity.",
+        "translation": "động lượng",
+        "example_sentences": [
+          "The rolling boulder gained immense momentum as it descended the steep mountain slope."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "inertia",
+        "part_of_speech": "noun",
+        "ipa": "/ɪˈnɜː.ʃə/",
+        "meaning": "A tendency to do nothing or to remain unchanged; the property of matter to stay in state of rest or motion.",
+        "translation": "quán tính vật lý",
+        "example_sentences": [
+          "Newton's first law explains that an object maintains constant velocity due to inertia."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "optics",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɒp.tɪks/",
+        "meaning": "The scientific study of sight and the behavior of light.",
+        "translation": "quang học",
+        "example_sentences": [
+          "Fiber optic telecommunications revolutionized global data transfer through modern optics."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "synthetic",
+        "part_of_speech": "adjective",
+        "ipa": "/sɪnˈθet.ɪk/",
+        "meaning": "Made by chemical synthesis, especially to imitate a natural product.",
+        "translation": "tổng hợp nhân tạo",
+        "example_sentences": [
+          "Synthetic polymers replaced rubber in many demanding industrial applications."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "catalysis",
+        "part_of_speech": "noun",
+        "ipa": "/kəˈtæl.ə.sɪs/",
+        "meaning": "The acceleration of a chemical reaction by a catalyst.",
+        "translation": "quá trình xúc tác",
+        "example_sentences": [
+          "Industrial chemical catalysis enables energy-efficient production of nitrogen fertilizer."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "crystallography",
+        "part_of_speech": "noun",
+        "ipa": "/ˌkrɪs.təˈlɒɡ.rə.fi/",
+        "meaning": "The branch of science concerned with the structure and properties of crystals.",
+        "translation": "tinh thể học",
+        "example_sentences": [
+          "X-ray crystallography enabled Watson and Crick to decipher the double-helix structure of DNA."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "isotope",
+        "part_of_speech": "noun",
+        "ipa": "/ˈaɪ.sə.təʊp/",
+        "meaning": "Each of two or more forms of the same element that contain equal numbers of protons but different numbers of neutrons.",
+        "translation": "đồng vị nguyên tử",
+        "example_sentences": [
+          "Radiocarbon isotope dating allows archaeologists to determine the age of ancient wooden artifacts."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "b2-society",
+    "level_code": "B2",
+    "topic": "Society",
+    "name": "Society, Demographics & Social Justice",
+    "description": "Upper-intermediate vocabulary for social structures, demographics, urban development, and civic duties.",
+    "entries": [
+      {
+        "word": "demographics",
+        "part_of_speech": "noun",
+        "ipa": "/ˌdem.əˈɡræf.ɪks/",
+        "meaning": "Statistical data relating to the population and particular groups within it.",
+        "translation": "số liệu nhân khẩu học",
+        "example_sentences": [
+          "Urban planners examine regional demographics to forecast hospital and school needs."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "urbanization",
+        "part_of_speech": "noun",
+        "ipa": "/ˌɜː.bən.aɪˈzeɪ.ʃən/",
+        "meaning": "The process of making an area more urban; the progressive movement of population into cities.",
+        "translation": "quá trình đô thị hóa",
+        "example_sentences": [
+          "Rapid urbanization brings economic growth alongside challenges in housing and transit."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "infrastructure",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɪn.frəˌstrʌk.tʃər/",
+        "meaning": "The basic physical and organizational structures and facilities needed for the operation of a society.",
+        "translation": "cơ sở hạ tầng",
+        "example_sentences": [
+          "Investment in modern transport infrastructure enhances national economic competitiveness."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "inequality",
+        "part_of_speech": "noun",
+        "ipa": "/ˌɪn.ɪˈkwɒl.ə.ti/",
+        "meaning": "Difference in size, degree, circumstances, etc.; lack of equality in opportunity.",
+        "translation": "sự bất bình đẳng xã hội",
+        "example_sentences": [
+          "Progressive tax policies aim to reduce widening economic and educational inequality."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "marginalize",
+        "part_of_speech": "verb",
+        "ipa": "/ˈmɑː.dʒɪ.nəl.aɪz/",
+        "meaning": "To treat a person, group, or concept as insignificant or peripheral.",
+        "translation": "gạt ra ngoài lề xã hội",
+        "example_sentences": [
+          "Inclusive public policies ensure that disadvantaged communities are not marginalized."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "inclusion",
+        "part_of_speech": "noun",
+        "ipa": "/ɪnˈkluː.ʒən/",
+        "meaning": "The practice or policy of providing equal access to opportunities and resources for people.",
+        "translation": "sự hòa nhập, tính bao trùm",
+        "example_sentences": [
+          "Social inclusion initiatives ensure people with disabilities have full workplace access."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "diversity",
+        "part_of_speech": "noun",
+        "ipa": "/daɪˈvɜː.sə.ti/",
+        "meaning": "The practice or quality of including or involving people from a range of different social backgrounds.",
+        "translation": "sự đa dạng văn hóa xã hội",
+        "example_sentences": [
+          "Workplace diversity encourages varied viewpoints and drives creative problem-solving."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "integration",
+        "part_of_speech": "noun",
+        "ipa": "/ˌɪn.tɪˈɡreɪ.ʃən/",
+        "meaning": "The action or process of integrating; the intermixing of people previously segregated.",
+        "translation": "sự hội nhập xã hội",
+        "example_sentences": [
+          "Language classes facilitate the smooth social integration of new immigrants into the city."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "segregation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌseɡ.rɪˈɡeɪ.ʃən/",
+        "meaning": "The action or state of setting someone or something apart from other people or things.",
+        "translation": "sự phân biệt đối xử, chia rẽ",
+        "example_sentences": [
+          "Historic civil rights legislation brought an end to institutional racial segregation."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "discrimination",
+        "part_of_speech": "noun",
+        "ipa": "/dɪˌskrɪm.ɪˈneɪ.ʃən/",
+        "meaning": "The unjust or prejudicial treatment of different categories of people, especially on the grounds of race, age, or sex.",
+        "translation": "sự phân biệt đối xử",
+        "example_sentences": [
+          "Strict labor laws prohibit gender and racial discrimination in hiring and promotion."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "tolerance",
+        "part_of_speech": "noun",
+        "ipa": "/ˈtɒl.ər.əns/",
+        "meaning": "The ability or willingness to tolerate something, in particular the existence of opinions or behavior that one does not agree with.",
+        "translation": "lòng khoan dung, sự dung thứ",
+        "example_sentences": [
+          "Promoting mutual tolerance and intercultural dialogue prevents community tensions."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "citizenship",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɪt.ɪ.zən.ʃɪp/",
+        "meaning": "The position or status of being a citizen of a particular country with rights and duties.",
+        "translation": "quyền công dân, tư cách công dân",
+        "example_sentences": [
+          "Civic education classes teach high school students the rights and responsibilities of citizenship."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "civic",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈsɪv.ɪk/",
+        "meaning": "Relating to a city or town, especially its administration; of or appropriate to a citizen.",
+        "translation": "thuộc công dân, nghĩa vụ công dân",
+        "example_sentences": [
+          "Voting in local elections is a fundamental civic duty in democratic societies."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "legislation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌledʒ.ɪˈsleɪ.ʃən/",
+        "meaning": "Laws, considered collectively; the process of making or enacting laws.",
+        "translation": "hệ thống pháp luật, sự lập pháp",
+        "example_sentences": [
+          "Parliament enacted landmark legislation protecting consumer data privacy rights."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "reform",
+        "part_of_speech": "noun",
+        "ipa": "/rɪˈfɔːm/",
+        "meaning": "The improvement or amendment of what is wrong, corrupt, or unsatisfactory in a system.",
+        "translation": "công cuộc cải cách",
+        "example_sentences": [
+          "Judicial reform enhanced the speed and transparency of civil court proceedings."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "reform",
+        "part_of_speech": "verb",
+        "ipa": "/rɪˈfɔːm/",
+        "meaning": "To make changes in something, typically a social, political, or economic system, in order to improve it.",
+        "translation": "cải cách, đổi mới hệ thống",
+        "example_sentences": [
+          "The government plans to reform the public healthcare insurance system next year."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "welfare",
+        "part_of_speech": "noun",
+        "ipa": "/ˈwel.feər/",
+        "meaning": "Statutory procedure or social effort designed to promote the basic physical and material well-being of people in need.",
+        "translation": "phúc lợi xã hội",
+        "example_sentences": [
+          "The national social welfare system provides safety nets for low-income households."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "poverty",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpɒv.ə.ti/",
+        "meaning": "The state of being extremely poor; the state of being inferior in quality or insufficient in amount.",
+        "translation": "sự nghèo đói",
+        "example_sentences": [
+          "Targeted rural development initiatives have lifted millions of families out of extreme poverty."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "subsidy",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsʌb.sɪ.di/",
+        "meaning": "A sum of money granted by the government to assist an industry or business so that prices remain low.",
+        "translation": "khoản trợ cấp chính phủ",
+        "example_sentences": [
+          "Government subsidies for electric vehicles encourage the transition away from fossil fuels."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "philanthropy",
+        "part_of_speech": "noun",
+        "ipa": "/fɪˈlæn.θrə.pi/",
+        "meaning": "The desire to promote the welfare of others through donations of money or property.",
+        "translation": "hoạt động nhân đạo bác ái",
+        "example_sentences": [
+          "Private philanthropy funded the construction of modern children's hospitals in rural provinces."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "advocacy",
+        "part_of_speech": "noun",
+        "ipa": "/ˈæd.və.kə.si/",
+        "meaning": "Public support for or recommendation of a particular cause or policy.",
+        "translation": "hoạt động vận động ủng hộ chính sách",
+        "example_sentences": [
+          "Environmental advocacy groups successfully campaigned against coastal sand mining."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "activism",
+        "part_of_speech": "noun",
+        "ipa": "/ˈæk.tɪ.vɪ.zəm/",
+        "meaning": "The policy or action of using vigorous campaigning to bring about political or social change.",
+        "translation": "hoạt động đấu tranh xã hội",
+        "example_sentences": [
+          "Youth climate activism inspired nationwide school recycling and tree-planting programs."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "activist",
+        "part_of_speech": "noun",
+        "ipa": "/ˈæk.tɪ.vɪst/",
+        "meaning": "A person who campaigns to bring about political or social change.",
+        "translation": "nhà hoạt động xã hội",
+        "example_sentences": [
+          "The human rights activist was awarded an international peace medal."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "petition",
+        "part_of_speech": "noun",
+        "ipa": "/pəˈtɪʃ.ən/",
+        "meaning": "A formal written request, typically one signed by many people, appealing to authority in respect of a particular cause.",
+        "translation": "bản kiến nghị có chữ ký",
+        "example_sentences": [
+          "Citizens submitted a petition urging city councilors to preserve the historical park."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "boycott",
+        "part_of_speech": "verb",
+        "ipa": "/ˈbɔɪ.kɒt/",
+        "meaning": "To withdraw from commercial or social relations with a company or country as a punishment or protest.",
+        "translation": "tẩy chay",
+        "example_sentences": [
+          "Consumers chose to boycott brands that failed to address workplace safety violations."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "strike",
+        "part_of_speech": "noun",
+        "ipa": "/straɪk/",
+        "meaning": "A refusal to work organized by a body of employees as a form of protest.",
+        "translation": "cuộc đình công",
+        "example_sentences": [
+          "Railway workers went on strike to demand safer working conditions and fair wages."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "union",
+        "part_of_speech": "noun",
+        "ipa": "/ˈjuː.njən/",
+        "meaning": "An organized association of workers formed to protect and further their rights and interests.",
+        "translation": "công đoàn lao động",
+        "example_sentences": [
+          "The trade union negotiated a collective bargaining agreement with factory owners."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "solidarity",
+        "part_of_speech": "noun",
+        "ipa": "/ˌsɒl.ɪˈdær.ə.ti/",
+        "meaning": "Unity or agreement of feeling or action, especially among individuals with a common interest.",
+        "translation": "tinh thần đoàn kết",
+        "example_sentences": [
+          "Community members demonstrated heartfelt solidarity with flood victims by delivering supplies."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "corruption",
+        "part_of_speech": "noun",
+        "ipa": "/kəˈrʌp.ʃən/",
+        "meaning": "Dishonest or fraudulent conduct by those in power, typically involving bribery.",
+        "translation": "nạn tham nhũng, hối lộ",
+        "example_sentences": [
+          "Independent anti-corruption agencies investigate allegations of bribery in public procurement."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "transparency",
+        "part_of_speech": "noun",
+        "ipa": "/trænˈspær.ən.si/",
+        "meaning": "The condition of being easy to perceive or detect; openness and accountability in governance.",
+        "translation": "sự minh bạch, công khai",
+        "example_sentences": [
+          "Financial transparency builds public trust in non-profit charity foundations."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "gentrification",
+        "part_of_speech": "noun",
+        "ipa": "/ˌdʒen.trɪ.fɪˈkeɪ.ʃən/",
+        "meaning": "The process of renovating and improving a district so that it conforms to middle-class taste.",
+        "translation": "quá trình chỉnh trang đô thị",
+        "example_sentences": [
+          "Urban gentrification revitalized historic neighborhoods but raised housing rents for original residents."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "egalitarian",
+        "part_of_speech": "adjective",
+        "ipa": "/ɪˌɡæl.ɪˈteə.ri.ən/",
+        "meaning": "Believing in or based on the principle that all people are equal and deserve equal rights.",
+        "translation": "mang tính bình đẳng xã hội",
+        "example_sentences": [
+          "The educational system strives for an egalitarian model providing equal opportunities to all students."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "pluralism",
+        "part_of_speech": "noun",
+        "ipa": "/ˈplʊə.rə.lɪ.zəm/",
+        "meaning": "A condition or system in which two or more states, groups, or principles coexist.",
+        "translation": "chủ nghĩa đa nguyên xã hội",
+        "example_sentences": [
+          "Cultural pluralism enriches national identity by honoring diverse traditions and perspectives."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "civics",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsɪv.ɪks/",
+        "meaning": "The study of the rights and duties of citizenship.",
+        "translation": "môn giáo dục công dân",
+        "example_sentences": [
+          "High school civics classes discuss the constitutional separation of powers and voting rights."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "meritocracy",
+        "part_of_speech": "noun",
+        "ipa": "/ˌmer.ɪˈtɒk.rə.si/",
+        "meaning": "A society governed by people selected according to merit.",
+        "translation": "chế độ trọng dụng nhân tài",
+        "example_sentences": [
+          "In a true meritocracy, appointments and promotions are based strictly on demonstrated competence."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "b2-personal-development",
+    "level_code": "B2",
+    "topic": "Personal Development",
+    "name": "Personal Development & Growth",
+    "description": "Upper-intermediate vocabulary for self-discipline, mindset, goal setting, and lifelong learning.",
+    "entries": [
+      {
+        "word": "perseverance",
+        "part_of_speech": "noun",
+        "ipa": "/ˌpɜː.sɪˈvɪə.rəns/",
+        "meaning": "Persistence in doing something despite difficulty or delay in achieving success.",
+        "translation": "sự kiên trì, bền chí",
+        "example_sentences": [
+          "Her perseverance in studying English every single day paid off with an IELTS 8.0 score."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "discipline",
+        "part_of_speech": "noun",
+        "ipa": "/ˈdɪs.ə.plɪn/",
+        "meaning": "The practice of training people to obey rules or a code of behavior; self-control.",
+        "translation": "tính kỷ luật tự giác",
+        "example_sentences": [
+          "Maintaining consistent study discipline is the key to mastering complex technical subjects."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "resilience",
+        "part_of_speech": "noun",
+        "ipa": "/rɪˈzɪl.jəns/",
+        "meaning": "The capacity to recover quickly from difficulties; toughness.",
+        "translation": "sự kiên cường, khả năng phục hồi",
+        "example_sentences": [
+          "Psychological resilience helps professionals overcome unexpected career setbacks and failure."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "mindset",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmaɪnd.set/",
+        "meaning": "The established set of attitudes held by someone.",
+        "translation": "tư duy, hệ tư tưởng",
+        "example_sentences": [
+          "Adopting a growth mindset enables individuals to view mistakes as valuable learning opportunities."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "potential",
+        "part_of_speech": "noun",
+        "ipa": "/pəˈten.ʃəl/",
+        "meaning": "Latent qualities or abilities that may be developed and lead to future success.",
+        "translation": "tiềm năng phát triển",
+        "example_sentences": [
+          "A supportive mentor helps young students unlock their full creative potential."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "aspiration",
+        "part_of_speech": "noun",
+        "ipa": "/ˌæs.pɪˈreɪ.ʃən/",
+        "meaning": "A hope or ambition of achieving something.",
+        "translation": "khát vọng, hoài bão",
+        "example_sentences": [
+          "Her lifelong aspiration is to become an aerospace engineer and design sustainable aircraft."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "ambition",
+        "part_of_speech": "noun",
+        "ipa": "/æmˈbɪʃ.ən/",
+        "meaning": "A strong desire to do or to achieve something, typically requiring determination and hard work.",
+        "translation": "tham vọng, ý chí vươn lên",
+        "example_sentences": [
+          "Hard work and relentless ambition propelled him from a humble village to university leadership."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "procrastinate",
+        "part_of_speech": "verb",
+        "ipa": "/prəʊˈkræs.tɪ.neɪt/",
+        "meaning": "To delay or postpone action; put off doing something.",
+        "translation": "trì hoãn công việc",
+        "example_sentences": [
+          "Students who procrastinate until the night before an exam experience needless stress."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "procrastination",
+        "part_of_speech": "noun",
+        "ipa": "/prəʊˌkræs.tɪˈneɪ.ʃən/",
+        "meaning": "The action of delaying or postponing something.",
+        "translation": "thói quen trì hoãn",
+        "example_sentences": [
+          "Breaking large research projects into daily bite-sized tasks overcomes procrastination."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "prioritize",
+        "part_of_speech": "verb",
+        "ipa": "/praɪˈɒr.ɪ.taɪz/",
+        "meaning": "To designate or treat something as more important than other things.",
+        "translation": "ưu tiên sắp xếp",
+        "example_sentences": [
+          "Successful executives prioritize critical strategic tasks before answering routine emails."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "prioritization",
+        "part_of_speech": "noun",
+        "ipa": "/praɪˌɒr.ɪ.taɪˈzeɪ.ʃən/",
+        "meaning": "The action or process of deciding the relative importance or urgency of tasks.",
+        "translation": "sự xác định mức độ ưu tiên",
+        "example_sentences": [
+          "Effective time prioritization prevents urgent tasks from crowding out important long-term goals."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "introspection",
+        "part_of_speech": "noun",
+        "ipa": "/ˌɪn.trəˈspek.ʃən/",
+        "meaning": "The examination or observation of one's own mental and emotional processes.",
+        "translation": "sự tự vấn, nội quan",
+        "example_sentences": [
+          "Quiet evening journaling provides a peaceful space for honest personal introspection."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "introspective",
+        "part_of_speech": "adjective",
+        "ipa": "/ˌɪn.trəˈspek.tɪv/",
+        "meaning": "Characterized by examination of one's own thoughts and feelings.",
+        "translation": "có tính tự suy ngẫm",
+        "example_sentences": [
+          "Her introspective essays reflected deep awareness of her personal values and aspirations."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "self-esteem",
+        "part_of_speech": "noun",
+        "ipa": "/ˌself.ɪˈstiːm/",
+        "meaning": "Confidence in one's own worth or abilities; self-respect.",
+        "translation": "lòng tự trọng, sự tự tin vào bản thân",
+        "example_sentences": [
+          "Constructive encouragement from teachers nurtures healthy self-esteem in young learners."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "self-awareness",
+        "part_of_speech": "noun",
+        "ipa": "/ˌself.əˈweə.nəs/",
+        "meaning": "Conscious knowledge of one's own character, feelings, motives, and desires.",
+        "translation": "sự tự thấu hiểu bản thân",
+        "example_sentences": [
+          "Developing self-awareness helps professionals choose careers aligned with their strengths."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "competence",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkɒm.pɪ.təns/",
+        "meaning": "The ability to do something successfully or efficiently.",
+        "translation": "năng lực thành thạo",
+        "example_sentences": [
+          "Continuous deliberate practice builds effortless competence in conversational English."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "mastery",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmɑː.stər.i/",
+        "meaning": "Comprehensive knowledge or skill in a subject or accomplishment.",
+        "translation": "sự tinh thông, làm chủ kỹ năng",
+        "example_sentences": [
+          "True language mastery requires consistent immersion and real-world communication."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "adaptability",
+        "part_of_speech": "noun",
+        "ipa": "/əˌdæp.təˈbɪl.ə.ti/",
+        "meaning": "The quality of being able to adjust to new conditions.",
+        "translation": "khả năng thích ứng linh hoạt",
+        "example_sentences": [
+          "In today's fast-changing job market, adaptability is more prized than fixed knowledge."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "adaptable",
+        "part_of_speech": "adjective",
+        "ipa": "/əˈdæp.tə.bəl/",
+        "meaning": "Able to adjust to new conditions.",
+        "translation": "có tính thích nghi cao",
+        "example_sentences": [
+          "Adaptable leaders guide their organizations smoothly through technological disruptions."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "initiative",
+        "part_of_speech": "noun",
+        "ipa": "/ɪˈnɪʃ.ə.tɪv/",
+        "meaning": "The ability to assess and initiate things independently.",
+        "translation": "tinh thần chủ động",
+        "example_sentences": [
+          "Employees who show proactive initiative frequently earn accelerated promotions."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "proactive",
+        "part_of_speech": "adjective",
+        "ipa": "/prəʊˈæk.tɪv/",
+        "meaning": "Creating or controlling a situation by causing something to happen rather than responding after.",
+        "translation": "chủ động đón đầu",
+        "example_sentences": [
+          "Taking a proactive approach to your studies prevents last-minute examination panic."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "empower",
+        "part_of_speech": "verb",
+        "ipa": "/ɪmˈpaʊ.ər/",
+        "meaning": "To give someone the authority or power to do something; make someone stronger.",
+        "translation": "trao quyền, tiếp thêm sức mạnh",
+        "example_sentences": [
+          "Education is the most powerful tool to empower underprivileged young women."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "empowerment",
+        "part_of_speech": "noun",
+        "ipa": "/ɪmˈpaʊ.ə.mənt/",
+        "meaning": "The process of becoming stronger and more confident in controlling one's life.",
+        "translation": "sự trao quyền tự chủ",
+        "example_sentences": [
+          "Digital literacy programs foster economic empowerment among rural craftspeople."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fulfillment",
+        "part_of_speech": "noun",
+        "ipa": "/fʊlˈfɪl.mənt/",
+        "meaning": "The achievement of something desired, promised, or predicted; feeling of satisfaction.",
+        "translation": "sự toại nguyện, cảm giác trọn vẹn",
+        "example_sentences": [
+          "She found deep professional fulfillment in mentoring disadvantaged students."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "gratification",
+        "part_of_speech": "noun",
+        "ipa": "/ˌɡræt.ɪ.fɪˈkeɪ.ʃən/",
+        "meaning": "Pleasure, especially when gained from the satisfaction of a desire.",
+        "translation": "sự thỏa mãn, cảm giác hài lòng",
+        "example_sentences": [
+          "Learning to delay instant gratification is essential for achieving substantial long-term wealth."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "optimize",
+        "part_of_speech": "verb",
+        "ipa": "/ˈɒp.tɪ.maɪz/",
+        "meaning": "To make the best or most effective use of a situation, opportunity, or resource.",
+        "translation": "tối ưu hóa năng lực",
+        "example_sentences": [
+          "Athletes optimize their nutrition and sleep schedules to peak during major championships."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "reflect",
+        "part_of_speech": "verb",
+        "ipa": "/rɪˈflekt/",
+        "meaning": "To think deeply or carefully about something.",
+        "translation": "suy ngẫm lại",
+        "example_sentences": [
+          "Take time at the end of each study session to reflect on which concepts need review."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "reflection",
+        "part_of_speech": "noun",
+        "ipa": "/rɪˈflek.ʃən/",
+        "meaning": "Serious thought or consideration.",
+        "translation": "sự suy ngẫm, chiêm nghiệm",
+        "example_sentences": [
+          "Writing weekly study reflections solidifies conceptual understanding and memory retention."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "overcome",
+        "part_of_speech": "verb",
+        "ipa": "/ˌəʊ.vəˈkʌm/",
+        "meaning": "To succeed in dealing with a problem or difficulty.",
+        "translation": "vượt qua thử thách",
+        "example_sentences": [
+          "With patient determination, you can overcome any linguistic barrier in communication."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "navigate",
+        "part_of_speech": "verb",
+        "ipa": "/ˈnæv.ɪ.ɡeɪt/",
+        "meaning": "To find one's way through a complex situation.",
+        "translation": "chèo lái, ứng phó linh hoạt",
+        "example_sentences": [
+          "Experienced mentors help young graduates navigate complex corporate dynamics with confidence."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "tenacity",
+        "part_of_speech": "noun",
+        "ipa": "/təˈnæs.ə.ti/",
+        "meaning": "The quality or fact of being able to grip something firmly; determination.",
+        "translation": "sự kiên cường, ý chí sắt đá",
+        "example_sentences": [
+          "Her tenacity in pursuing scientific truth earned her international recognition."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "mettle",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmet.əl/",
+        "meaning": "A person's ability to cope well with difficulties or to face a demanding situation in a spirited way.",
+        "translation": "bản lĩnh vững vàng",
+        "example_sentences": [
+          "The challenging mountaineering expedition tested the physical and mental mettle of the team."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "fortitude",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfɔː.tɪ.tʃuːd/",
+        "meaning": "Courage in pain or adversity.",
+        "translation": "sự dũng cảm, nghị lực kiên cường",
+        "example_sentences": [
+          "She endured hardship with quiet moral fortitude and unwavering grace."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "efficacious",
+        "part_of_speech": "adjective",
+        "ipa": "/ˌef.ɪˈkeɪ.ʃəs/",
+        "meaning": "Successful in producing a desired or intended result; effective.",
+        "translation": "có hiệu nghiệm cao",
+        "example_sentences": [
+          "Cognitive behavioral strategies are highly efficacious in managing exam anxiety."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "self-actualization",
+        "part_of_speech": "noun",
+        "ipa": "/ˌself.æk.tʃu.ə.laɪˈzeɪ.ʃən/",
+        "meaning": "The realization or fulfillment of one's talents and potentialities.",
+        "translation": "sự tự thể hiện bản thân cao nhất",
+        "example_sentences": [
+          "Maslow's hierarchy places self-actualization at the pinnacle of human psychological needs."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "b2-environment",
+    "level_code": "B2",
+    "topic": "Environment",
+    "name": "Ecology & Sustainable Systems",
+    "description": "Upper-intermediate vocabulary for environmental policy, renewable systems, and ecological balance.",
+    "entries": [
+      {
+        "word": "conservationist",
+        "part_of_speech": "noun",
+        "ipa": "/ˌkɒn.səˈveɪ.ʃən.ɪst/",
+        "meaning": "A person who advocates or acts for the protection and preservation of the environment and wildlife.",
+        "translation": "nhà bảo tồn thiên nhiên",
+        "example_sentences": [
+          "Conservationists worked tirelessly to establish a protected marine sanctuary around the coral reefs."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "preservation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌprez.əˈveɪ.ʃən/",
+        "meaning": "The action of preserving something, especially historic monuments or natural wilderness.",
+        "translation": "sự giữ gìn, bảo tồn nguyên trạng",
+        "example_sentences": [
+          "The preservation of virgin rainforests is critical for global carbon sequestration."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "depletion",
+        "part_of_speech": "noun",
+        "ipa": "/dɪˈpliː.ʃən/",
+        "meaning": "Reduction in the number or quantity of something, especially natural resources.",
+        "translation": "sự cạn kiệt tài nguyên",
+        "example_sentences": [
+          "Overfishing causes severe depletion of commercial fish stocks in coastal waters."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "degradation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌdeɡ.rəˈdeɪ.ʃən/",
+        "meaning": "The condition or process of degrading or being degraded, especially environmental quality.",
+        "translation": "sự suy thoái môi trường",
+        "example_sentences": [
+          "Soil degradation caused by excessive chemical fertilizer use threatens agricultural productivity."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "contamination",
+        "part_of_speech": "noun",
+        "ipa": "/kənˌtæm.ɪˈneɪ.ʃən/",
+        "meaning": "The action or state of making or being made impure by polluting or poisoning.",
+        "translation": "sự nhiễm bẩn, nhiễm độc",
+        "example_sentences": [
+          "Laboratory tests confirmed groundwater contamination from the abandoned chemical facility."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "pollutant",
+        "part_of_speech": "noun",
+        "ipa": "/pəˈluː.tənt/",
+        "meaning": "A substance that pollutes something, especially water or the atmosphere.",
+        "translation": "chất gây ô nhiễm",
+        "example_sentences": [
+          "Heavy industrial pollutants emitted by coal power plants contribute to severe regional smog."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sequestration",
+        "part_of_speech": "noun",
+        "ipa": "/ˌsiː.kwesˈtreɪ.ʃən/",
+        "meaning": "The removal of greenhouse gases from the atmosphere, typically into plant biomass or underground reservoirs.",
+        "translation": "sự hấp thụ và lưu trữ các-bon",
+        "example_sentences": [
+          "Mangrove wetlands provide exceptionally high rates of blue carbon sequestration."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "combustion",
+        "part_of_speech": "noun",
+        "ipa": "/kəmˈbʌs.tʃən/",
+        "meaning": "The process of burning something, especially fossil fuels.",
+        "translation": "sự đốt cháy nhiên liệu",
+        "example_sentences": [
+          "The internal combustion engine emits particulate matter and greenhouse gases during operation."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "photovoltaic",
+        "part_of_speech": "adjective",
+        "ipa": "/ˌfəʊ.təʊ.vɒlˈteɪ.ɪk/",
+        "meaning": "Relating to the production of electric current at the junction of two substances exposed to light.",
+        "translation": "thuộc quang điện",
+        "example_sentences": [
+          "Photovoltaic solar panels convert incident sunlight directly into clean electrical energy."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "geothermal",
+        "part_of_speech": "adjective",
+        "ipa": "/ˌdʒiː.əʊˈθɜː.məl/",
+        "meaning": "Relating to or produced by the internal heat of the earth.",
+        "translation": "thuộc địa nhiệt",
+        "example_sentences": [
+          "Geothermal power plants tap into underground hot springs to generate continuous baseload electricity."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "biofuel",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbaɪ.əʊˌfjuː.əl/",
+        "meaning": "A fuel derived directly from living matter such as agricultural crops or vegetable oils.",
+        "translation": "nhiên liệu sinh học",
+        "example_sentences": [
+          "Airlines are experimenting with sustainable aviation biofuels to reduce long-haul flight emissions."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "biomass",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbaɪ.əʊˌmæs/",
+        "meaning": "The total quantity or weight of organisms in a given area or volume, or plant material used as fuel.",
+        "translation": "sinh khối",
+        "example_sentences": [
+          "Rice husks and wood chips can be converted into clean biomass fuel for local heating plants."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "reforestation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌriː.fɒr.ɪˈsteɪ.ʃən/",
+        "meaning": "The process of replanting an area with trees.",
+        "translation": "hoạt động tái trồng rừng",
+        "example_sentences": [
+          "The national reforestation campaign successfully planted twenty million native saplings on barren hills."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "afforestation",
+        "part_of_speech": "noun",
+        "ipa": "/æfˌɒr.ɪˈsteɪ.ʃən/",
+        "meaning": "The establishment of a forest or stand of trees in an area where there was no previous tree cover.",
+        "translation": "trồng rừng mới",
+        "example_sentences": [
+          "Afforestation projects along desert borders prevent sand dunes from encroaching on villages."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "microplastic",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmaɪ.krəʊˌplæs.tɪk/",
+        "meaning": "Extremely small pieces of plastic debris in the environment resulting from the disposal and breakdown of consumer products.",
+        "translation": "hạt vi nhựa",
+        "example_sentences": [
+          "Marine biologists detected tiny microplastics in the digestive tracts of deep-sea fishes."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "ecotourism",
+        "part_of_speech": "noun",
+        "ipa": "/ˈiː.kəʊˌtʊə.rɪ.zəm/",
+        "meaning": "Tourism directed toward exotic, often threatened, natural environments, especially to support conservation.",
+        "translation": "du lịch sinh thái",
+        "example_sentences": [
+          "Community-based ecotourism provides sustainable livelihoods for ethnic minorities in national park buffers."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sustainable",
+        "part_of_speech": "adjective",
+        "ipa": "/səˈsteɪ.nə.bəl/",
+        "meaning": "Able to be maintained at a certain rate or level without ecological exhaustion.",
+        "translation": "phát triển bền vững",
+        "example_sentences": [
+          "Sustainable agricultural practices preserve freshwater tables and fertile topsoil for future generations."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "unsustainable",
+        "part_of_speech": "adjective",
+        "ipa": "/ˌʌn.səˈsteɪ.nə.bəl/",
+        "meaning": "Not able to be maintained at the current rate or level; causing environmental exhaustion.",
+        "translation": "không bền vững, gây hại lâu dài",
+        "example_sentences": [
+          "Relying on single-use plastics and fossil fuels is ecologically unsustainable in the 21st century."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "equilibrium",
+        "part_of_speech": "noun",
+        "ipa": "/ˌiː.kwɪˈlɪb.ri.əm/",
+        "meaning": "A state in which opposing forces or influences are balanced.",
+        "translation": "trạng thái cân bằng sinh thái",
+        "example_sentences": [
+          "Predators play an indispensable role in maintaining the ecological equilibrium of forest food webs."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "catastrophe",
+        "part_of_speech": "noun",
+        "ipa": "/kəˈtæs.trə.fi/",
+        "meaning": "An event causing great and often sudden damage or suffering; a disaster.",
+        "translation": "thảm họa môi trường",
+        "example_sentences": [
+          "The oil tanker spill caused an unprecedented ecological catastrophe along five hundred miles of coastline."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "biodiversity",
+        "part_of_speech": "noun",
+        "ipa": "/ˌbaɪ.əʊ.daɪˈvɜː.sə.ti/",
+        "meaning": "The variety of plant and animal life in the world or in a particular habitat.",
+        "translation": "tính đa dạng sinh học",
+        "example_sentences": [
+          "Conserving forest corridors protects regional biodiversity against habitat fragmentation."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "biosphere",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbaɪ.əʊ.sfɪər/",
+        "meaning": "The regions of the surface, atmosphere, and hydrosphere of the earth occupied by living organisms.",
+        "translation": "sinh quyển Trái Đất",
+        "example_sentences": [
+          "Pollutants cycle through atmospheric and oceanic currents across the entire biosphere."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "estuary",
+        "part_of_speech": "noun",
+        "ipa": "/ˈes.tʃu.ə.ri/",
+        "meaning": "The tidal mouth of a large river, where the tide meets the stream.",
+        "translation": "cửa sông nước lợ",
+        "example_sentences": [
+          "Mangrove estuaries serve as critical nursery habitats for coastal marine species."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "wetland",
+        "part_of_speech": "noun",
+        "ipa": "/ˈwet.lənd/",
+        "meaning": "Land consisting of marshes or swamps; saturated land.",
+        "translation": "vùng đất ngập nước",
+        "example_sentences": [
+          "Ramsar sites protect precious wetland ecosystems from industrial encroachment."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "groundwater",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɡraʊndˌwɔː.tər/",
+        "meaning": "Water held underground in the soil or in pores and crevices in rock.",
+        "translation": "nguồn nước ngầm",
+        "example_sentences": [
+          "Over-pumping groundwater in coastal deltas leads to land subsidence and salinity intrusion."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "salinity",
+        "part_of_speech": "noun",
+        "ipa": "/səˈlɪn.ə.ti/",
+        "meaning": "The concentration of dissolved salts in water etc., usually expressed in parts per thousand.",
+        "translation": "độ mặn của nước",
+        "example_sentences": [
+          "Rising sea levels increase soil salinity in low-lying river delta paddies."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "desalination",
+        "part_of_speech": "noun",
+        "ipa": "/diːˌsæl.ɪˈneɪ.ʃən/",
+        "meaning": "The process of removing salt from seawater.",
+        "translation": "quá trình khử mặn nước biển",
+        "example_sentences": [
+          "Solar-powered desalination plants supply fresh drinking water to remote coastal islands."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "acidification",
+        "part_of_speech": "noun",
+        "ipa": "/əˌsɪd.ɪ.fɪˈkeɪ.ʃən/",
+        "meaning": "The action or process of becoming acid, especially ocean water absorbing atmospheric CO2.",
+        "translation": "sự a-xít hóa đại dương",
+        "example_sentences": [
+          "Ocean acidification impairs the ability of coral polyps and shellfish to build calcium shells."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "glacier",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɡlæs.i.ər/",
+        "meaning": "A slowly moving mass or river of ice formed by the accumulation and compaction of snow on mountains.",
+        "translation": "sông băng, dải băng vĩnh cửu",
+        "example_sentences": [
+          "Alpine glaciers have shrunk dramatically over the past four decades due to global warming."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "permafrost",
+        "part_of_speech": "noun",
+        "ipa": "/ˈpɜː.mə.frɒst/",
+        "meaning": "A thick subsurface layer of soil that remains frozen throughout the year.",
+        "translation": "tầng đất đóng băng vĩnh cửu",
+        "example_sentences": [
+          "Thawing Arctic permafrost releases ancient trapped methane deposits into the atmosphere."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "sustainability",
+        "part_of_speech": "noun",
+        "ipa": "/səˌsteɪ.nəˈbɪl.ə.ti/",
+        "meaning": "The ability to be maintained at a certain rate or level.",
+        "translation": "tính bền vững sinh thái",
+        "example_sentences": [
+          "Corporate sustainability reports measure environmental impact and water conservation metrics."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "composting",
+        "part_of_speech": "noun",
+        "ipa": "/ˈkɒm.pɒst.ɪŋ/",
+        "meaning": "The natural process of recycling decomposed organic matter into a rich soil amendment.",
+        "translation": "hoạt động ủ phân hữu cơ",
+        "example_sentences": [
+          "Community composting programs divert household kitchen scraps away from city landfills."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "herbicide",
+        "part_of_speech": "noun",
+        "ipa": "/ˈhɜː.bɪ.saɪd/",
+        "meaning": "A substance that is toxic to plants, used to destroy unwanted vegetation.",
+        "translation": "thuốc trừ cỏ",
+        "example_sentences": [
+          "Organic farms replace chemical herbicides with mechanical weeding and companion planting."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "reclamation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌrek.ləˈmeɪ.ʃən/",
+        "meaning": "The act of returning something to a former, better state; the cultivation of waste land.",
+        "translation": "hoạt động cải tạo đất, hoàn nguyên môi trường",
+        "example_sentences": [
+          "The mining company carried out land reclamation and native tree planting after quarry closure."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "decibel",
+        "part_of_speech": "noun",
+        "ipa": "/ˈdes.ɪ.bel/",
+        "meaning": "A unit used to measure the intensity of a sound or the power level of an electrical signal.",
+        "translation": "đơn vị đề-xi-ben",
+        "example_sentences": [
+          "City ordinances restrict construction site noise exceeding seventy-five decibels at night."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  },
+  {
+    "code": "b2-technology",
+    "level_code": "B2",
+    "topic": "Technology",
+    "name": "Advanced Technology & Architecture",
+    "description": "Upper-intermediate vocabulary for system architecture, machine intelligence, networks, and automation.",
+    "entries": [
+      {
+        "word": "infrastructure",
+        "part_of_speech": "noun",
+        "ipa": "/ˈɪn.frəˌstrʌk.tʃər/",
+        "meaning": "The underlying framework of a system, especially cloud server networks.",
+        "translation": "hạ tầng công nghệ",
+        "example_sentences": [
+          "Cloud infrastructure engineers design resilient high-availability distributed server clusters."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "scalability",
+        "part_of_speech": "noun",
+        "ipa": "/ˌskeɪ.ləˈbɪl.ə.ti/",
+        "meaning": "The capacity to be changed in size or scale to handle growing amounts of work.",
+        "translation": "khả năng mở rộng hệ thống",
+        "example_sentences": [
+          "Modern microservice architectures offer superior scalability during traffic surges."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "latency",
+        "part_of_speech": "noun",
+        "ipa": "/ˈleɪ.tən.si/",
+        "meaning": "The delay before a transfer of data begins following an instruction for its transfer.",
+        "translation": "độ trễ mạng, thời gian đáp ứng",
+        "example_sentences": [
+          "Edge computing reduces network latency for real-time multiplayer gaming and video streams."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "bandwidth",
+        "part_of_speech": "noun",
+        "ipa": "/ˈbænd.wɪtθ/",
+        "meaning": "The maximum data transfer rate of a network or internet connection.",
+        "translation": "băng thông đường truyền",
+        "example_sentences": [
+          "High bandwidth fiber optic cables carry terabits of data beneath oceanic seafloors."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "cryptography",
+        "part_of_speech": "noun",
+        "ipa": "/krɪpˈtɒɡ.rə.fi/",
+        "meaning": "The art of writing or solving codes; the study of secure communication techniques.",
+        "translation": "ngành mật mã học",
+        "example_sentences": [
+          "Modern banking systems rely on advanced public-key cryptography to secure online transactions."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "biometrics",
+        "part_of_speech": "noun",
+        "ipa": "/ˌbaɪ.əʊˈmet.rɪks/",
+        "meaning": "The measurement and statistical analysis of people's unique physical characteristics.",
+        "translation": "công nghệ sinh trắc học",
+        "example_sentences": [
+          "Smartphones utilize facial biometrics and fingerprint sensors for frictionless biometric authentication."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "neural network",
+        "part_of_speech": "noun",
+        "ipa": "/ˌnjʊə.rəl ˈnet.wɜːk/",
+        "meaning": "A computer system modeled on the human brain and nervous system, designed to recognize patterns.",
+        "translation": "mạng nơ-ron nhân tạo",
+        "example_sentences": [
+          "Deep neural networks are trained on millions of labeled images to recognize medical anomalies."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "machine learning",
+        "part_of_speech": "noun",
+        "ipa": "/məˈʃiːn ˌlɜː.nɪŋ/",
+        "meaning": "The use and development of computer systems that are able to learn and adapt without following explicit instructions.",
+        "translation": "máy học, học máy",
+        "example_sentences": [
+          "Recommendation engines apply machine learning models to predict user entertainment preferences."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "deep learning",
+        "part_of_speech": "noun",
+        "ipa": "/ˌdiːp ˈlɜː.nɪŋ/",
+        "meaning": "A subset of machine learning based on artificial neural networks with multiple layers.",
+        "translation": "học sâu",
+        "example_sentences": [
+          "Deep learning algorithms enable autonomous vehicles to identify pedestrians in poor visibility."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "natural language processing",
+        "part_of_speech": "noun",
+        "ipa": "/ˌnætʃ.ər.əl ˈlæŋ.ɡwɪdʒ ˌprəʊ.ses.ɪŋ/",
+        "meaning": "The branch of artificial intelligence concerned with giving computers the ability to understand human speech and text.",
+        "translation": "xử lý ngôn ngữ tự nhiên",
+        "example_sentences": [
+          "Smart assistants leverage natural language processing to comprehend voice commands and answer inquiries."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "computer vision",
+        "part_of_speech": "noun",
+        "ipa": "/kəmˈpjuː.tər ˌvɪʒ.ən/",
+        "meaning": "The field of computer science that enables computers to gain high-level understanding from digital images.",
+        "translation": "thị giác máy tính",
+        "example_sentences": [
+          "Automated manufacturing lines use computer vision cameras to detect micro-defects in silicon wafers."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "blockchain",
+        "part_of_speech": "noun",
+        "ipa": "/ˈblɒk.tʃeɪn/",
+        "meaning": "A decentralized distributed and public digital ledger that is used to record transactions across many computers.",
+        "translation": "công nghệ chuỗi khối",
+        "example_sentences": [
+          "Supply chain tracking platforms use blockchain records to verify ethical cocoa sourcing."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "decentralized",
+        "part_of_speech": "adjective",
+        "ipa": "/diːˈsen.trə.laɪzd/",
+        "meaning": "Controlled by several local offices or authorities rather than one single one.",
+        "translation": "phi tập trung",
+        "example_sentences": [
+          "Decentralized networks eliminate single points of failure in mission-critical operations."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "augmented reality",
+        "part_of_speech": "noun",
+        "ipa": "/ɔːɡˌmen.tɪd riˈæl.ə.ti/",
+        "meaning": "An enhanced version of reality created by the use of technology to overlay digital information on an image of something.",
+        "translation": "thực tế tăng cường",
+        "example_sentences": [
+          "Architects use augmented reality headsets to visualize digital building designs on physical construction plots."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "telecommunications",
+        "part_of_speech": "noun",
+        "ipa": "/ˌtel.ɪ.kəˌmjuː.nɪˈkeɪ.ʃənz/",
+        "meaning": "Communication over a distance by cable, telegraph, telephone, or broadcasting.",
+        "translation": "ngành viễn thông",
+        "example_sentences": [
+          "The deployment of fifth-generation mobile telecommunications accelerated smart city initiatives."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "automation",
+        "part_of_speech": "noun",
+        "ipa": "/ˌɔː.təˈmeɪ.ʃən/",
+        "meaning": "The technique, method, or system of operating or controlling a process by highly automatic means.",
+        "translation": "hệ thống tự động hóa",
+        "example_sentences": [
+          "Warehouse logistics automation utilizes autonomous mobile robots to sort parcel deliveries."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "firmware",
+        "part_of_speech": "noun",
+        "ipa": "/ˈfɜːm.weər/",
+        "meaning": "Permanent software programmed into a read-only memory on a hardware device.",
+        "translation": "phần mềm nhúng, phần mềm vi điều khiển",
+        "example_sentences": [
+          "Manufacturers release updated device firmware to patch vulnerabilities and improve battery longevity."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "microcontroller",
+        "part_of_speech": "noun",
+        "ipa": "/ˌmaɪ.krəʊ.kənˈtrəʊ.lər/",
+        "meaning": "A compact integrated circuit designed to govern a specific operation in an embedded system.",
+        "translation": "vi điều khiển",
+        "example_sentences": [
+          "Automotive engine control units rely on embedded microcontrollers for real-time fuel injection."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "supercomputer",
+        "part_of_speech": "noun",
+        "ipa": "/ˈsuː.pə.kəmˌpjuː.tər/",
+        "meaning": "A particularly powerful mainframe computer used for large-scale scientific simulations.",
+        "translation": "siêu máy tính",
+        "example_sentences": [
+          "Meteorologists use supercomputers to model long-term global climate trajectories and hurricane paths."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "semiconductor",
+        "part_of_speech": "noun",
+        "ipa": "/ˌsem.i.kənˈdʌk.tər/",
+        "meaning": "A solid substance that has a conductivity between that of an insulator and that of most metals, used in chips.",
+        "translation": "chất bán dẫn, chíp bán dẫn",
+        "example_sentences": [
+          "The global automotive industry suffered production bottlenecks due to shortages of essential semiconductors."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "telemetry",
+        "part_of_speech": "noun",
+        "ipa": "/təˈlem.ə.tri/",
+        "meaning": "The process of recording and transmitting the readings of an instrument.",
+        "translation": "công nghệ đo xa",
+        "example_sentences": [
+          "Satellite telemetry provides real-time orbital and thermal diagnostics to ground control."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "throughput",
+        "part_of_speech": "noun",
+        "ipa": "/ˈθruː.pʊt/",
+        "meaning": "The amount of material or items passing through a system or process.",
+        "translation": "thông lượng xử lý dữ liệu",
+        "example_sentences": [
+          "Optimizing memory caching doubled the server's transactional throughput."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "middleware",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmɪd.əl.weər/",
+        "meaning": "Software that acts as a bridge between an operating system or database and applications.",
+        "translation": "phần mềm trung gian",
+        "example_sentences": [
+          "Enterprise middleware orchestrates data synchronization between legacy ERP systems and mobile apps."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "refactor",
+        "part_of_speech": "verb",
+        "ipa": "/ˌriːˈfæk.tər/",
+        "meaning": "To restructure existing computer code without changing its external behavior.",
+        "translation": "tái cấu trúc mã nguồn",
+        "example_sentences": [
+          "Developers refactor legacy software modules to improve maintainability and performance."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "hypervisor",
+        "part_of_speech": "noun",
+        "ipa": "/ˈhaɪ.pə.vaɪ.zər/",
+        "meaning": "A computer software, firmware or hardware that creates and runs virtual machines.",
+        "translation": "trình giám sát máy ảo",
+        "example_sentences": [
+          "The data center uses hypervisors to partition physical servers into scalable cloud instances."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "containerization",
+        "part_of_speech": "noun",
+        "ipa": "/kənˌteɪ.nər.aɪˈzeɪ.ʃən/",
+        "meaning": "A form of operating system virtualization through which applications are run in isolated user spaces.",
+        "translation": "công nghệ đóng gói container",
+        "example_sentences": [
+          "Software development teams leverage containerization to deploy code uniformly across cloud environments."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "microservices",
+        "part_of_speech": "noun",
+        "ipa": "/ˈmaɪ.krəʊˌsɜː.vɪs.ɪz/",
+        "meaning": "A software development technique that structures an application as a collection of loosely coupled services.",
+        "translation": "kiến trúc vi dịch vụ",
+        "example_sentences": [
+          "Migrating from a monolithic code base to microservices improved deployment agility."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "telematics",
+        "part_of_speech": "noun",
+        "ipa": "/ˌtel.ɪˈmæt.ɪks/",
+        "meaning": "The branch of information technology which deals with the long-distance transmission of computerized information.",
+        "translation": "công nghệ viễn tin",
+        "example_sentences": [
+          "Fleet logistics managers use vehicle telematics to monitor fuel efficiency and route safety."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "mechatronics",
+        "part_of_speech": "noun",
+        "ipa": "/ˌmek.əˈtrɒn.ɪks/",
+        "meaning": "Technology combining electronics and mechanical engineering.",
+        "translation": "ngành kỹ thuật cơ điện tử",
+        "example_sentences": [
+          "Mechatronics engineers design high-precision robotic arms for automotive assembly lines."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "photonics",
+        "part_of_speech": "noun",
+        "ipa": "/fəʊˈtɒn.ɪks/",
+        "meaning": "The branch of technology concerned with the properties and transmission of photons.",
+        "translation": "ngành quang tử học",
+        "example_sentences": [
+          "Research in integrated photonics promises ultra-fast optical data processing on microchips."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "heuristic",
+        "part_of_speech": "adjective",
+        "ipa": "/hjuːˈrɪs.tɪk/",
+        "meaning": "Enabling a person or algorithm to discover or learn something for themselves.",
+        "translation": "mang tính phỏng đoán khám phá",
+        "example_sentences": [
+          "Antivirus scanners apply heuristic analysis to detect zero-day malware patterns."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "deterministic",
+        "part_of_speech": "adjective",
+        "ipa": "/dɪˌtɜː.mɪˈnɪs.tɪk/",
+        "meaning": "Relating to the philosophical doctrine that all events are determined by causes external to the will; predictable.",
+        "translation": "có tính tất định",
+        "example_sentences": [
+          "The automated grading algorithm yields strictly deterministic results for multiple-choice tests."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "asynchronous",
+        "part_of_speech": "adjective",
+        "ipa": "/eɪˈsɪŋ.krə.nəs/",
+        "meaning": "Not existing or occurring at the same time; controlling computation independently.",
+        "translation": "bất đồng bộ",
+        "example_sentences": [
+          "Modern web APIs execute asynchronous requests without freezing the user interface."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "synchronous",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈsɪŋ.krə.nəs/",
+        "meaning": "Existing or occurring at the same time.",
+        "translation": "đồng bộ",
+        "example_sentences": [
+          "Synchronous video lectures allow immediate verbal feedback between instructors and students."
+        ],
+        "translation_language_code": "vi"
+      },
+      {
+        "word": "deprecated",
+        "part_of_speech": "adjective",
+        "ipa": "/ˈdep.rə.keɪ.tɪd/",
+        "meaning": "Declared obsolete and not recommended for use in software development.",
+        "translation": "đã lỗi thời, không còn khuyến khích dùng",
+        "example_sentences": [
+          "The legacy authentication library was deprecated in favor of OAuth 2.0 standards."
+        ],
+        "translation_language_code": "vi"
+      }
+    ]
+  }
+]

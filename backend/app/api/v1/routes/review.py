@@ -50,6 +50,7 @@ def review_vocabulary(
             current_user.id,
             vocabulary_id,
             is_correct=payload.is_correct,
+            force=payload.force,
         )
     except ReviewVocabularyNotFoundError as exc:
         raise HTTPException(status_code=404, detail="Vocabulary item not found") from exc

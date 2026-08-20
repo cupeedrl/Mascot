@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
 import { AppLayout } from "./components/AppLayout";
+import { AboutPage } from "./pages/AboutPage";
 import { AppHomePage } from "./pages/AppHomePage";
 import { AuthPage } from "./pages/AuthPage";
 import { LearnPage } from "./pages/LearnPage";
@@ -35,6 +36,7 @@ function App() {
             <Route path="vocabulary" element={<VocabularyPage />} />
             <Route path="vocabulary/new" element={<VocabularyEditorPage />} />
             <Route path="vocabulary/:vocabularyId/edit" element={<VocabularyEditorPage />} />
+            <Route path="about" element={<AboutPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/app" replace />} />
         </Routes>

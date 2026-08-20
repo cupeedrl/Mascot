@@ -9,6 +9,7 @@ class ReviewSubmission(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     is_correct: bool
+    force: bool = False
 
 
 class ReviewQueueResponse(BaseModel):

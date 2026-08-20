@@ -84,7 +84,7 @@ export function LearnPage() {
           {LEVELS.map((item) => (
             <button
               key={item}
-              className={item === level ? "level-tab active" : "level-tab"}
+              className={`level-tab level-tab-${item.toLowerCase()}${item === level ? " active" : ""}`}
               type="button"
               role="tab"
               aria-selected={item === level}

@@ -101,6 +101,7 @@ def submit_review(
     *,
     is_correct: bool,
     reviewed_at: datetime | None = None,
+    force: bool = False,
 ) -> Vocabulary:
     current_time = reviewed_at or _utc_now()
     item = db.scalar(
@@ -113,7 +114,7 @@ def submit_review(
     )
     if item is None:
         raise ReviewVocabularyNotFoundError
-    if not _is_due(item, current_time):
+    if not force and not _is_due(item, current_time):
         raise ReviewNotDueError
 
     item.review_count += 1

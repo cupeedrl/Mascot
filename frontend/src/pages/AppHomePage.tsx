@@ -127,11 +127,23 @@ export function AppHomePage() {
             <p className="dashboard-hero-description">
               Mascot đã sắp xếp những bước quan trọng nhất để bạn tiếp tục tiến bộ.
             </p>
-            <p className="hero-journey-label"><BookOpen size={16} /> TIẾNG ANH TỔNG QUÁT · CEFR</p>
+            <div className="hero-journey-badge">
+              <BookOpen size={16} />
+              <span>TIẾNG ANH TỔNG QUÁT · CEFR</span>
+            </div>
             <ul className="hero-learning-benefits" aria-label="Lợi ích học tập cùng Mascot">
-              <li><BookOpen size={17} /><span><strong>Học đúng trọng tâm</strong>Từ vựng phù hợp lộ trình CEFR của bạn.</span></li>
-              <li><RefreshCw size={17} /><span><strong>Ghi nhớ hiệu quả</strong>Ôn tập đúng lúc để ghi nhớ lâu hơn.</span></li>
-              <li><Target size={17} /><span><strong>Tiến bộ mỗi ngày</strong>Theo dõi hành trình và luyện tập đều đặn.</span></li>
+              <li>
+                <BookOpen size={18} />
+                <span><strong>Học đúng trọng tâm</strong> — Từ vựng phù hợp lộ trình CEFR của bạn.</span>
+              </li>
+              <li>
+                <RefreshCw size={18} />
+                <span><strong>Ghi nhớ hiệu quả</strong> — Ôn tập đúng lúc để ghi nhớ lâu hơn.</span>
+              </li>
+              <li>
+                <Target size={18} />
+                <span><strong>Tiến bộ mỗi ngày</strong> — Theo dõi hành trình và luyện tập đều đặn.</span>
+              </li>
             </ul>
             <div className="journey-actions">
               <Link className="primary-link" to="/app/learn">
@@ -144,7 +156,7 @@ export function AppHomePage() {
             <div className="penguin-hero-stage" aria-hidden="true">
               <span className="hero-sparkle hero-sparkle-one">✦</span>
               <span className="hero-sparkle hero-sparkle-two">✦</span>
-              <PenguinMark size={190} />
+              <PenguinMark size={190} variant="scholar" />
             </div>
           </div>
         </section>

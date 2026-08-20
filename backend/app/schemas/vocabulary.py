@@ -37,19 +37,28 @@ class VocabularyCreate(BaseModel):
 
     learning_track_id: uuid.UUID
     word: str = Field(min_length=1, max_length=255)
+    ipa: str | None = Field(default=None, max_length=100)
     part_of_speech: str = Field(min_length=1, max_length=64)
     meaning: str = Field(min_length=1, max_length=4000)
     translation: str = Field(min_length=1, max_length=2000)
     translation_language_code: str = Field(default="vi", min_length=2, max_length=16)
     example_sentences: list[str] = Field(default_factory=list, max_length=1)
     level_code: CEFRLevel
-    topic: str | None = Field(default=None, max_length=120)
+    topic: str | None = Field(default="Khác", max_length=120)
     learning_status: LearningStatus = "new"
 
     @field_validator("word", "part_of_speech", "meaning", "translation")
     @classmethod
     def trim_required_fields(cls, value: str) -> str:
         return _trim_required(value)
+
+    @field_validator("ipa")
+    @classmethod
+    def normalize_ipa(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        trimmed = value.strip()
+        return trimmed if trimmed else None
 
     @field_validator("translation_language_code")
     @classmethod
@@ -67,9 +76,9 @@ class VocabularyCreate(BaseModel):
     @field_validator("topic")
     @classmethod
     def normalize_topic(cls, value: str | None) -> str | None:
-        if value is None:
-            return None
-        return clean_topic(value)
+        if value is None or not value.strip():
+            return "Khác"
+        return clean_topic(value) or "Khác"
 
 
 class VocabularyUpdate(BaseModel):
@@ -77,6 +86,7 @@ class VocabularyUpdate(BaseModel):
 
     learning_track_id: uuid.UUID | None = None
     word: str | None = Field(default=None, min_length=1, max_length=255)
+    ipa: str | None = Field(default=None, max_length=100)
     part_of_speech: str | None = Field(default=None, min_length=1, max_length=64)
     meaning: str | None = Field(default=None, min_length=1, max_length=4000)
     translation: str | None = Field(default=None, min_length=1, max_length=2000)
@@ -88,7 +98,7 @@ class VocabularyUpdate(BaseModel):
 
     @model_validator(mode="after")
     def reject_null_for_required_fields(self) -> "VocabularyUpdate":
-        nullable = {"topic"}
+        nullable = {"topic", "ipa"}
         for field_name in self.model_fields_set - nullable:
             if getattr(self, field_name) is None:
                 raise ValueError(f"{field_name} must not be null")
@@ -98,6 +108,14 @@ class VocabularyUpdate(BaseModel):
     @classmethod
     def trim_optional_required_fields(cls, value: str | None) -> str | None:
         return None if value is None else _trim_required(value)
+
+    @field_validator("ipa")
+    @classmethod
+    def normalize_optional_ipa(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        trimmed = value.strip()
+        return trimmed if trimmed else None
 
     @field_validator("translation_language_code")
     @classmethod
@@ -192,6 +210,7 @@ class VocabularyResponse(BaseModel):
     source_vocabulary_entry: VocabularySourceEntryResponse | None
     word: str
     normalized_word: str
+    ipa: str | None = None
     part_of_speech: str
     meaning: str
     translation: str
