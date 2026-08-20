@@ -1,4 +1,4 @@
-﻿import logging
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -18,6 +18,7 @@ from app.schemas.auth import (
     ResetPasswordResponse,
     TokenResponse,
     UserResponse,
+    ValidateResetTokenResponse,
 )
 from app.services.ai_guard import ai_guard, AICooldownError, AIDuplicateRequestError
 from app.services.auth import (
@@ -28,6 +29,7 @@ from app.services.auth import (
     normalize_email,
     register_user,
     reset_password_with_token,
+    validate_reset_token,
 )
 from app.services.email import send_password_reset_email
 
@@ -111,6 +113,20 @@ def forgot_password(
             logger.error("Error during password reset token creation: %s", exc)
 
     return ForgotPasswordResponse()
+
+
+@router.get("/reset-password/validate", response_model=ValidateResetTokenResponse)
+def validate_password_reset_token(
+    token: str,
+    db: Annotated[Session, Depends(get_db)],
+) -> ValidateResetTokenResponse:
+    is_valid = validate_reset_token(db, token)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Đường dẫn đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.",
+        )
+    return ValidateResetTokenResponse(valid=True)
 
 
 @router.post("/reset-password", response_model=ResetPasswordResponse)

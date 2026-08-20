@@ -187,9 +187,22 @@ export function AppHomePage() {
               ))}
             </div>
           </section>
-          <section className="dashboard-motivation-card" aria-label="Lời nhắc học tập">
-            <Sparkles size={18} />
-            <p>Tiến bộ nhỏ mỗi ngày<br />sẽ tạo nên kết quả lớn.</p>
+          <section className="dashboard-motivation-card" aria-label="Gợi ý từ Mascot">
+            <div className="motivation-eyebrow">
+              <Sparkles size={14} />
+              <span>GỢI Ý TỪ MASCOT</span>
+            </div>
+            <strong className="motivation-title">
+              Tiến bộ nhỏ mỗi ngày<br />sẽ tạo nên kết quả lớn.
+            </strong>
+            <p className="motivation-body">
+              {dashboard.words_due_for_review > 0
+                ? `Bạn đang có ${dashboard.words_due_for_review} từ đến hạn. Chỉ cần vài phút ôn tập để giữ nhịp học hôm nay.`
+                : "Chỉ cần một phiên học ngắn hôm nay để tiếp tục duy trì nhịp học."}
+            </p>
+            <Link to="/app/review" className="motivation-cta">
+              Ôn ngay <ArrowRight size={13} />
+            </Link>
           </section>
         </aside>
       </section>

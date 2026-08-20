@@ -26,3 +26,19 @@ test("token extraction handles query string parameters safely", () => {
   const emptyToken = urlNoToken.searchParams.get("token")?.trim() ?? "";
   assert.equal(emptyToken, "");
 });
+
+test("reset password token initial state determines loading vs immediate invalidation", () => {
+  const getInitialState = (token: string) => (token.trim() ? "checking" : "invalid");
+
+  assert.equal(getInitialState(""), "invalid");
+  assert.equal(getInitialState("   "), "invalid");
+  assert.equal(getInitialState("valid_token_string"), "checking");
+});
+
+test("reset password token state resolution handles valid and invalid outcomes", () => {
+  type State = "checking" | "valid" | "invalid" | "success";
+
+  const resolveValidation = (isValid: boolean): State => (isValid ? "valid" : "invalid");
+  assert.equal(resolveValidation(true), "valid");
+  assert.equal(resolveValidation(false), "invalid");
+});

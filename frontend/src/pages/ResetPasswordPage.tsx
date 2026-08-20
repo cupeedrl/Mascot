@@ -1,4 +1,4 @@
-﻿import { type FormEvent, useState } from "react";
+﻿import { type FormEvent, useEffect, useState } from "react";
 import {
   AlertCircle,
   ArrowLeft,
@@ -9,20 +9,54 @@ import {
 } from "lucide-react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 
-import { ApiError, resetPassword } from "../api/client";
+import { ApiError, resetPassword, validateResetToken } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { PenguinMark } from "../components/PenguinMark";
+
+export type ResetTokenValidationStatus = "checking" | "valid" | "invalid" | "success";
 
 export function ResetPasswordPage() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token")?.trim() ?? "";
 
+  const [validationState, setValidationState] = useState<ResetTokenValidationStatus>(
+    token ? "checking" : "invalid"
+  );
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!token) {
+      setValidationState("invalid");
+      return;
+    }
+
+    setValidationState("checking");
+    validateResetToken(token)
+      .then((res) => {
+        if (isMounted) {
+          if (res.valid) {
+            setValidationState("valid");
+          } else {
+            setValidationState("invalid");
+          }
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setValidationState("invalid");
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token]);
 
   if (user) {
     return <Navigate to="/app" replace />;
@@ -33,7 +67,7 @@ export function ResetPasswordPage() {
     setError("");
 
     if (!token) {
-      setError("Đường dẫn đặt lại mật khẩu không hợp lệ hoặc thiếu mã xác thực.");
+      setValidationState("invalid");
       return;
     }
     if (password.length < 12) {
@@ -48,10 +82,15 @@ export function ResetPasswordPage() {
     setIsSubmitting(true);
     try {
       await resetPassword(token, password, confirmPassword);
-      setIsSuccess(true);
+      setValidationState("success");
     } catch (caughtError) {
       if (caughtError instanceof ApiError) {
-        setError(caughtError.message);
+        if (caughtError.status === 400) {
+          // Token is now invalid/consumed
+          setValidationState("invalid");
+        } else {
+          setError(caughtError.message);
+        }
       } else {
         setError("Không thể đặt lại mật khẩu. Vui lòng thử lại hoặc yêu cầu liên kết mới.");
       }
@@ -87,15 +126,18 @@ export function ResetPasswordPage() {
         <div className="auth-card">
           <div className="mobile-auth-brand"><PenguinMark size={32} /> Mascot</div>
 
-          {!token ? (
+          {validationState === "checking" ? (
+            <div className="auth-loading" role="status" aria-live="polite">
+              <div className="spinner" />
+              <p>Đang kiểm tra liên kết đặt lại mật khẩu…</p>
+            </div>
+          ) : validationState === "invalid" ? (
             <div className="auth-invalid-token" role="alert">
               <div className="auth-invalid-icon">
                 <AlertCircle size={28} />
               </div>
-              <h2>Liên kết không hợp lệ</h2>
-              <p>
-                Đường dẫn đặt lại mật khẩu của bạn thiếu mã xác thực hợp lệ hoặc đã bị cắt bớt.
-              </p>
+              <h2>Liên kết không còn hiệu lực</h2>
+              <p>Liên kết này đã hết hạn hoặc đã được sử dụng.</p>
               <div className="auth-invalid-actions">
                 <Link className="primary-button" to="/forgot-password">
                   Yêu cầu liên kết mới
@@ -105,7 +147,7 @@ export function ResetPasswordPage() {
                 </Link>
               </div>
             </div>
-          ) : isSuccess ? (
+          ) : validationState === "success" ? (
             <div className="auth-success-box" role="status">
               <div className="auth-success-icon">
                 <CheckCircle2 size={28} />

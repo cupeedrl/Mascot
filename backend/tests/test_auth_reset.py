@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import logging
 import time
@@ -230,3 +230,55 @@ def test_resend_strips_newlines_and_sanitizes_error_logs(caplog: pytest.LogCaptu
         assert "re_secret_key_with_newline" not in record.message
         assert "Bearer" not in record.message
         assert "password_reset_email_send_failed" in record.message
+
+
+def test_validate_reset_token_endpoint(
+    client: TestClient,
+    session_factory: sessionmaker[Session],
+) -> None:
+    test_email_provider.clear()
+    authenticate(client, email="validate_test_user@example.com")
+    test_email_provider.clear()
+
+    # 1. Generate token
+    client.post("/api/v1/auth/forgot-password", json={"email": "validate_test_user@example.com"})
+    raw_token = test_email_provider.sent_emails[0]["html"].split("/reset-password?token=")[1].split('"')[0]
+
+    # 2. Validate endpoint with fresh token: returns 200 { valid: True }
+    resp_valid = client.get(f"/api/v1/auth/reset-password/validate?token={raw_token}")
+    assert resp_valid.status_code == 200
+    assert resp_valid.json() == {"valid": True}
+
+    # 3. Verify validation did NOT consume or mutate the token in DB
+    with session_factory() as db:
+        token_row = db.scalar(
+            select(PasswordResetToken).where(PasswordResetToken.token_hash == hash_token(raw_token))
+        )
+        assert token_row is not None
+        assert token_row.used_at is None
+
+    # 4. Actual reset succeeds once
+    resp_reset = client.post(
+        "/api/v1/auth/reset-password",
+        json={
+            "token": raw_token,
+            "new_password": "NewSecretPassword123!",
+            "confirm_password": "NewSecretPassword123!",
+        },
+    )
+    assert resp_reset.status_code == 200
+
+    # 5. Now validation for the same token returns 400 (already consumed)
+    resp_after_reset = client.get(f"/api/v1/auth/reset-password/validate?token={raw_token}")
+    assert resp_after_reset.status_code == 400
+    assert "không hợp lệ hoặc đã hết hạn" in resp_after_reset.json()["detail"]
+
+    # 6. Malformed / non-existent token returns 400
+    resp_malformed = client.get("/api/v1/auth/reset-password/validate?token=non_existent_token_12345")
+    assert resp_malformed.status_code == 400
+    assert "không hợp lệ hoặc đã hết hạn" in resp_malformed.json()["detail"]
+
+    # 7. Short/empty token returns 400
+    resp_short = client.get("/api/v1/auth/reset-password/validate?token=abc")
+    assert resp_short.status_code == 400
+

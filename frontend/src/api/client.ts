@@ -130,6 +130,11 @@ export function forgotPassword(email: string): Promise<{ message: string }> {
   });
 }
 
+export function validateResetToken(token: string): Promise<{ valid: boolean }> {
+  const query = new URLSearchParams({ token }).toString();
+  return request<{ valid: boolean }>(`/auth/reset-password/validate?${query}`);
+}
+
 export function resetPassword(
   token: string,
   new_password: string,

@@ -115,6 +115,33 @@ def _as_utc(dt: datetime) -> datetime:
     return dt.astimezone(timezone.utc)
 
 
+def validate_reset_token(db: Session, token: str) -> bool:
+    """Verify if a password reset token is valid and unused without consuming it."""
+    if not token or len(token.strip()) < 16:
+        return False
+
+    token_hashed = hash_token(token.strip())
+    now = datetime.now(timezone.utc)
+
+    reset_token = db.scalar(
+        select(PasswordResetToken)
+        .options(selectinload(PasswordResetToken.user))
+        .where(
+            PasswordResetToken.token_hash == token_hashed,
+            PasswordResetToken.used_at.is_(None),
+        )
+    )
+
+    if reset_token is None or _as_utc(reset_token.expires_at) <= now:
+        return False
+
+    user = reset_token.user
+    if user is None or not user.is_active:
+        return False
+
+    return True
+
+
 def reset_password_with_token(db: Session, token: str, new_password: str) -> None:
     """Reset user password using a valid, unexpired reset token.
 

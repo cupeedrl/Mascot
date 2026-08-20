@@ -69,7 +69,7 @@ export function AuthPage({ mode }: AuthPageProps) {
           <strong>Mascot</strong>
         </div>
         <p className="eyebrow">HỌC TIẾNG ANH CÙNG AI</p>
-        <h1 id="brand-heading">Học thông minh hơn, từng từ một.</h1>
+        <h1 id="brand-heading">Học thông minh hơn,<br className="auth-hero-br" />từng từ một.</h1>
         <p>
           Xây dựng vốn từ theo lộ trình rõ ràng, ôn đúng lúc và luyện tập với AI
           trong một không gian học tập thực sự thuộc về bạn.

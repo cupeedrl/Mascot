@@ -62,3 +62,8 @@ class ResetPasswordRequest(BaseModel):
 class ResetPasswordResponse(BaseModel):
     message: str = "Mật khẩu đã được cập nhật thành công."
 
+
+class ValidateResetTokenResponse(BaseModel):
+    valid: bool = True
+
+
