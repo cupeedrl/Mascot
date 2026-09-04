@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import logging
@@ -326,3 +326,155 @@ class OpenAICompatibleVocabularyProvider:
             max_output_tokens=self._exercise_max_output_tokens,
         )
         return batch.model_dump(mode="json")
+
+    def generate_chat_response(
+        self,
+        messages: list[dict[str, str]],
+    ) -> str:
+        if not self._api_key:
+            raise AIProviderNotConfiguredError
+
+        from openai import (
+            APIConnectionError,
+            APIStatusError,
+            APITimeoutError,
+            AuthenticationError,
+            NotFoundError,
+            OpenAI,
+            OpenAIError,
+            PermissionDeniedError,
+            RateLimitError,
+        )
+
+        client_options: dict[str, object] = {
+            "api_key": self._api_key,
+            "timeout": self._timeout_seconds,
+            "max_retries": 0,
+        }
+        if self._base_url is not None:
+            client_options["base_url"] = self._base_url
+
+        client = OpenAI(**client_options)
+
+        start_time = time.perf_counter()
+        attempts = 0
+        backoff = INITIAL_BACKOFF_SECONDS
+
+        while True:
+            attempts += 1
+            try:
+                response = client.chat.completions.create(
+                    model=self._model,
+                    messages=messages,  # type: ignore[arg-type]
+                    max_tokens=self._max_output_tokens,
+                )
+                duration_ms = round((time.perf_counter() - start_time) * 1000)
+
+                usage: dict[str, Any] = {}
+                raw_usage = getattr(response, "usage", None)
+                if raw_usage:
+                    usage = {
+                        "prompt_tokens": getattr(raw_usage, "prompt_tokens", None),
+                        "completion_tokens": getattr(raw_usage, "completion_tokens", None),
+                        "total_tokens": getattr(raw_usage, "total_tokens", None),
+                    }
+
+                content = response.choices[0].message.content
+                if content is None:
+                    raise AIProviderResponseError(
+                        "chat_completion", "provider returned empty completion content"
+                    )
+
+                usage_logger.info(
+                    "AI call success: feature=ai_chat, model=%s, duration_ms=%s, tokens=%s, attempts=%s",
+                    self._model,
+                    duration_ms,
+                    usage,
+                    attempts,
+                )
+                return content
+
+            except (AuthenticationError, PermissionDeniedError, NotFoundError) as exc:
+                duration_ms = round((time.perf_counter() - start_time) * 1000)
+                usage_logger.warning(
+                    "AI call error: config/auth, feature=ai_chat, model=%s, duration_ms=%s, error=%s",
+                    self._model,
+                    duration_ms,
+                    type(exc).__name__,
+                )
+                raise AIProviderConfigurationError from exc
+
+            except RateLimitError as exc:
+                duration_ms = round((time.perf_counter() - start_time) * 1000)
+                quota_codes = {
+                    "insufficient_quota",
+                    "credit_balance_exhausted",
+                    "organization_spend_limit_exceeded",
+                    "project_spend_limit_exceeded",
+                    "organization_usage_limit_exceeded",
+                }
+                if getattr(exc, "code", None) in quota_codes or getattr(exc, "type", None) == "insufficient_quota":
+                    usage_logger.warning(
+                        "AI call error: quota_exhausted, feature=ai_chat, model=%s, duration_ms=%s",
+                        self._model,
+                        duration_ms,
+                    )
+                    raise AIProviderQuotaError from exc
+
+                if attempts <= MAX_RETRIES:
+                    time.sleep(backoff)
+                    backoff *= 2
+                    continue
+
+                usage_logger.warning(
+                    "AI call error: rate_limit, feature=ai_chat, model=%s, duration_ms=%s, attempts=%s",
+                    self._model,
+                    duration_ms,
+                    attempts,
+                )
+                raise AIProviderRateLimitError from exc
+
+            except APITimeoutError as exc:
+                duration_ms = round((time.perf_counter() - start_time) * 1000)
+                if attempts <= MAX_RETRIES:
+                    time.sleep(backoff)
+                    backoff *= 2
+                    continue
+
+                usage_logger.warning(
+                    "AI call error: timeout, feature=ai_chat, model=%s, duration_ms=%s, attempts=%s",
+                    self._model,
+                    duration_ms,
+                    attempts,
+                )
+                raise AIProviderTimeoutError from exc
+
+            except (APIConnectionError, APIStatusError) as exc:
+                duration_ms = round((time.perf_counter() - start_time) * 1000)
+                is_server_error = isinstance(exc, APIStatusError) and exc.status_code >= 500
+                is_connection_error = isinstance(exc, APIConnectionError)
+
+                if (is_server_error or is_connection_error) and attempts <= MAX_RETRIES:
+                    time.sleep(backoff)
+                    backoff *= 2
+                    continue
+
+                usage_logger.warning(
+                    "AI call error: provider_network_or_5xx, feature=ai_chat, model=%s, duration_ms=%s, attempts=%s, error=%s",
+                    self._model,
+                    duration_ms,
+                    attempts,
+                    type(exc).__name__,
+                )
+                raise AIProviderError from exc
+
+            except OpenAIError as exc:
+                duration_ms = round((time.perf_counter() - start_time) * 1000)
+                usage_logger.warning(
+                    "AI call error: general_openai_error, feature=ai_chat, model=%s, duration_ms=%s, error=%s",
+                    self._model,
+                    duration_ms,
+                    type(exc).__name__,
+                )
+                raise AIProviderError from exc
+

@@ -4,7 +4,7 @@ from functools import lru_cache
 
 from app.ai.groq_provider import GroqVocabularyProvider
 from app.ai.openai_provider import OpenAIVocabularyProvider
-from app.ai.provider import ExerciseAIProvider, VocabularyAIProvider
+from app.ai.provider import ChatAIProvider, ExerciseAIProvider, VocabularyAIProvider
 from app.core.config import get_settings
 
 
@@ -40,3 +40,10 @@ def get_exercise_ai_provider() -> ExerciseAIProvider:
     """Reuse the configured provider instance without creating a second adapter."""
 
     return get_vocabulary_ai_provider()
+
+
+def get_chat_ai_provider() -> ChatAIProvider:
+    """Reuse the configured provider instance for conversational chat."""
+
+    return get_vocabulary_ai_provider()  # type: ignore[return-value]
+

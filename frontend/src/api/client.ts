@@ -1,6 +1,11 @@
-import { persistAccessToken, readAccessToken } from "../auth/sessionStorage";
+import { persistAccessToken, readAccessToken } from "../auth/sessionStorage.ts";
 
-const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
+
+const configuredBaseUrl =
+  typeof import.meta !== "undefined" && import.meta.env
+    ? import.meta.env.VITE_API_BASE_URL ?? "/api/v1"
+    : "/api/v1";
+
 const apiBaseUrl = configuredBaseUrl.replace(/\/$/, "");
 
 let accessToken: string | null = readAccessToken();
@@ -32,18 +37,19 @@ interface ApiErrorBody {
 }
 
 export class ApiError extends Error {
+  public readonly status: number;
+  public readonly detail?: ApiErrorDetail;
   public readonly code?: string;
 
-  constructor(
-    public readonly status: number,
-    message: string,
-    public readonly detail?: ApiErrorDetail,
-  ) {
+  constructor(status: number, message: string, detail?: ApiErrorDetail) {
     super(message);
+    this.status = status;
+    this.detail = detail;
     this.name = "ApiError";
     this.code = detail?.code;
   }
 }
+
 
 export function setAccessToken(token: string | null): void {
   accessToken = token;
@@ -838,6 +844,27 @@ export function getAdminAIUsage(params: {
 
   return request<AdminAIUsageListResponse>(`/admin/ai-usage?${query.toString()}`);
 }
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface AIChatRequest {
+  messages: ChatMessage[];
+}
+
+export interface AIChatResponse {
+  message: ChatMessage;
+}
+
+export function postAIChat(messages: ChatMessage[]): Promise<AIChatResponse> {
+  return request<AIChatResponse>("/ai/chat", {
+    method: "POST",
+    body: JSON.stringify({ messages }),
+  });
+}
+
 
 
 

@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     ai_request_timeout_seconds: float = Field(default=20.0, ge=1.0, le=120.0)
     ai_max_output_tokens: int = Field(default=800, ge=200, le=4000)
     ai_exercise_max_output_tokens: int = Field(default=4000, ge=800, le=8000)
+    ai_max_tool_rounds: int = Field(default=5, ge=1, le=10)
+    ai_chat_max_history_messages: int = Field(default=20, ge=2, le=100)
+    ai_chat_max_message_length: int = Field(default=1000, ge=10, le=5000)
     email_provider: Literal["console", "resend", "gmail_smtp", "test"] = "console"
     resend_api_key: SecretStr | None = None
     smtp_host: str = Field(default="smtp.gmail.com", min_length=1, max_length=255)

@@ -12,6 +12,7 @@ import {
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 
 import { useAuth } from "../auth/AuthContext";
+import { AIChatDrawer } from "./AIChatDrawer";
 import { PenguinMark } from "./PenguinMark";
 
 interface NavigationItem {
@@ -123,6 +124,9 @@ export function AppLayout() {
       <nav className="mobile-navigation" aria-label="Điều hướng chính trên di động">
         <NavigationLinks mobile />
       </nav>
+
+      <AIChatDrawer />
     </div>
   );
 }
+

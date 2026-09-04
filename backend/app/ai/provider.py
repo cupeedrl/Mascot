@@ -55,3 +55,12 @@ class ExerciseAIProvider(Protocol):
         count: int,
     ) -> object:
         """Return untrusted structured exercise candidates for validation."""
+
+
+class ChatAIProvider(Protocol):
+    def generate_chat_response(
+        self,
+        messages: list[dict[str, str]],
+    ) -> str:
+        """Return conversational completion text for user/assistant message turns."""
+
