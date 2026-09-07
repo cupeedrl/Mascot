@@ -7,6 +7,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
+from app.ai.action_tokens import issue_action_token
 from app.ai.chat_agent import run_chat_agent
 from app.ai.dependencies import get_chat_ai_provider
 from app.ai.prompts import CHAT_ASSISTANT_SYSTEM_PROMPT
@@ -26,7 +27,13 @@ from app.api.dependencies import get_current_user
 from app.core.config import get_settings
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.ai_chat import AIChatRequest, AIChatResponse, ChatMessage
+from app.schemas.ai_chat import (
+    AIActionConfirmation,
+    AIActionVocabularyDetails,
+    AIChatRequest,
+    AIChatResponse,
+    ChatMessage,
+)
 from app.services.ai_guard import ai_guard, AICooldownError, AIDuplicateRequestError
 from app.services.ai_logger import record_ai_usage
 
@@ -118,7 +125,7 @@ def chat_with_assistant(
 
     # 5. Call AI Chat Agent & Map Errors safely
     try:
-        reply_text = run_chat_agent(
+        agent_result = run_chat_agent(
             provider=provider,
             messages=full_messages,
             db=db,
@@ -130,17 +137,46 @@ def chat_with_assistant(
             max_tool_payload_bytes=settings.ai_tool_max_payload_bytes,
             tool_timeout_seconds=settings.ai_tool_timeout_seconds,
         )
+        confirmation_required = None
+        usage_status = "success"
+        if isinstance(agent_result, str):
+            reply_text = agent_result
+        else:
+            action_token, claims = issue_action_token(
+                tool_name=agent_result["tool_name"],
+                arguments=agent_result["arguments"],
+                user_id=current_user.id,
+            )
+            details = AIActionVocabularyDetails.model_validate(
+                agent_result["arguments"]
+            )
+            confirmation_required = AIActionConfirmation(
+                action_id=claims.action_id,
+                action_token=action_token,
+                tool_name="add_vocabulary",
+                summary=f'Add "{details.word}" to My Vocabulary',
+                expires_at=claims.expires_at,
+                vocabulary=details,
+            )
+            reply_text = (
+                f'I prepared "{details.word}" for your vocabulary. '
+                "Review the details and use Confirm or Cancel below."
+            )
+            usage_status = "confirmation_required"
         latency_ms = round((time.perf_counter() - start_time) * 1000)
         record_ai_usage(
             db,
             user_id=current_user.id,
             feature="ai_chat",
-            status="success",
+            status=usage_status,
             status_code=200,
             latency_ms=latency_ms,
         )
         ai_guard.release(current_user.id, "ai_chat", fingerprint, mark_success=True)
-        return AIChatResponse(message=ChatMessage(role="assistant", content=reply_text))
+        return AIChatResponse(
+            message=ChatMessage(role="assistant", content=reply_text),
+            confirmation_required=confirmation_required,
+        )
     except AIProviderNotConfiguredError as exc:
         latency_ms = round((time.perf_counter() - start_time) * 1000)
         record_ai_usage(

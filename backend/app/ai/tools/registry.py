@@ -8,11 +8,14 @@ from .schemas import (
     LearningStatsResult,
     GetDueVocabArgs,
     DueVocabularyResult,
+    AddVocabularyArgs,
+    AddVocabularyResult,
 )
 from .learning_tools import (
     handle_get_learning_stats,
     handle_get_due_vocabulary,
 )
+from .vocabulary_tools import handle_add_vocabulary
 
 class ToolMeta(TypedDict):
     name: str
@@ -42,6 +45,21 @@ _register(
         "handler": handle_get_learning_stats,
         "classification": "read",
         "requires_confirmation": False,
+    }
+)
+
+_register(
+    {
+        "name": "add_vocabulary",
+        "description": (
+            "Propose adding exactly one English vocabulary item for the current user. "
+            "This write always requires explicit UI confirmation before execution."
+        ),
+        "arg_schema": AddVocabularyArgs,
+        "result_schema": AddVocabularyResult,
+        "handler": handle_add_vocabulary,
+        "classification": "write",
+        "requires_confirmation": True,
     }
 )
 

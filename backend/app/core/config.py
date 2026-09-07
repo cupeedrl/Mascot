@@ -37,6 +37,10 @@ class Settings(BaseSettings):
     ai_tool_max_argument_bytes: int = Field(default=8192, ge=256, le=65536)
     ai_tool_max_payload_bytes: int = Field(default=65536, ge=1024, le=262144)
     ai_tool_timeout_seconds: float = Field(default=5.0, ge=0.1, le=30.0)
+    ai_action_token_expire_seconds: int = Field(default=300, ge=30, le=900)
+    ai_action_token_audience: str = Field(
+        default="mascot-ai-action", min_length=1, max_length=100
+    )
     ai_chat_max_history_messages: int = Field(default=20, ge=2, le=100)
     ai_chat_max_message_length: int = Field(default=1000, ge=10, le=5000)
     email_provider: Literal["console", "resend", "gmail_smtp", "test"] = "console"

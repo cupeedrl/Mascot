@@ -1,16 +1,72 @@
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, X, Send, Bot, User, AlertCircle, Loader2 } from "lucide-react";
-import { postAIChat, type ChatMessage } from "../api/client";
+import { Sparkles, X, Send, Bot, User, AlertCircle, Loader2, Plus, Ban } from "lucide-react";
+import {
+  cancelAIAction,
+  confirmAIAction,
+  postAIChat,
+  type AIActionConfirmation,
+  type ChatMessage,
+} from "../api/client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export function AIChatDrawer() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  type ChatEntry = ChatMessage & {
+    confirmation?: AIActionConfirmation;
+    actionStatus?: "pending" | "confirming" | "executed" | "canceled";
+  };
+
+  const [messages, setMessages] = useState<ChatEntry[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  function updateActionStatus(
+    actionId: string,
+    actionStatus: ChatEntry["actionStatus"],
+  ) {
+    setMessages((current) =>
+      current.map((message) =>
+        message.confirmation?.action_id === actionId
+          ? { ...message, actionStatus }
+          : message,
+      ),
+    );
+  }
+
+  async function handleConfirm(action: AIActionConfirmation) {
+    setError(null);
+    updateActionStatus(action.action_id, "confirming");
+    try {
+      const result = await confirmAIAction(action.action_token);
+      updateActionStatus(action.action_id, "executed");
+      setMessages((current) => [
+        ...current,
+        { role: "assistant", content: result.message },
+      ]);
+    } catch (err) {
+      updateActionStatus(action.action_id, "pending");
+      setError(err instanceof Error ? err.message : "Không thể xác nhận thao tác.");
+    }
+  }
+
+  async function handleCancel(action: AIActionConfirmation) {
+    setError(null);
+    updateActionStatus(action.action_id, "confirming");
+    try {
+      const result = await cancelAIAction(action.action_token);
+      updateActionStatus(action.action_id, "canceled");
+      setMessages((current) => [
+        ...current,
+        { role: "assistant", content: result.message },
+      ]);
+    } catch (err) {
+      updateActionStatus(action.action_id, "pending");
+      setError(err instanceof Error ? err.message : "Không thể hủy thao tác.");
+    }
+  }
 
   useEffect(() => {
     if (isOpen) {
@@ -37,8 +93,17 @@ export function AIChatDrawer() {
     setIsLoading(true);
 
     try {
-      const response = await postAIChat(nextMessages);
-      setMessages((prev) => [...prev, response.message]);
+      const response = await postAIChat(
+        nextMessages.map(({ role, content }) => ({ role, content })),
+      );
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...response.message,
+          confirmation: response.confirmation_required ?? undefined,
+          actionStatus: response.confirmation_required ? "pending" : undefined,
+        },
+      ]);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Không thể kết nối với Trợ lý AI.";
@@ -109,15 +174,54 @@ export function AIChatDrawer() {
                   <div className="avatar-icon">
                     {msg.role === "user" ? <User size={14} /> : <Bot size={14} />}
                   </div>
-                  <div className="message-content">{msg.role === "assistant" ? (
-                    <div className="ai-chat-markdown">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {msg.content}
-                      </ReactMarkdown>
-                    </div>
-                  ) : (
-                    msg.content
-                  )}</div>
+                  <div className="message-content">
+                    {msg.role === "assistant" ? (
+                      <div className="ai-chat-markdown">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {msg.content}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      msg.content
+                    )}
+                    {msg.confirmation && (
+                      <div className="ai-action-confirmation-card">
+                        <div className="ai-action-card-title">
+                          <Plus size={15} />
+                          <strong>{msg.confirmation.summary}</strong>
+                        </div>
+                        <dl>
+                          <div><dt>Word</dt><dd>{msg.confirmation.vocabulary.word}</dd></div>
+                          <div><dt>Meaning</dt><dd>{msg.confirmation.vocabulary.meaning}</dd></div>
+                          <div><dt>Vietnamese</dt><dd>{msg.confirmation.vocabulary.translation}</dd></div>
+                          <div><dt>Level</dt><dd>{msg.confirmation.vocabulary.level_code}</dd></div>
+                        </dl>
+                        {msg.actionStatus === "pending" && (
+                          <div className="ai-action-card-buttons">
+                            <button
+                              type="button"
+                              className="secondary-button"
+                              onClick={() => void handleCancel(msg.confirmation!)}
+                            >
+                              <Ban size={14} /> Cancel
+                            </button>
+                            <button
+                              type="button"
+                              className="primary-button"
+                              onClick={() => void handleConfirm(msg.confirmation!)}
+                            >
+                              <Plus size={14} /> Confirm
+                            </button>
+                          </div>
+                        )}
+                        {msg.actionStatus === "confirming" && (
+                          <div className="ai-action-card-status"><Loader2 size={14} className="spin-loader" /> Processing…</div>
+                        )}
+                        {msg.actionStatus === "executed" && <div className="ai-action-card-status success">Confirmed</div>}
+                        {msg.actionStatus === "canceled" && <div className="ai-action-card-status">Canceled</div>}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))
             )}

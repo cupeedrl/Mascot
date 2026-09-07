@@ -856,12 +856,70 @@ export interface AIChatRequest {
 
 export interface AIChatResponse {
   message: ChatMessage;
+  confirmation_required: AIActionConfirmation | null;
+}
+
+export interface AIActionVocabularyDetails {
+  word: string;
+  ipa: string | null;
+  part_of_speech: string;
+  meaning: string;
+  translation: string;
+  translation_language_code: string;
+  example_sentences: string[];
+  level_code: string;
+  topic: string | null;
+}
+
+export interface AIActionConfirmation {
+  type: "confirmation_required";
+  action_id: string;
+  action_token: string;
+  tool_name: "add_vocabulary";
+  summary: string;
+  expires_at: string;
+  vocabulary: AIActionVocabularyDetails;
+}
+
+export interface AIActionExecutionResponse {
+  status: "executed";
+  action_id: string;
+  message: string;
+  vocabulary: {
+    id: string;
+    word: string;
+    meaning: string;
+    translation: string;
+    level_code: string;
+    topic: string | null;
+    learning_status: string;
+  };
+}
+
+export interface AIActionCancellationResponse {
+  status: "canceled";
+  action_id: string;
+  message: string;
 }
 
 export function postAIChat(messages: ChatMessage[]): Promise<AIChatResponse> {
   return request<AIChatResponse>("/ai/chat", {
     method: "POST",
     body: JSON.stringify({ messages }),
+  });
+}
+
+export function confirmAIAction(actionToken: string): Promise<AIActionExecutionResponse> {
+  return request<AIActionExecutionResponse>("/ai/actions/confirm", {
+    method: "POST",
+    body: JSON.stringify({ action_token: actionToken }),
+  });
+}
+
+export function cancelAIAction(actionToken: string): Promise<AIActionCancellationResponse> {
+  return request<AIActionCancellationResponse>("/ai/actions/cancel", {
+    method: "POST",
+    body: JSON.stringify({ action_token: actionToken }),
   });
 }
 

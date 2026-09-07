@@ -13,6 +13,7 @@ from app.ai.chat_schema import (
     Message,
     ProviderResult,
     ProviderToolCall,
+    PendingToolAction,
     SystemMessage,
     ToolResultMessage,
     UserMessage,
@@ -29,6 +30,7 @@ from app.ai.tools.executor import (
     ToolNotFoundError,
     ToolValidationError,
     execute_tool,
+    validate_tool_arguments,
 )
 from app.ai.tools.registry import TOOL_REGISTRY
 
@@ -72,7 +74,7 @@ def run_chat_agent(
     max_tool_argument_bytes: int = DEFAULT_MAX_TOOL_ARGUMENT_BYTES,
     max_tool_payload_bytes: int = DEFAULT_MAX_TOOL_PAYLOAD_BYTES,
     tool_timeout_seconds: float = DEFAULT_TOOL_TIMEOUT_SECONDS,
-) -> str:
+) -> str | PendingToolAction:
     """Run the bounded single-agent loop for the Mascot AI Learning Assistant."""
     generate_with_tools_fn = getattr(
         provider, "generate_chat_response_with_tools", None
@@ -134,6 +136,47 @@ def run_chat_agent(
             )
         total_tool_calls += len(tool_calls)
 
+        write_calls = [
+            tool_call
+            for tool_call in tool_calls
+            if (
+                (meta := TOOL_REGISTRY.get(tool_call["name"])) is not None
+                and meta["classification"] == "write"
+            )
+        ]
+        if write_calls:
+            if len(tool_calls) != 1 or len(write_calls) != 1:
+                raise AIProviderResponseError(
+                    "mixed_write_tool_calls",
+                    "A write proposal must be the only tool call in its round.",
+                )
+            write_call = write_calls[0]
+            meta = TOOL_REGISTRY[write_call["name"]]
+            if not meta["requires_confirmation"]:
+                raise AIProviderResponseError(
+                    "unsafe_write_tool",
+                    "Write tool is missing its confirmation requirement.",
+                )
+            try:
+                raw_args = _parse_tool_arguments(
+                    write_call["arguments"], max_tool_argument_bytes
+                )
+                _, validated_args = validate_tool_arguments(
+                    write_call["name"], raw_args
+                )
+            except ToolValidationError:
+                pass
+            else:
+                logger.info(
+                    "AI write proposed (tool=%s, tool_call_id=%s, args_valid=true, status=confirmation_required)",
+                    write_call["name"],
+                    write_call["id"],
+                )
+                return {
+                    "tool_name": write_call["name"],
+                    "arguments": validated_args.model_dump(mode="json"),
+                }
+
         assistant_msg: AssistantMessage = {
             "role": "assistant",
             "content": content,
@@ -154,16 +197,7 @@ def run_chat_agent(
             tool_started_at = time.perf_counter()
 
             try:
-                try:
-                    if len(tc_args_str.encode("utf-8")) > max_tool_argument_bytes:
-                        raise ValueError("Tool arguments exceed the size limit.")
-                    args = json.loads(tc_args_str) if tc_args_str else {}
-                    if not isinstance(args, dict):
-                        raise ValueError("Tool arguments must be a JSON object.")
-                except Exception as json_err:
-                    raise ToolValidationError(
-                        f"Malformed JSON arguments: {json_err}"
-                    ) from json_err
+                args = _parse_tool_arguments(tc_args_str, max_tool_argument_bytes)
 
                 raw_tool_result = execute_tool(
                     name=tc_name,
@@ -229,6 +263,18 @@ def run_chat_agent(
             conversation.append(tool_msg)
 
         tool_rounds += 1
+
+
+def _parse_tool_arguments(arguments: str, max_bytes: int) -> dict[str, Any]:
+    try:
+        if len(arguments.encode("utf-8")) > max_bytes:
+            raise ValueError("Tool arguments exceed the size limit.")
+        parsed = json.loads(arguments) if arguments else {}
+        if not isinstance(parsed, dict):
+            raise ValueError("Tool arguments must be a JSON object.")
+        return parsed
+    except Exception as exc:
+        raise ToolValidationError("Invalid tool arguments") from exc
 
 
 def _validate_provider_result(result: object) -> tuple[str | None, list[ProviderToolCall]]:

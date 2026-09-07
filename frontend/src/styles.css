@@ -5050,6 +5050,56 @@ button:disabled {
   margin: 8px 16px;
   border-radius: 8px;
 }
+.ai-action-confirmation-card {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.ai-action-card-title,
+.ai-action-card-buttons,
+.ai-action-card-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ai-action-confirmation-card dl {
+  display: grid;
+  gap: 5px;
+  margin: 9px 0;
+}
+.ai-action-confirmation-card dl div {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 8px;
+}
+.ai-action-confirmation-card dt {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.ai-action-confirmation-card dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+}
+.ai-action-card-buttons {
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+.ai-action-card-buttons button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 9px;
+}
+.ai-action-card-status {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.ai-action-card-status.success {
+  color: var(--success);
+}
 .loading-bubble .message-content {
   display: flex;
   align-items: center;

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "node --experimental-strip-types --test tests/authSession.test.ts tests/duplicateConflict.test.ts tests/practiceSetup.test.ts tests/topicPresentation.test.ts tests/vocabularyEditor.test.ts tests/reviewSetup.test.ts tests/forgotPassword.test.ts tests/adminRoute.test.ts tests/aiChatDrawerPhase1.test.ts",
+    "test": "node --experimental-strip-types --test tests/authSession.test.ts tests/duplicateConflict.test.ts tests/practiceSetup.test.ts tests/topicPresentation.test.ts tests/vocabularyEditor.test.ts tests/reviewSetup.test.ts tests/forgotPassword.test.ts tests/adminRoute.test.ts tests/aiChatDrawerPhase1.test.ts tests/aiChatConfirmationPhase5.test.ts",
     "build": "tsc -b && vite build",
     "preview": "vite preview"
   },

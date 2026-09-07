@@ -73,7 +73,8 @@ def create_vocab(db: Session, user_id, track_id, word, status="new", next_review
 def test_registry_contains_expected_tools():
     assert "get_learning_stats" in TOOL_REGISTRY
     assert "get_due_vocabulary" in TOOL_REGISTRY
-    assert len(TOOL_REGISTRY) == 2
+    assert "add_vocabulary" in TOOL_REGISTRY
+    assert len(TOOL_REGISTRY) == 3
 
 def test_execute_get_learning_stats(session_factory):
     session = session_factory()

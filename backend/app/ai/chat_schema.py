@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TypedDict, List, NotRequired, Literal, Optional
+from typing import Any, TypedDict, List, NotRequired, Literal, Optional
 
 # Provider-neutral message structures used by the internal agent loop.
 
@@ -36,3 +36,8 @@ Message = SystemMessage | UserMessage | AssistantMessage | ToolResultMessage
 class ProviderResult(TypedDict, total=False):
     content: Optional[str]
     tool_calls: NotRequired[List[ProviderToolCall]]
+
+
+class PendingToolAction(TypedDict):
+    tool_name: str
+    arguments: dict[str, Any]

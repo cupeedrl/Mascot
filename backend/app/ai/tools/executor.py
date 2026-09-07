@@ -17,7 +17,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from .registry import TOOL_REGISTRY, ToolMeta
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +41,21 @@ class ToolTimeoutError(ToolExecutionError):
 
 class ToolPayloadTooLargeError(ToolExecutionError):
     """Raised when a validated tool result exceeds its configured size limit."""
+
+class ToolConfirmationRequiredError(ToolError):
+    """Raised when a write tool reaches the read-only executor."""
+
+
+def validate_tool_arguments(name: str, raw_args: dict) -> tuple[ToolMeta, BaseModel]:
+    """Resolve a whitelisted tool and validate model-authored arguments."""
+    meta = TOOL_REGISTRY.get(name)
+    if meta is None:
+        raise ToolNotFoundError(f"Tool '{name}' is not registered")
+    try:
+        return meta, meta["arg_schema"].model_validate(raw_args)
+    except ValidationError as exc:
+        log.warning("Tool argument validation failed (tool=%s)", name)
+        raise ToolValidationError("Invalid tool arguments") from exc
 
 # ----------------------------------------------------------------------
 def execute_tool(
@@ -80,16 +95,60 @@ def execute_tool(
     ToolExecutionError
         If the handler raises any unexpected exception.
     """
-    meta: ToolMeta | None = TOOL_REGISTRY.get(name)
-    if meta is None:
-        raise ToolNotFoundError(f"Tool '{name}' is not registered")
+    meta, args_obj = validate_tool_arguments(name, raw_args)
+    if meta["classification"] != "read" or meta["requires_confirmation"]:
+        raise ToolConfirmationRequiredError(
+            "Write tools cannot execute through the read-only executor"
+        )
+    return _execute_validated_tool(
+        meta,
+        args_obj,
+        db,
+        current_user_id,
+        timeout_seconds=timeout_seconds,
+        max_payload_bytes=max_payload_bytes,
+        wrap_handler_errors=True,
+        enforce_elapsed_after_success=True,
+    )
 
-    # Validate arguments using the tool's Pydantic schema
-    try:
-        args_obj = meta["arg_schema"].model_validate(raw_args)
-    except ValidationError as exc:
-        log.warning("Tool argument validation failed (tool=%s)", name)
-        raise ToolValidationError("Invalid tool arguments") from exc
+
+def execute_confirmed_tool(
+    name: str,
+    raw_args: dict,
+    db: Session,
+    current_user_id: UUID,
+    *,
+    timeout_seconds: float | None = None,
+    max_payload_bytes: int | None = None,
+) -> dict:
+    """Execute only a whitelisted write tool after the API confirmation boundary."""
+    meta, args_obj = validate_tool_arguments(name, raw_args)
+    if meta["classification"] != "write" or not meta["requires_confirmation"]:
+        raise ToolConfirmationRequiredError("Tool is not a confirmable write action")
+    return _execute_validated_tool(
+        meta,
+        args_obj,
+        db,
+        current_user_id,
+        timeout_seconds=timeout_seconds,
+        max_payload_bytes=max_payload_bytes,
+        wrap_handler_errors=False,
+        enforce_elapsed_after_success=False,
+    )
+
+
+def _execute_validated_tool(
+    meta: ToolMeta,
+    args_obj: BaseModel,
+    db: Session,
+    current_user_id: UUID,
+    *,
+    timeout_seconds: float | None,
+    max_payload_bytes: int | None,
+    wrap_handler_errors: bool,
+    enforce_elapsed_after_success: bool,
+) -> dict:
+    name = meta["name"]
 
     # Apply a database-side statement timeout for the current PostgreSQL
     # transaction. The elapsed-time check below also covers non-query work.
@@ -111,11 +170,17 @@ def execute_tool(
             and time.perf_counter() - started_at >= timeout_seconds
         ):
             raise ToolTimeoutError("Tool execution exceeded its time budget") from exc
+        if not wrap_handler_errors:
+            raise
         log.exception("Unexpected error while executing tool %s", name)
         raise ToolExecutionError("Tool execution failed") from exc
 
     elapsed_seconds = time.perf_counter() - started_at
-    if timeout_seconds is not None and elapsed_seconds > timeout_seconds:
+    if (
+        enforce_elapsed_after_success
+        and timeout_seconds is not None
+        and elapsed_seconds > timeout_seconds
+    ):
         raise ToolTimeoutError("Tool execution exceeded its time budget")
 
     # Enforce the declared result schema contract
