@@ -1,21 +1,39 @@
 from __future__ import annotations
 
-from typing import Protocol
+from typing import List, Protocol
 
-
-class AIProviderNotConfiguredError(Exception):
-    pass
-
-
-class AIProviderTimeoutError(Exception):
-    pass
+from app.ai.chat_schema import Message, ProviderResult
 
 
 class AIProviderError(Exception):
     pass
 
 
-class AIProviderResponseError(Exception):
+class AIProviderNotConfiguredError(AIProviderError):
+    pass
+
+
+class AIProviderAuthenticationError(AIProviderError):
+    pass
+
+
+class AIProviderTimeoutError(AIProviderError):
+    pass
+
+
+class AIProviderQuotaError(AIProviderError):
+    pass
+
+
+class AIProviderRateLimitError(AIProviderError):
+    pass
+
+
+class AIProviderConfigurationError(AIProviderError):
+    pass
+
+
+class AIProviderResponseError(AIProviderError):
     """The provider replied, but no safe structured candidate could be read."""
 
     def __init__(
@@ -26,18 +44,6 @@ class AIProviderResponseError(Exception):
         super().__init__(summary)
         self.stage = stage
         self.summary = summary
-
-
-class AIProviderQuotaError(Exception):
-    pass
-
-
-class AIProviderRateLimitError(Exception):
-    pass
-
-
-class AIProviderConfigurationError(Exception):
-    pass
 
 
 class VocabularyAIProvider(Protocol):
@@ -64,3 +70,9 @@ class ChatAIProvider(Protocol):
     ) -> str:
         """Return conversational completion text for user/assistant message turns."""
 
+    def generate_chat_response_with_tools(
+        self,
+        messages: List[Message],
+        tool_definitions: List[dict],
+    ) -> ProviderResult:
+        """Return either plain content or tool_calls (or both) for a single provider turn."""

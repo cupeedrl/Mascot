@@ -2292,7 +2292,8 @@ button:disabled {
 /* Review */
 
 .review-page,
-.practice-page {
+.practice-page,
+.about-page {
   width: min(100%, 900px);
   margin: 0 auto;
 }
@@ -4978,13 +4979,15 @@ button:disabled {
   inset-block-end: auto;
   bottom: 80px;
   right: 24px;
-  width: 360px;
+  width: 440px;
+  max-width: calc(100vw - 32px);
   max-height: 70vh;
   background: var(--surface);
   border-radius: 12px;
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .ai-chat-header {
   display: flex;

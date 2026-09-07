@@ -32,6 +32,11 @@ class Settings(BaseSettings):
     ai_max_output_tokens: int = Field(default=800, ge=200, le=4000)
     ai_exercise_max_output_tokens: int = Field(default=4000, ge=800, le=8000)
     ai_max_tool_rounds: int = Field(default=5, ge=1, le=10)
+    ai_max_tool_calls_per_round: int = Field(default=4, ge=1, le=10)
+    ai_max_total_tool_calls: int = Field(default=8, ge=1, le=50)
+    ai_tool_max_argument_bytes: int = Field(default=8192, ge=256, le=65536)
+    ai_tool_max_payload_bytes: int = Field(default=65536, ge=1024, le=262144)
+    ai_tool_timeout_seconds: float = Field(default=5.0, ge=0.1, le=30.0)
     ai_chat_max_history_messages: int = Field(default=20, ge=2, le=100)
     ai_chat_max_message_length: int = Field(default=1000, ge=10, le=5000)
     email_provider: Literal["console", "resend", "gmail_smtp", "test"] = "console"

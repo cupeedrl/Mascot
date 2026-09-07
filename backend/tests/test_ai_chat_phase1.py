@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
+from app.ai.chat_schema import Message, ProviderResult
 from app.ai.dependencies import get_chat_ai_provider
 from app.ai.prompts import CHAT_ASSISTANT_SYSTEM_PROMPT
 from app.ai.provider import (
@@ -12,6 +13,7 @@ from app.ai.provider import (
     AIProviderQuotaError,
     AIProviderRateLimitError,
     AIProviderTimeoutError,
+    ChatAIProvider,
 )
 from app.main import app
 from app.services.ai_guard import ai_guard
@@ -19,7 +21,7 @@ from app.services.ai_guard import ai_guard
 PASSWORD = "StrongPassword123!"
 
 
-class FakeChatProvider:
+class FakeChatProvider(ChatAIProvider):
     def __init__(self, response_text: str = "Hello! How can I help you?", error: Exception | None = None) -> None:
         self.response_text = response_text
         self.error = error
@@ -30,6 +32,17 @@ class FakeChatProvider:
         if self.error is not None:
             raise self.error
         return self.response_text
+
+    def generate_chat_response_with_tools(
+        self,
+        messages: list[Message],
+        tool_definitions: list[dict],
+    ) -> ProviderResult:
+        if self.error is not None:
+            raise self.error
+        dict_msgs = [{"role": m["role"], "content": m.get("content", "")} for m in messages if isinstance(m, dict)]
+        reply = self.generate_chat_response(dict_msgs)
+        return {"content": reply}
 
 
 def authenticate(client: TestClient, email: str = "chat-learner@example.com") -> dict[str, str]:
@@ -48,7 +61,6 @@ def clear_ai_guard_state():
     ai_guard._users.clear()
     yield
     ai_guard._users.clear()
-
 
 
 def test_chat_unauthenticated(client: TestClient):

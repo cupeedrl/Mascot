@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+import logging
 import time
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
+from app.ai.chat_agent import run_chat_agent
 from app.ai.dependencies import get_chat_ai_provider
 from app.ai.prompts import CHAT_ASSISTANT_SYSTEM_PROMPT
 from app.ai.provider import (
+    AIProviderAuthenticationError,
     AIProviderConfigurationError,
     AIProviderError,
     AIProviderNotConfiguredError,
@@ -18,6 +21,7 @@ from app.ai.provider import (
     AIProviderTimeoutError,
     ChatAIProvider,
 )
+from app.ai.tools.executor import ToolExecutionError
 from app.api.dependencies import get_current_user
 from app.core.config import get_settings
 from app.db.session import get_db
@@ -26,7 +30,9 @@ from app.schemas.ai_chat import AIChatRequest, AIChatResponse, ChatMessage
 from app.services.ai_guard import ai_guard, AICooldownError, AIDuplicateRequestError
 from app.services.ai_logger import record_ai_usage
 
-router = APIRouter(prefix="/ai")
+logger = logging.getLogger(__name__)
+
+router = APIRouter(prefix="/ai", tags=["ai"])
 
 
 @router.post("/chat", response_model=AIChatResponse)
@@ -110,9 +116,20 @@ def chat_with_assistant(
             detail=str(exc),
         ) from exc
 
-    # 5. Call AI Provider & Map Errors safely
+    # 5. Call AI Chat Agent & Map Errors safely
     try:
-        content = provider.generate_chat_response(full_messages)
+        reply_text = run_chat_agent(
+            provider=provider,
+            messages=full_messages,
+            db=db,
+            user_id=current_user.id,
+            max_tool_rounds=settings.ai_max_tool_rounds,
+            max_tool_calls_per_round=settings.ai_max_tool_calls_per_round,
+            max_total_tool_calls=settings.ai_max_total_tool_calls,
+            max_tool_argument_bytes=settings.ai_tool_max_argument_bytes,
+            max_tool_payload_bytes=settings.ai_tool_max_payload_bytes,
+            tool_timeout_seconds=settings.ai_tool_timeout_seconds,
+        )
         latency_ms = round((time.perf_counter() - start_time) * 1000)
         record_ai_usage(
             db,
@@ -123,7 +140,7 @@ def chat_with_assistant(
             latency_ms=latency_ms,
         )
         ai_guard.release(current_user.id, "ai_chat", fingerprint, mark_success=True)
-        return AIChatResponse(message=ChatMessage(role="assistant", content=content))
+        return AIChatResponse(message=ChatMessage(role="assistant", content=reply_text))
     except AIProviderNotConfiguredError as exc:
         latency_ms = round((time.perf_counter() - start_time) * 1000)
         record_ai_usage(
@@ -204,7 +221,42 @@ def chat_with_assistant(
             status_code=504,
             detail="Yêu cầu AI đã hết thời gian chờ. Vui lòng thử lại.",
         ) from exc
-    except (AIProviderResponseError, AIProviderError) as exc:
+    except AIProviderResponseError as exc:
+        logger.error("AI chat provider returned invalid response: %s", exc)
+        latency_ms = round((time.perf_counter() - start_time) * 1000)
+        record_ai_usage(
+            db,
+            user_id=current_user.id,
+            feature="ai_chat",
+            status="failed",
+            status_code=502,
+            latency_ms=latency_ms,
+            error_type="AIProviderResponseError",
+        )
+        ai_guard.release(current_user.id, "ai_chat", fingerprint, mark_success=False)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="AI service returned an invalid response.",
+        ) from exc
+    except ToolExecutionError:
+        logger.exception("AI chat tool execution failed")
+        latency_ms = round((time.perf_counter() - start_time) * 1000)
+        record_ai_usage(
+            db,
+            user_id=current_user.id,
+            feature="ai_chat",
+            status="failed",
+            status_code=502,
+            latency_ms=latency_ms,
+            error_type="ToolExecutionError",
+        )
+        ai_guard.release(current_user.id, "ai_chat", fingerprint, mark_success=False)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="AI learning data is temporarily unavailable.",
+        )
+    except AIProviderError as exc:
+        logger.error("AI chat provider generic error: %s", exc)
         latency_ms = round((time.perf_counter() - start_time) * 1000)
         record_ai_usage(
             db,
@@ -217,6 +269,6 @@ def chat_with_assistant(
         )
         ai_guard.release(current_user.id, "ai_chat", fingerprint, mark_success=False)
         raise HTTPException(
-            status_code=502,
+            status_code=status.HTTP_502_BAD_GATEWAY,
             detail="Không thể tạo phản hồi từ AI. Vui lòng thử lại.",
         ) from exc

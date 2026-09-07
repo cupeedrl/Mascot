@@ -3,10 +3,11 @@ from __future__ import annotations
 import json
 import logging
 import time
-from typing import Any
+from typing import Any, List
 
 from pydantic import ValidationError
 
+from app.ai.chat_schema import Message, ProviderResult, ProviderToolCall
 from app.ai.prompts import (
     EXERCISE_GENERATOR_SYSTEM_PROMPT,
     VOCABULARY_ASSISTANT_SYSTEM_PROMPT,
@@ -14,6 +15,7 @@ from app.ai.prompts import (
     vocabulary_user_prompt,
 )
 from app.ai.provider import (
+    AIProviderAuthenticationError,
     AIProviderConfigurationError,
     AIProviderError,
     AIProviderNotConfiguredError,
@@ -21,20 +23,22 @@ from app.ai.provider import (
     AIProviderRateLimitError,
     AIProviderResponseError,
     AIProviderTimeoutError,
+    ChatAIProvider,
+    ExerciseAIProvider,
+    VocabularyAIProvider,
 )
 from app.schemas.ai_exercise import AIFillInBlankBatch, AIMultipleChoiceBatch
 from app.schemas.ai_vocabulary import VocabularyCandidate
 
-
 logger = logging.getLogger(__name__)
-usage_logger = logging.getLogger("app.ai.usage")
+usage_logger = logging.getLogger("ai_usage")
 
 MAX_RETRIES = 2
 INITIAL_BACKOFF_SECONDS = 0.5
 
 
-class OpenAICompatibleVocabularyProvider:
-    """Vocabulary provider for OpenAI-compatible Responses APIs."""
+class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvider, ChatAIProvider):
+    """Base vocabulary provider using the OpenAI-compatible chat completions API."""
 
     def __init__(
         self,
@@ -121,15 +125,16 @@ class OpenAICompatibleVocabularyProvider:
                         text_format.__name__,
                         getattr(response, "status", "unknown"),
                     )
-                    usage_logger.info(
-                        "AI call failed: stage=provider_parse, feature=%s, model=%s, duration_ms=%s, attempts=%s",
+                    usage_logger.warning(
+                        "AI call error: empty_parsed, feature=%s, model=%s, duration_ms=%s, tokens=%s, attempts=%s",
                         feature,
                         self._model,
                         duration_ms,
+                        usage,
                         attempts,
                     )
                     raise AIProviderResponseError(
-                        "provider_parse", "provider returned no parsed structured output"
+                        "provider_parse", "provider returned empty parsed structure"
                     )
 
                 usage_logger.info(
@@ -171,7 +176,6 @@ class OpenAICompatibleVocabularyProvider:
                     )
                     raise AIProviderQuotaError from exc
 
-                # Transient rate limit (429) -> retry if within budget
                 if attempts <= MAX_RETRIES:
                     logger.info(
                         "Retrying AI call after rate limit (attempt=%s/%s, backoff=%ss, feature=%s)",
@@ -478,3 +482,238 @@ class OpenAICompatibleVocabularyProvider:
                 )
                 raise AIProviderError from exc
 
+    def generate_chat_response_with_tools(
+        self,
+        messages: List[Message],
+        tool_definitions: List[dict],
+    ) -> ProviderResult:
+        if not self._api_key:
+            raise AIProviderNotConfiguredError
+
+        from openai import (
+            APIConnectionError,
+            APIStatusError,
+            APITimeoutError,
+            AuthenticationError,
+            NotFoundError,
+            OpenAI,
+            OpenAIError,
+            PermissionDeniedError,
+            RateLimitError,
+        )
+
+        client_options: dict[str, object] = {
+            "api_key": self._api_key,
+            "timeout": self._timeout_seconds,
+            "max_retries": 0,
+        }
+        if self._base_url is not None:
+            client_options["base_url"] = self._base_url
+
+        client = OpenAI(**client_options)
+
+        provider_messages: list[dict[str, Any]] = []
+        for msg in messages:
+            role = msg.get("role") if isinstance(msg, dict) else getattr(msg, "role", None)
+            if role == "system":
+                content = msg.get("content") if isinstance(msg, dict) else getattr(msg, "content", "")
+                provider_messages.append({"role": "system", "content": content})
+            elif role == "user":
+                content = msg.get("content") if isinstance(msg, dict) else getattr(msg, "content", "")
+                provider_messages.append({"role": "user", "content": content})
+            elif role == "assistant":
+                content = msg.get("content") if isinstance(msg, dict) else getattr(msg, "content", None)
+                raw_tool_calls = msg.get("tool_calls") if isinstance(msg, dict) else getattr(msg, "tool_calls", None)
+                payload: dict[str, Any] = {"role": "assistant", "content": content}
+                if raw_tool_calls:
+                    payload["tool_calls"] = [
+                        {
+                            "id": tc.get("id") if isinstance(tc, dict) else getattr(tc, "id"),
+                            "type": "function",
+                            "function": {
+                                "name": tc.get("name") if isinstance(tc, dict) else getattr(tc, "name"),
+                                "arguments": tc.get("arguments") if isinstance(tc, dict) else getattr(tc, "arguments"),
+                            },
+                        }
+                        for tc in raw_tool_calls
+                    ]
+                provider_messages.append(payload)
+            elif role == "tool":
+                call_id = msg.get("tool_call_id") if isinstance(msg, dict) else getattr(msg, "tool_call_id")
+                content = msg.get("content") if isinstance(msg, dict) else getattr(msg, "content", "")
+                provider_messages.append({"role": "tool", "tool_call_id": call_id, "content": content})
+            else:
+                raise AIProviderResponseError(
+                    "unsupported_chat_role",
+                    f"Unsupported chat role: {role}",
+                )
+
+        provider_tools: list[dict[str, Any]] = []
+        for tool in tool_definitions:
+            name = tool.get("name") if isinstance(tool, dict) else getattr(tool, "name")
+            desc = tool.get("description") if isinstance(tool, dict) else getattr(tool, "description")
+            params = tool.get("parameters") if isinstance(tool, dict) else getattr(tool, "parameters")
+            provider_tools.append({
+                "type": "function",
+                "function": {
+                    "name": name,
+                    "description": desc,
+                    "parameters": params,
+                },
+            })
+
+        kwargs: dict[str, Any] = {
+            "model": self._model,
+            "messages": provider_messages,
+            "max_tokens": self._max_output_tokens,
+        }
+        if provider_tools:
+            kwargs["tools"] = provider_tools
+            kwargs["tool_choice"] = "auto"
+
+        start_time = time.perf_counter()
+        attempts = 0
+        backoff = INITIAL_BACKOFF_SECONDS
+
+        while True:
+            attempts += 1
+            try:
+                response = client.chat.completions.create(**kwargs)
+                duration_ms = round((time.perf_counter() - start_time) * 1000)
+
+                usage: dict[str, Any] = {}
+                raw_usage = getattr(response, "usage", None)
+                if raw_usage:
+                    usage = {
+                        "prompt_tokens": getattr(raw_usage, "prompt_tokens", None),
+                        "completion_tokens": getattr(raw_usage, "completion_tokens", None),
+                        "total_tokens": getattr(raw_usage, "total_tokens", None),
+                    }
+
+                if not response.choices:
+                    raise AIProviderResponseError(
+                        "empty_choices",
+                        "Provider returned empty choices array",
+                    )
+
+                choice = response.choices[0]
+                choice_msg = choice.message
+                content = choice_msg.content
+
+                parsed_tool_calls: list[ProviderToolCall] = []
+                if choice_msg.tool_calls:
+                    for tc in choice_msg.tool_calls:
+                        f_name = tc.function.name if tc.function else ""
+                        f_args = tc.function.arguments if tc.function else "{}"
+                        if not isinstance(f_args, str):
+                            f_args = json.dumps(f_args)
+                        parsed_tool_calls.append({
+                            "id": tc.id,
+                            "name": f_name,
+                            "arguments": f_args,
+                        })
+
+                if not content and not parsed_tool_calls:
+                    raise AIProviderResponseError(
+                        "empty_response",
+                        "Provider returned neither text content nor tool calls",
+                    )
+
+                usage_logger.info(
+                    "AI call success: feature=ai_chat_tools, model=%s, duration_ms=%s, tokens=%s, attempts=%s",
+                    self._model,
+                    duration_ms,
+                    usage,
+                    attempts,
+                )
+
+                result: ProviderResult = {}
+                if content is not None:
+                    result["content"] = content
+                if parsed_tool_calls:
+                    result["tool_calls"] = parsed_tool_calls
+                return result
+
+            except (AuthenticationError, PermissionDeniedError, NotFoundError) as exc:
+                duration_ms = round((time.perf_counter() - start_time) * 1000)
+                usage_logger.warning(
+                    "AI call error: config/auth, feature=ai_chat_tools, model=%s, duration_ms=%s, error=%s",
+                    self._model,
+                    duration_ms,
+                    type(exc).__name__,
+                )
+                raise AIProviderConfigurationError from exc
+
+            except RateLimitError as exc:
+                duration_ms = round((time.perf_counter() - start_time) * 1000)
+                quota_codes = {
+                    "insufficient_quota",
+                    "credit_balance_exhausted",
+                    "organization_spend_limit_exceeded",
+                    "project_spend_limit_exceeded",
+                    "organization_usage_limit_exceeded",
+                }
+                if getattr(exc, "code", None) in quota_codes or getattr(exc, "type", None) == "insufficient_quota":
+                    usage_logger.warning(
+                        "AI call error: quota_exhausted, feature=ai_chat_tools, model=%s, duration_ms=%s",
+                        self._model,
+                        duration_ms,
+                    )
+                    raise AIProviderQuotaError from exc
+
+                if attempts <= MAX_RETRIES:
+                    time.sleep(backoff)
+                    backoff *= 2
+                    continue
+
+                usage_logger.warning(
+                    "AI call error: rate_limit, feature=ai_chat_tools, model=%s, duration_ms=%s, attempts=%s",
+                    self._model,
+                    duration_ms,
+                    attempts,
+                )
+                raise AIProviderRateLimitError from exc
+
+            except APITimeoutError as exc:
+                duration_ms = round((time.perf_counter() - start_time) * 1000)
+                if attempts <= MAX_RETRIES:
+                    time.sleep(backoff)
+                    backoff *= 2
+                    continue
+
+                usage_logger.warning(
+                    "AI call error: timeout, feature=ai_chat_tools, model=%s, duration_ms=%s, attempts=%s",
+                    self._model,
+                    duration_ms,
+                    attempts,
+                )
+                raise AIProviderTimeoutError from exc
+
+            except (APIConnectionError, APIStatusError) as exc:
+                duration_ms = round((time.perf_counter() - start_time) * 1000)
+                is_server_error = isinstance(exc, APIStatusError) and exc.status_code >= 500
+                is_connection_error = isinstance(exc, APIConnectionError)
+
+                if (is_server_error or is_connection_error) and attempts <= MAX_RETRIES:
+                    time.sleep(backoff)
+                    backoff *= 2
+                    continue
+
+                usage_logger.warning(
+                    "AI call error: provider_network_or_5xx, feature=ai_chat_tools, model=%s, duration_ms=%s, attempts=%s, error=%s",
+                    self._model,
+                    duration_ms,
+                    attempts,
+                    type(exc).__name__,
+                )
+                raise AIProviderError from exc
+
+            except OpenAIError as exc:
+                duration_ms = round((time.perf_counter() - start_time) * 1000)
+                usage_logger.warning(
+                    "AI call error: general_openai_error, feature=ai_chat_tools, model=%s, duration_ms=%s, error=%s",
+                    self._model,
+                    duration_ms,
+                    type(exc).__name__,
+                )
+                raise AIProviderError from exc

@@ -110,12 +110,14 @@ export function AIChatDrawer() {
                     {msg.role === "user" ? <User size={14} /> : <Bot size={14} />}
                   </div>
                   <div className="message-content">{msg.role === "assistant" ? (
-  <ReactMarkdown remarkPlugins={[remarkGfm]} className="markdown">
-    {msg.content}
-  </ReactMarkdown>
-) : (
-  msg.content
-)}</div>
+                    <div className="ai-chat-markdown">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    msg.content
+                  )}</div>
                 </div>
               ))
             )}
