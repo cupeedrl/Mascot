@@ -37,3 +37,9 @@ Thumbs.db
 *.pid
 coverage/
 
+
+# Local diagnostic files
+backend/groq-diagnostic.txt
+
+# Local HSK processing artifacts
+/backend/tmp/

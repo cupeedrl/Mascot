@@ -1,9 +1,19 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="64" height="64" rx="18" fill="#6658E8"/>
-  <path d="M15 39C15 25.7 21.8 15 32 15s17 10.7 17 24v8.5A6.5 6.5 0 0 1 42.5 54h-21a6.5 6.5 0 0 1-6.5-6.5V39Z" fill="#24213F"/>
-  <path d="M21.5 31.5C21.5 24.6 26.2 20 32 20s10.5 4.6 10.5 11.5c0 3.2-1.2 5.9-3.2 7.7 2.9 2.4 4.7 5.9 4.7 9.8v.3c0 2.6-2.1 4.7-4.7 4.7H24.7a4.7 4.7 0 0 1-4.7-4.7V49c0-3.9 1.8-7.4 4.7-9.8a10.5 10.5 0 0 1-3.2-7.7Z" fill="#F8F7FF"/>
-  <circle cx="27.5" cy="30.5" r="2" fill="#24213F"/>
-  <circle cx="36.5" cy="30.5" r="2" fill="#24213F"/>
-  <path d="m32 33.2 4.2 3.2-4.2 2.4-4.2-2.4 4.2-3.2Z" fill="#C9C2FF"/>
-  <path d="M49.5 11.7 51 15l3.3 1.5L51 18l-1.5 3.3L48 18l-3.3-1.5L48 15l1.5-3.3Z" fill="#F8F7FF"/>
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="honey" x1="10" y1="8" x2="88" y2="90" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF4CC"/>
+      <stop offset="1" stop-color="#FDBA74"/>
+    </linearGradient>
+  </defs>
+  <rect width="96" height="96" rx="27" fill="url(#honey)"/>
+  <g transform="translate(-7 1) rotate(-5 54 49)">
+    <path d="M44 41C27 36 25 20 36 17c10-3 18 8 17 24M50 39c-5-16 7-25 17-17 7 7 3 17-5 24" fill="#FFFDF7" stroke="#EFD394" stroke-width="1.7"/>
+    <path d="m28 57-10-4 7 9" fill="#1F2937"/>
+    <path d="M27 48c3-13 17-21 34-18 17 2 28 13 27 26-1 14-15 23-33 21-18-2-31-14-28-29Z" fill="#FBBF24"/>
+    <path d="M41 30c7 11 7 28-2 40M60 30c6 12 5 31-4 44" stroke="#1F2937" stroke-width="8"/>
+    <path d="M73 35c9-5 21-1 25 8 5 10 0 22-10 27-10 4-21 0-25-10-4-9 0-20 10-25Z" fill="#FBBF24"/>
+    <path d="M81 35c1-7 6-11 12-12" stroke="#1F2937" stroke-width="1.8" stroke-linecap="round"/><circle cx="94" cy="22" r="2.2" fill="#1F2937"/>
+    <ellipse cx="89" cy="48" rx="2.4" ry="2.8" fill="#1F2937"/><path d="M91 56c2.8 2.2 5.8 1.5 7-1" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round"/>
+    <path d="m70 34 15-10 20 4-16 10-19-4Z" fill="#1F2937"/><path d="M78 34v5c5 2 11 2 16-1v-5" fill="#374151"/>
+  </g>
 </svg>

@@ -319,3 +319,68 @@ def test_dashboard_is_isolated_between_users(
 def test_dashboard_requires_authentication(client: TestClient) -> None:
     response = client.get("/api/v1/dashboard")
     assert response.status_code == 401
+
+
+def test_study_calendar_returns_activity_for_requested_month(
+    client: TestClient,
+    general_english_track_id: uuid.UUID,
+    session_factory: sessionmaker[Session],
+) -> None:
+    headers = authenticate(client, "dashboard-calendar@example.com")
+    first = create_item(client, headers, general_english_track_id, word="Calendar one")
+    second = create_item(client, headers, general_english_track_id, word="Calendar two")
+    _update_vocabulary(
+        session_factory,
+        first["id"],
+        created_at=datetime(2026, 8, 3, 6, tzinfo=UTC),
+    )
+    _update_vocabulary(
+        session_factory,
+        second["id"],
+        created_at=datetime(2026, 9, 4, 6, tzinfo=UTC),
+    )
+
+    response = client.get(
+        "/api/v1/dashboard/study-calendar",
+        headers=headers,
+        params={
+            "learning_track_id": str(general_english_track_id),
+            "year": 2026,
+            "month": 8,
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["year"] == 2026
+    assert body["month"] == 8
+    assert body["learning_track_id"] == str(general_english_track_id)
+    assert body["active_dates"] == ["2026-08-03"]
+    assert set(body) == {
+        "year",
+        "month",
+        "today",
+        "active_dates",
+        "current_streak",
+        "longest_streak",
+        "learning_track_id",
+    }
+
+
+def test_study_calendar_validates_month_and_requires_authentication(
+    client: TestClient,
+) -> None:
+    headers = authenticate(client, "dashboard-calendar-validation@example.com")
+
+    invalid = client.get(
+        "/api/v1/dashboard/study-calendar",
+        headers=headers,
+        params={"year": 2026, "month": 13},
+    )
+    unauthenticated = client.get(
+        "/api/v1/dashboard/study-calendar",
+        params={"year": 2026, "month": 8},
+    )
+
+    assert invalid.status_code == 422
+    assert unauthenticated.status_code == 401

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32" role="img" aria-label="Flag of the United Kingdom">
+  <rect width="48" height="32" fill="#012169"/>
+  <path fill="#FFF" d="M0 0h5.4L48 27.1V32h-5.4L0 4.9V0Zm48 0v4.9L5.4 32H0v-4.9L42.6 0H48Z"/>
+  <path fill="#C8102E" d="M0 0h3.2L48 28.5V32h-3.2L0 3.5V0Zm48 0v3.5L3.2 32H0v-3.5L44.8 0H48Z"/>
+  <path fill="#FFF" d="M19 0h10v11h19v10H29v11H19V21H0V11h19V0Z"/>
+  <path fill="#C8102E" d="M21 0h6v13h21v6H27v13h-6V19H0v-6h21V0Z"/>
+</svg>

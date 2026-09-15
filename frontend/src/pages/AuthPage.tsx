@@ -1,10 +1,17 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { BookOpenCheck, BrainCircuit } from "lucide-react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 
-import { ApiError } from "../api/client";
+import { ApiError, waitForBackendReady } from "../api/client";
+import {
+  BackendWarmupTimeoutError,
+  isAbortError,
+  isTransientBackendUnavailable,
+  warmupStatusMessage,
+  type BackendWarmupStatus,
+} from "../api/backendWarmup";
 import { useAuth } from "../auth/AuthContext";
-import { PenguinMark } from "../components/PenguinMark";
+import { BeeMark } from "../components/BeeMark";
 
 interface AuthPageProps {
   mode: "login" | "register";
@@ -19,7 +26,29 @@ export function AuthPage({ mode }: AuthPageProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [warmupStatus, setWarmupStatus] = useState<
+    BackendWarmupStatus | "ready" | "timeout"
+  >("connecting");
+  const submissionInFlight = useRef(false);
+  const submitController = useRef<AbortController | null>(null);
   const isRegister = mode === "register";
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setWarmupStatus("connecting");
+    void waitForBackendReady({
+      signal: controller.signal,
+      onProgress: ({ status }) => setWarmupStatus(status),
+    })
+      .then(() => setWarmupStatus("ready"))
+      .catch((warmupError: unknown) => {
+        if (!isAbortError(warmupError)) setWarmupStatus("timeout");
+      });
+    return () => {
+      controller.abort();
+      submitController.current?.abort();
+    };
+  }, []);
 
   if (user) {
     return <Navigate to="/app" replace />;
@@ -27,6 +56,7 @@ export function AuthPage({ mode }: AuthPageProps) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submissionInFlight.current) return;
     setError("");
 
     if (isRegister && password !== confirmPassword) {
@@ -34,18 +64,30 @@ export function AuthPage({ mode }: AuthPageProps) {
       return;
     }
 
+    submissionInFlight.current = true;
     setIsSubmitting(true);
+    const controller = new AbortController();
+    submitController.current = controller;
+    const warmupOptions = {
+      signal: controller.signal,
+      onProgress: ({ status }: { status: BackendWarmupStatus }) =>
+        setWarmupStatus(status),
+    };
     try {
       if (isRegister) {
-        await register(email, password);
+        await register(email, password, warmupOptions);
       } else {
-        await login(email, password);
+        await login(email, password, warmupOptions);
       }
+      setWarmupStatus("ready");
       const destination =
         (location.state as { from?: string } | null)?.from ?? "/app";
       navigate(destination, { replace: true });
     } catch (caughtError) {
-      if (caughtError instanceof ApiError) {
+      if (caughtError instanceof BackendWarmupTimeoutError) {
+        setWarmupStatus("timeout");
+        setError("Máy chủ mất nhiều thời gian hơn dự kiến. Vui lòng thử lại.");
+      } else if (caughtError instanceof ApiError) {
         if (caughtError.code === "ACCOUNT_DISABLED") {
           setError(
             "Tài khoản của bạn hiện đang bị hạn chế. Vui lòng liên hệ quản trị viên để được hỗ trợ.",
@@ -54,6 +96,9 @@ export function AuthPage({ mode }: AuthPageProps) {
           setError("Email hoặc mật khẩu không chính xác.");
         } else if (caughtError.status === 409) {
           setError("Email này đã được đăng ký.");
+        } else if (isTransientBackendUnavailable(caughtError)) {
+          setWarmupStatus("timeout");
+          setError("Máy chủ mất nhiều thời gian hơn dự kiến. Vui lòng thử lại.");
         } else {
           setError(caughtError.message);
         }
@@ -61,6 +106,8 @@ export function AuthPage({ mode }: AuthPageProps) {
         setError("Đã có lỗi xảy ra. Vui lòng thử lại.");
       }
     } finally {
+      submissionInFlight.current = false;
+      submitController.current = null;
       setIsSubmitting(false);
     }
   }
@@ -69,7 +116,7 @@ export function AuthPage({ mode }: AuthPageProps) {
     <main className="auth-layout">
       <section className="brand-panel" aria-labelledby="brand-heading">
         <div className="auth-wordmark">
-          <PenguinMark size={42} />
+          <BeeMark size={42} />
           <strong>Mascot</strong>
         </div>
         <p className="eyebrow">HỌC TIẾNG ANH CÙNG AI</p>
@@ -85,13 +132,13 @@ export function AuthPage({ mode }: AuthPageProps) {
         <div className="brand-mascot-visual" aria-hidden="true">
           <span className="mascot-orbit mascot-orbit-one" />
           <span className="mascot-orbit mascot-orbit-two" />
-          <PenguinMark size={170} />
+          <BeeMark size={170} variant="learning" />
         </div>
       </section>
 
       <section className="form-panel">
         <div className="auth-card">
-          <div className="mobile-auth-brand"><PenguinMark size={32} /> Mascot</div>
+          <div className="mobile-auth-brand"><BeeMark size={32} /> Mascot</div>
           <p className="eyebrow">{isRegister ? "BẮT ĐẦU HÀNH TRÌNH" : "CHÀO MỪNG TRỞ LẠI"}</p>
           <h2>{isRegister ? "Tạo tài khoản" : "Đăng nhập"}</h2>
           <p className="form-intro">
@@ -99,6 +146,21 @@ export function AuthPage({ mode }: AuthPageProps) {
               ? "Tạo tài khoản để bắt đầu không gian học tập riêng của bạn."
               : "Tiếp tục hành trình học tập của bạn."}
           </p>
+
+          {warmupStatus !== "ready" && (
+            <div
+              className={`backend-warmup-status${warmupStatus === "timeout" ? " timeout" : ""}`}
+              role="status"
+              aria-live="polite"
+            >
+              {warmupStatus !== "timeout" && <span className="mini-spinner" aria-hidden="true" />}
+              <span>
+                {warmupStatus === "timeout"
+                  ? "Máy chủ mất nhiều thời gian hơn dự kiến. Bạn vẫn có thể thử đăng nhập lại."
+                  : warmupStatusMessage(warmupStatus)}
+              </span>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} noValidate>
             <label htmlFor={`${mode}-email`}>Email</label>
@@ -158,7 +220,9 @@ export function AuthPage({ mode }: AuthPageProps) {
 
             <button className="primary-button" type="submit" disabled={isSubmitting}>
               {isSubmitting
-                ? "Đang xử lý…"
+                ? warmupStatus === "starting" || warmupStatus === "almost_ready"
+                  ? "Đang khởi động máy chủ…"
+                  : "Đang xử lý…"
                 : isRegister
                   ? "Tạo tài khoản"
                   : "Đăng nhập"}

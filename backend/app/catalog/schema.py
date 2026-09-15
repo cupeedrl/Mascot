@@ -1,12 +1,10 @@
 ﻿from __future__ import annotations
 
 import unicodedata
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from app.catalog.constants import (
-    CATALOG_CEFR_LEVELS,
-    CATALOG_PARTS_OF_SPEECH,
-)
+from app.catalog.constants import CATALOG_PARTS_OF_SPEECH
+from app.learning_levels import get_level_codes
 
 
 class CatalogEntrySeed(BaseModel):
@@ -43,14 +41,8 @@ class CatalogEntrySeed(BaseModel):
     @classmethod
     def validate_ipa(cls, v: object) -> str:
         if not isinstance(v, str) or not v.strip():
-            raise ValueError("IPA transcription cannot be blank.")
-        cleaned = v.strip()
-        if not (cleaned.startswith("/") and cleaned.endswith("/")) and not (
-            cleaned.startswith("[") and cleaned.endswith("]")
-        ):
-            # Enforce slash format for standard phonetics
-            cleaned = f"/{cleaned.strip('/')}/"
-        return cleaned
+            raise ValueError("IPA/pronunciation cannot be blank.")
+        return v.strip()
 
     @field_validator("meaning", "translation", mode="before")
     @classmethod
@@ -74,6 +66,7 @@ class CatalogSetSeed(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     code: str = Field(..., min_length=1, max_length=100)
+    level_framework: str = Field(default="CEFR", min_length=1, max_length=32)
     level_code: str = Field(...)
     topic: str = Field(..., min_length=1, max_length=120)
     name: str | None = Field(default=None, max_length=160)
@@ -83,11 +76,26 @@ class CatalogSetSeed(BaseModel):
     @field_validator("level_code", mode="before")
     @classmethod
     def validate_level_code(cls, v: object) -> str:
-        if not isinstance(v, str) or v.strip().upper() not in CATALOG_CEFR_LEVELS:
-            raise ValueError(
-                f"Invalid CEFR level '{v}'. Must be one of: {', '.join(CATALOG_CEFR_LEVELS)}"
-            )
+        if not isinstance(v, str) or not v.strip():
+            raise ValueError("Level code cannot be empty.")
         return v.strip().upper()
+
+    @field_validator("level_framework", mode="before")
+    @classmethod
+    def normalize_framework(cls, v: object) -> str:
+        if not isinstance(v, str) or not v.strip():
+            raise ValueError("Level framework cannot be empty.")
+        return v.strip().upper()
+
+    @model_validator(mode="after")
+    def validate_framework_level(self) -> "CatalogSetSeed":
+        valid_levels = get_level_codes(self.level_framework)
+        if self.level_code not in valid_levels:
+            raise ValueError(
+                f"Invalid {self.level_framework} level '{self.level_code}'. "
+                f"Must be one of: {', '.join(valid_levels)}"
+            )
+        return self
 
     @field_validator("topic", mode="before")
     @classmethod
@@ -102,4 +110,4 @@ class CatalogSetSeed(BaseModel):
 
     @property
     def display_description(self) -> str:
-        return self.description or f"Curated {self.level_code} vocabulary set for General English learners."
+        return self.description or f"Curated {self.level_code} vocabulary set for language learners."

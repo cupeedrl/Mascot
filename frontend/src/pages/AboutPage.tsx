@@ -9,7 +9,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
-import { PenguinMark } from "../components/PenguinMark";
+import { BeeMark } from "../components/BeeMark";
 
 function GitHubIcon({ size = 18 }: { size?: number }) {
   return (
@@ -54,7 +54,7 @@ export function AboutPage() {
             <p>
               <strong>Mascot</strong> là nền tảng học từ vựng tiếng Anh tinh gọn, được thiết kế chuyên biệt
               cho sinh viên và người đi làm. Thay vì học thuộc lòng dàn trải, Mascot giúp bạn tập trung vào
-              những từ vựng cốt lõi theo từng trình độ CEFR, chủ động xây dựng kho từ cá nhân và ghi nhớ bền vững
+              những từ vựng cốt lõi theo từng trình độ CEFR & HSK, chủ động xây dựng kho từ cá nhân và ghi nhớ bền vững
               thông qua cơ chế ôn tập ngắt quãng có định hướng.
             </p>
             <p>
@@ -66,7 +66,7 @@ export function AboutPage() {
             <div className="about-mascot-stage">
               <span className="hero-sparkle hero-sparkle-one">✦</span>
               <span className="hero-sparkle hero-sparkle-two">✦</span>
-              <PenguinMark size={140} variant="scholar" />
+              <BeeMark size={140} variant="learning" />
             </div>
           </div>
         </section>

@@ -9,6 +9,8 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from app.schemas.catalog import LearningTrackResponse
 from app.services.normalization import clean_topic
 
+# Existing English-only admin catalog requests retain their strict CEFR contract.
+# User vocabulary fields below are generic and validated against their track.
 CEFRLevel = Literal["A1", "A2", "B1", "B2", "C1", "C2"]
 LearningStatus = Literal["new", "learning", "review", "mastered"]
 
@@ -43,7 +45,7 @@ class VocabularyCreate(BaseModel):
     translation: str = Field(min_length=1, max_length=2000)
     translation_language_code: str = Field(default="vi", min_length=2, max_length=16)
     example_sentences: list[str] = Field(default_factory=list, max_length=1)
-    level_code: CEFRLevel
+    level_code: str = Field(min_length=1, max_length=32)
     topic: str | None = Field(default="Khác", max_length=120)
     learning_status: LearningStatus = "new"
 
@@ -67,6 +69,11 @@ class VocabularyCreate(BaseModel):
         if not normalized:
             raise ValueError("must not be blank")
         return normalized
+
+    @field_validator("level_code")
+    @classmethod
+    def normalize_level_code(cls, value: str) -> str:
+        return value.strip().upper()
 
     @field_validator("example_sentences")
     @classmethod
@@ -92,7 +99,7 @@ class VocabularyUpdate(BaseModel):
     translation: str | None = Field(default=None, min_length=1, max_length=2000)
     translation_language_code: str | None = Field(default=None, min_length=2, max_length=16)
     example_sentences: list[str] | None = Field(default=None, max_length=1)
-    level_code: CEFRLevel | None = None
+    level_code: str | None = Field(default=None, min_length=1, max_length=32)
     topic: str | None = Field(default=None, max_length=120)
     learning_status: LearningStatus | None = None
 
@@ -127,6 +134,11 @@ class VocabularyUpdate(BaseModel):
             raise ValueError("must not be blank")
         return normalized
 
+    @field_validator("level_code")
+    @classmethod
+    def normalize_optional_level_code(cls, value: str | None) -> str | None:
+        return None if value is None else value.strip().upper()
+
     @field_validator("example_sentences")
     @classmethod
     def validate_optional_examples(cls, value: list[str] | None) -> list[str] | None:
@@ -156,6 +168,7 @@ class TopicRenameRequest(BaseModel):
 
     old_topic: str = Field(min_length=1, max_length=120)
     new_topic: str = Field(min_length=1, max_length=120)
+    learning_track_id: uuid.UUID | None = None
 
     @field_validator("old_topic", "new_topic")
     @classmethod
@@ -170,6 +183,7 @@ class TopicRemoveRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     topic: str = Field(min_length=1, max_length=120)
+    learning_track_id: uuid.UUID | None = None
 
     @field_validator("topic")
     @classmethod

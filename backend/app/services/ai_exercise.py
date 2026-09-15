@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.ai.provider import ExerciseAIProvider
 from app.models.exercise import Exercise
+from app.models.learning_track import LearningTrack
 from app.models.vocabulary import Vocabulary
 from app.schemas.ai_exercise import (
     AIExerciseGenerationRequest,
@@ -65,11 +66,15 @@ def _normalized(value: str) -> str:
 def get_active_unfinished_exercises(
     db: Session,
     user_id: uuid.UUID,
+    learning_track_id: uuid.UUID | None = None,
 ) -> list[Exercise]:
     """Return active unfinished AI exercises for the user, if any."""
+    conditions = [Exercise.user_id == user_id, Exercise.source == "ai"]
+    if learning_track_id is not None:
+        conditions.append(Exercise.learning_track_id == learning_track_id)
     latest_exercise = db.scalar(
         select(Exercise)
-        .where(Exercise.user_id == user_id, Exercise.source == "ai")
+        .where(*conditions)
         .order_by(Exercise.created_at.desc(), Exercise.id.desc())
         .limit(1)
     )
@@ -85,6 +90,11 @@ def get_active_unfinished_exercises(
         .where(
             Exercise.user_id == user_id,
             Exercise.source == "ai",
+            *(
+                [Exercise.learning_track_id == learning_track_id]
+                if learning_track_id is not None
+                else []
+            ),
             Exercise.created_at >= time_min,
             Exercise.created_at <= time_max,
         )
@@ -137,6 +147,10 @@ def _resolve_vocabulary_source(
         )
         .order_by(Vocabulary.created_at.desc(), Vocabulary.id.desc())
     )
+    if payload.learning_track_id is not None:
+        statement = statement.where(
+            Vocabulary.learning_track_id == payload.learning_track_id
+        )
     if payload.source_mode == "recent":
         vocabularies = list(db.scalars(statement.limit(RECENT_SOURCE_LIMIT)))
     else:
@@ -184,9 +198,12 @@ def _validate_selection(
     return next(iter(track_ids))
 
 
-def _provider_context(vocabularies: list[Vocabulary]) -> list[dict[str, object]]:
-    return [
-        {
+def _provider_context(
+    vocabularies: list[Vocabulary], track: LearningTrack | None = None
+) -> list[dict[str, object]]:
+    context = []
+    for item in vocabularies:
+        record: dict[str, object] = {
             "id": str(item.id),
             "word": item.word,
             "part_of_speech": item.part_of_speech,
@@ -197,8 +214,18 @@ def _provider_context(vocabularies: list[Vocabulary]) -> list[dict[str, object]]
                 for example in item.example_sentences[:AI_CONTEXT_EXAMPLE_LIMIT]
             ],
         }
-        for item in vocabularies
-    ]
+        if track is not None and track.language.code != "en":
+            record.update(
+                {
+                    "level_code": item.level_code,
+                    "target_language": track.language.name,
+                    "target_language_code": track.language.code,
+                    "level_framework": track.level_framework,
+                    "translation_language": "Vietnamese",
+                }
+            )
+        context.append(record)
+    return context
 
 
 def _parse_batch(raw: object, exercise_type: str):
@@ -291,7 +318,9 @@ def generate_and_store_exercises(
     returned directly without calling AI.
     """
     # 1. Check for active unfinished practice session
-    active_exercises = get_active_unfinished_exercises(db, user_id)
+    active_exercises = get_active_unfinished_exercises(
+        db, user_id, payload.learning_track_id
+    )
     if active_exercises:
         logger.info(
             "Resuming existing unfinished practice session (user_id=%s, count=%s)",
@@ -307,6 +336,7 @@ def generate_and_store_exercises(
         "vocabulary_ids": [str(v) for v in payload.vocabulary_ids],
         "exercise_type": payload.exercise_type,
         "count": payload.count,
+        "learning_track_id": str(payload.learning_track_id or "all"),
     }
     fingerprint = ai_guard.compute_fingerprint(user_id, "exercise_generation", payload_dict)
     ai_guard.check_and_acquire(user_id, "exercise_generation", fingerprint, cooldown_seconds=30)
@@ -314,9 +344,21 @@ def generate_and_store_exercises(
     try:
         source_vocabularies = _resolve_vocabulary_source(db, user_id, payload)
         learning_track_id = _validate_selection(source_vocabularies, payload.exercise_type)
+        if (
+            payload.learning_track_id is not None
+            and learning_track_id != payload.learning_track_id
+        ):
+            raise VocabularyTrackMismatchError
+        track = db.scalar(
+            select(LearningTrack)
+            .options(selectinload(LearningTrack.language))
+            .where(LearningTrack.id == learning_track_id)
+        )
+        if track is None:
+            raise VocabularyTrackMismatchError
         provider_vocabularies = _select_provider_vocabularies(source_vocabularies)
         provider_vocabulary_ids = [item.id for item in provider_vocabularies]
-        context = _provider_context(provider_vocabularies)
+        context = _provider_context(provider_vocabularies, track)
 
         # End the read transaction before waiting on the external provider.
         db.rollback()

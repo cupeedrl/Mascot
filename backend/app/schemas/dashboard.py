@@ -32,3 +32,13 @@ class DashboardResponse(BaseModel):
     longest_streak: int
     recent_active_dates: list[date]
     recently_added_vocabulary: list[RecentVocabularyResponse]
+
+
+class StudyCalendarResponse(BaseModel):
+    year: int
+    month: int
+    today: date
+    active_dates: list[date]
+    current_streak: int
+    longest_streak: int
+    learning_track_id: uuid.UUID | None

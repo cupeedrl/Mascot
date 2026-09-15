@@ -31,6 +31,7 @@ class AIExerciseGenerationRequest(BaseModel):
     vocabulary_ids: list[uuid.UUID] = Field(default_factory=list, max_length=1000)
     exercise_type: ExerciseType
     count: int = Field(default=5, ge=1, le=15)
+    learning_track_id: uuid.UUID | None = None
 
     @field_validator("topic")
     @classmethod
@@ -121,7 +122,9 @@ class AIMultipleChoiceCandidate(BaseModel):
             r"_{3,}", self.prompt.replace("_______", "", 1)
         ):
             raise ValueError("prompt must contain exactly one seven-underscore blank")
-        if "\n" in self.prompt or not re.search(r"[.!?][\"')\]]*$", self.prompt):
+        if "\n" in self.prompt or not re.search(
+            r"[.!?。！？][\"')\]]*$", self.prompt
+        ):
             raise ValueError("prompt must be exactly one complete sentence")
         lowered = _normalized(self.prompt)
         if re.match(r"^(what does|which word(?:\s+\w+){0,3}\s+mean)", lowered):

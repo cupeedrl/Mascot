@@ -9,6 +9,7 @@ custom runtime errors that the API layer can map to HTTP responses.
 from __future__ import annotations
 
 import json
+import inspect
 import logging
 import time
 from uuid import UUID
@@ -66,6 +67,7 @@ def execute_tool(
     *,
     timeout_seconds: float | None = None,
     max_payload_bytes: int | None = None,
+    learning_track_id: UUID | None = None,
 ) -> dict:
     """Execute a registered tool and return a JSON‑safe dict.
 
@@ -109,6 +111,7 @@ def execute_tool(
         max_payload_bytes=max_payload_bytes,
         wrap_handler_errors=True,
         enforce_elapsed_after_success=True,
+        learning_track_id=learning_track_id,
     )
 
 
@@ -134,6 +137,7 @@ def execute_confirmed_tool(
         max_payload_bytes=max_payload_bytes,
         wrap_handler_errors=False,
         enforce_elapsed_after_success=False,
+        learning_track_id=None,
     )
 
 
@@ -147,6 +151,7 @@ def _execute_validated_tool(
     max_payload_bytes: int | None,
     wrap_handler_errors: bool,
     enforce_elapsed_after_success: bool,
+    learning_track_id: UUID | None,
 ) -> dict:
     name = meta["name"]
 
@@ -163,7 +168,16 @@ def _execute_validated_tool(
                 text("SELECT set_config('statement_timeout', :timeout, true)"),
                 {"timeout": f"{timeout_ms}ms"},
             )
-        result_obj = meta["handler"](args_obj, db, current_user_id)
+        handler = meta["handler"]
+        if "learning_track_id" in inspect.signature(handler).parameters:
+            result_obj = handler(
+                args_obj,
+                db,
+                current_user_id,
+                learning_track_id=learning_track_id,
+            )
+        else:
+            result_obj = handler(args_obj, db, current_user_id)
     except Exception as exc:
         if (
             timeout_seconds is not None

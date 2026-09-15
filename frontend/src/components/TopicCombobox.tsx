@@ -17,6 +17,7 @@ interface TopicComboboxProps {
   placeholder?: string;
   allowCreate?: boolean;
   disabled?: boolean;
+  learningTrackId?: string;
 }
 
 function normalized(value: string): string {
@@ -34,6 +35,7 @@ export function TopicCombobox({
   placeholder = "Work",
   allowCreate = true,
   disabled = false,
+  learningTrackId,
 }: TopicComboboxProps) {
   const listboxId = useId();
   const [isOpen, setIsOpen] = useState(false);
@@ -46,7 +48,7 @@ export function TopicCombobox({
     let active = true;
     const timer = window.setTimeout(() => {
       setIsLoading(true);
-      listTopicSuggestions(value, 20)
+      listTopicSuggestions(value, 20, learningTrackId)
         .then((response) => {
           if (!active) return;
           setSuggestions(response.items);
@@ -63,7 +65,7 @@ export function TopicCombobox({
       active = false;
       window.clearTimeout(timer);
     };
-  }, [disabled, isOpen, value]);
+  }, [disabled, isOpen, learningTrackId, value]);
 
   const cleanedValue = cleanDisplay(value);
   const hasExactMatch = suggestions.some(

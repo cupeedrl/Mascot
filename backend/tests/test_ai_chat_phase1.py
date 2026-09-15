@@ -113,11 +113,13 @@ def test_chat_success(client: TestClient):
         assert data["message"]["content"] == "Xin chào! Tôi có thể giúp gì cho bạn?"
 
         # Verify backend-owned system prompt is injected at index 0
-        assert len(fake.last_messages) == 2
+        assert len(fake.last_messages) == 3
         assert fake.last_messages[0]["role"] == "system"
         assert fake.last_messages[0]["content"] == CHAT_ASSISTANT_SYSTEM_PROMPT
-        assert fake.last_messages[1]["role"] == "user"
-        assert fake.last_messages[1]["content"] == "Hôm nay tôi nên học gì?"
+        assert fake.last_messages[1]["role"] == "system"
+        assert "Respond in Vietnamese" in fake.last_messages[1]["content"]
+        assert fake.last_messages[2]["role"] == "user"
+        assert fake.last_messages[2]["content"] == "Hôm nay tôi nên học gì?"
     finally:
         app.dependency_overrides.pop(get_chat_ai_provider, None)
 
@@ -141,11 +143,11 @@ def test_chat_history_trimming(client: TestClient):
         )
         assert response.status_code == 200
 
-        # System prompt + at most 20 trimmed turns = 21 messages total
-        assert len(fake.last_messages) == 21
+        # Base prompt + per-turn language hint + at most 20 trimmed turns.
+        assert len(fake.last_messages) == 22
         assert fake.last_messages[0]["role"] == "system"
         # Verify oldest messages (0-4) were trimmed, leaving last 20 (5-24)
-        assert fake.last_messages[1]["content"] == "Message 5"
+        assert fake.last_messages[2]["content"] == "Message 5"
         assert fake.last_messages[-1]["content"] == "Message 24"
     finally:
         app.dependency_overrides.pop(get_chat_ai_provider, None)

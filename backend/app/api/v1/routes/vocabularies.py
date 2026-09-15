@@ -10,7 +10,6 @@ from app.api.dependencies import get_current_user
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.vocabulary import (
-    CEFRLevel,
     LearningStatus,
     TopicMutationResponse,
     TopicRemoveRequest,
@@ -97,7 +96,7 @@ def list_items(
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
     q: Annotated[str | None, Query(max_length=255)] = None,
     learning_status: LearningStatus | None = None,
-    level: CEFRLevel | None = None,
+    level: Annotated[str | None, Query(min_length=1, max_length=32)] = None,
     topic: Annotated[str | None, Query(max_length=120)] = None,
     learning_track_id: uuid.UUID | None = None,
 ) -> VocabularyListResponse:
@@ -127,6 +126,7 @@ def list_topics(
     db: Annotated[Session, Depends(get_db)],
     q: Annotated[str | None, Query(max_length=120)] = None,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    learning_track_id: uuid.UUID | None = None,
 ) -> TopicSuggestionListResponse:
     return TopicSuggestionListResponse(
         items=list_personal_topics(
@@ -134,6 +134,7 @@ def list_topics(
             current_user.id,
             query=q,
             limit=limit,
+            learning_track_id=learning_track_id,
         )
     )
 
@@ -150,6 +151,7 @@ def rename_topic(
             current_user.id,
             old_topic=payload.old_topic,
             new_topic=payload.new_topic,
+            learning_track_id=payload.learning_track_id,
         )
     except TopicNotFoundError as exc:
         raise _topic_not_found() from exc
@@ -167,6 +169,7 @@ def remove_topic(
             db,
             current_user.id,
             topic=payload.topic,
+            learning_track_id=payload.learning_track_id,
         )
     except TopicNotFoundError as exc:
         raise _topic_not_found() from exc

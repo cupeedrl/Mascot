@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unicodedata
+import uuid
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -56,6 +57,7 @@ class VocabularyGenerationRequest(BaseModel):
     word: str = Field(min_length=1, max_length=80)
     part_of_speech: str = Field(min_length=1, max_length=64)
     translation: str = Field(min_length=1, max_length=500)
+    learning_track_id: uuid.UUID | None = None
 
     @field_validator("word")
     @classmethod
@@ -81,7 +83,9 @@ class VocabularyCandidate(BaseModel):
     translation: str = Field(min_length=1, max_length=500)
     ipa: str = Field(default="", max_length=100)
     definition: str = Field(min_length=1, max_length=1000)
-    cefr_level: CEFRLevel
+    # Legacy response key retained for compatibility; the service validates it
+    # against the selected track's framework.
+    cefr_level: str = Field(min_length=1, max_length=32)
     examples: list[str] = Field(min_length=1, max_length=1)
     topic: str | None = Field(default="Khác", max_length=120)
 
@@ -98,10 +102,7 @@ class VocabularyCandidate(BaseModel):
     @field_validator("ipa")
     @classmethod
     def trim_ipa(cls, value: str) -> str:
-        cleaned = _trim_required(value) if value else ""
-        if cleaned and not (cleaned.startswith("/") or cleaned.startswith("[")):
-            cleaned = f"/{cleaned}/"
-        return cleaned
+        return _trim_required(value) if value else ""
 
     @field_validator("topic")
     @classmethod

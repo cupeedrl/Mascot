@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
+import re
 import time
 from typing import Any
 from uuid import UUID
@@ -10,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.ai.chat_schema import (
     AssistantMessage,
+    AgentTrace,
     Message,
     ProviderResult,
     ProviderToolCall,
@@ -34,7 +37,8 @@ from app.ai.tools.executor import (
 )
 from app.ai.tools.registry import TOOL_REGISTRY
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("uvicorn.error")
+logger.setLevel(logging.INFO)
 
 DEFAULT_MAX_TOOL_ROUNDS = 3
 DEFAULT_MAX_TOOL_CALLS_PER_ROUND = 4
@@ -74,6 +78,9 @@ def run_chat_agent(
     max_tool_argument_bytes: int = DEFAULT_MAX_TOOL_ARGUMENT_BYTES,
     max_tool_payload_bytes: int = DEFAULT_MAX_TOOL_PAYLOAD_BYTES,
     tool_timeout_seconds: float = DEFAULT_TOOL_TIMEOUT_SECONDS,
+    trace: AgentTrace | None = None,
+    request_id: str = "untracked",
+    learning_track_id: UUID | None = None,
 ) -> str | PendingToolAction:
     """Run the bounded single-agent loop for the Mascot AI Learning Assistant."""
     generate_with_tools_fn = getattr(
@@ -90,6 +97,8 @@ def run_chat_agent(
     tool_rounds = 0
     total_tool_calls = 0
     while True:
+        if trace is not None:
+            trace.provider_calls += 1
         try:
             result: ProviderResult = generate_with_tools_fn(
                 messages=conversation,
@@ -98,7 +107,11 @@ def run_chat_agent(
         except AIProviderError:
             raise
         except Exception as exc:
-            logger.exception("Unexpected error during provider chat call: %s", exc)
+            logger.error(
+                "Unexpected provider failure (request_id=%s, error_type=%s)",
+                request_id,
+                type(exc).__name__,
+            )
             raise AIProviderResponseError(
                 "provider_call_failed",
                 f"Failed to obtain chat response from provider: {exc}",
@@ -135,6 +148,8 @@ def run_chat_agent(
                 "Provider requested too many tool calls in one turn.",
             )
         total_tool_calls += len(tool_calls)
+        if trace is not None:
+            trace.total_tool_calls = total_tool_calls
 
         write_calls = [
             tool_call
@@ -168,10 +183,13 @@ def run_chat_agent(
                 pass
             else:
                 logger.info(
-                    "AI write proposed (tool=%s, tool_call_id=%s, args_valid=true, status=confirmation_required)",
-                    write_call["name"],
-                    write_call["id"],
+                    "AI write proposed (request_id=%s, tool=%s, tool_call_id=%s, args_valid=true, status=confirmation_required)",
+                    request_id,
+                    _safe_tool_name(write_call["name"]),
+                    _safe_log_identifier(write_call["id"]),
                 )
+                if trace is not None:
+                    trace.tool_names.append(_safe_tool_name(write_call["name"]))
                 return {
                     "tool_name": write_call["name"],
                     "arguments": validated_args.model_dump(mode="json"),
@@ -189,10 +207,15 @@ def run_chat_agent(
             tc_name = tc.get("name") if isinstance(tc, dict) else getattr(tc, "name")
             tc_args_str = tc.get("arguments") if isinstance(tc, dict) else getattr(tc, "arguments")
 
+            safe_tool_name = _safe_tool_name(tc_name)
+            safe_tool_call_id = _safe_log_identifier(tc_id)
+            if trace is not None:
+                trace.tool_names.append(safe_tool_name)
             logger.info(
-                "AI tool requested (tool=%s, tool_call_id=%s)",
-                tc_name,
-                tc_id,
+                "AI tool requested (request_id=%s, tool=%s, tool_call_id=%s)",
+                request_id,
+                safe_tool_name,
+                safe_tool_call_id,
             )
             tool_started_at = time.perf_counter()
 
@@ -206,21 +229,24 @@ def run_chat_agent(
                     current_user_id=user_id,
                     timeout_seconds=tool_timeout_seconds,
                     max_payload_bytes=max_tool_payload_bytes,
+                    learning_track_id=learning_track_id,
                 )
                 tool_result_str = json.dumps(raw_tool_result)
                 logger.info(
-                    "AI tool completed (tool=%s, tool_call_id=%s, args_valid=true, status=success, latency_ms=%d)",
-                    tc_name,
-                    tc_id,
-                    round((time.perf_counter() - tool_started_at) * 1000),
+                    "AI tool completed (request_id=%s, tool=%s, tool_call_id=%s, args_valid=true, status=success, latency_ms=%d)",
+                    request_id,
+                    safe_tool_name,
+                    safe_tool_call_id,
+                    _record_tool_latency(trace, tool_started_at),
                 )
 
             except ToolNotFoundError:
                 logger.warning(
-                    "AI tool rejected (tool=%s, tool_call_id=%s, args_valid=unknown, status=unknown_tool, latency_ms=%d)",
-                    tc_name,
-                    tc_id,
-                    round((time.perf_counter() - tool_started_at) * 1000),
+                    "AI tool rejected (request_id=%s, tool=%s, tool_call_id=%s, args_valid=unknown, status=unknown_tool, latency_ms=%d)",
+                    request_id,
+                    safe_tool_name,
+                    safe_tool_call_id,
+                    _record_tool_latency(trace, tool_started_at),
                 )
                 tool_result_str = json.dumps({
                     "ok": False,
@@ -228,10 +254,11 @@ def run_chat_agent(
                 })
             except ToolValidationError:
                 logger.warning(
-                    "AI tool rejected (tool=%s, tool_call_id=%s, args_valid=false, status=invalid_arguments, latency_ms=%d)",
-                    tc_name,
-                    tc_id,
-                    round((time.perf_counter() - tool_started_at) * 1000),
+                    "AI tool rejected (request_id=%s, tool=%s, tool_call_id=%s, args_valid=false, status=invalid_arguments, latency_ms=%d)",
+                    request_id,
+                    safe_tool_name,
+                    safe_tool_call_id,
+                    _record_tool_latency(trace, tool_started_at),
                 )
                 tool_result_str = json.dumps({
                     "ok": False,
@@ -239,17 +266,20 @@ def run_chat_agent(
                 })
             except ToolExecutionError:
                 logger.exception(
-                    "AI tool failed (tool=%s, tool_call_id=%s, args_valid=true, status=execution_error, latency_ms=%d)",
-                    tc_name,
-                    tc_id,
-                    round((time.perf_counter() - tool_started_at) * 1000),
+                    "AI tool failed (request_id=%s, tool=%s, tool_call_id=%s, args_valid=true, status=execution_error, latency_ms=%d)",
+                    request_id,
+                    safe_tool_name,
+                    safe_tool_call_id,
+                    _record_tool_latency(trace, tool_started_at),
                 )
                 raise
             except Exception as exc:
-                logger.exception(
-                    "Unexpected fatal failure executing tool '%s': %s",
-                    tc_name,
-                    exc,
+                logger.error(
+                    "Unexpected tool failure (request_id=%s, tool=%s, tool_call_id=%s, error_type=%s)",
+                    request_id,
+                    safe_tool_name,
+                    safe_tool_call_id,
+                    type(exc).__name__,
                 )
                 raise ToolExecutionError(
                     f"Unexpected tool failure: {exc}"
@@ -263,6 +293,27 @@ def run_chat_agent(
             conversation.append(tool_msg)
 
         tool_rounds += 1
+        if trace is not None:
+            trace.tool_rounds = tool_rounds
+
+
+def _record_tool_latency(trace: AgentTrace | None, started_at: float) -> int:
+    latency_ms = round((time.perf_counter() - started_at) * 1000)
+    if trace is not None:
+        trace.tool_latencies_ms.append(latency_ms)
+    return latency_ms
+
+
+def _safe_tool_name(name: object) -> str:
+    return name if isinstance(name, str) and name in TOOL_REGISTRY else "unknown"
+
+
+def _safe_log_identifier(value: object) -> str:
+    text = value if isinstance(value, str) else ""
+    if re.fullmatch(r"[A-Za-z0-9_.:-]{1,128}", text):
+        return text
+    digest = hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
+    return f"sha256:{digest}"
 
 
 def _parse_tool_arguments(arguments: str, max_bytes: int) -> dict[str, Any]:

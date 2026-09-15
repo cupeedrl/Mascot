@@ -5,17 +5,16 @@ import { Link } from "react-router-dom";
 import {
   ApiError,
   listVocabularySets,
-  type CefrLevel,
   type VocabularySetListResponse,
 } from "../api/client";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { LearningIllustration } from "../components/LearningIllustration";
 import { PageHeader } from "../components/PageHeader";
-import { PenguinMark } from "../components/PenguinMark";
+import { BeeMark } from "../components/BeeMark";
 import { getTopicAccent, getTopicIcon } from "../features/learn/topicPresentation";
+import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 
-const LEVELS: CefrLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
-const LEVEL_LABELS: Record<CefrLevel, string> = {
+const CEFR_LEVEL_LABELS: Record<string, string> = {
   A1: "Cơ bản", A2: "Sơ cấp", B1: "Trung cấp", B2: "Trên trung cấp", C1: "Nâng cao", C2: "Thành thạo",
 };
 
@@ -24,7 +23,8 @@ function errorMessage(error: unknown): string {
 }
 
 export function LearnPage() {
-  const [level, setLevel] = useState<CefrLevel>("A1");
+  const { activeTrack } = useActiveLearningTrack();
+  const [level, setLevel] = useState("");
   const [topicDraft, setTopicDraft] = useState("");
   const [topic, setTopic] = useState("");
   const [result, setResult] = useState<VocabularySetListResponse | null>(null);
@@ -32,10 +32,22 @@ export function LearnPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    setLevel(activeTrack?.level_codes[0] ?? "");
+    setTopic("");
+    setTopicDraft("");
+  }, [activeTrack?.id]);
+
+  useEffect(() => {
+    if (!activeTrack || !level) return;
     let active = true;
     setIsLoading(true);
     setError("");
-    listVocabularySets({ level, topic })
+    listVocabularySets({
+      language: activeTrack.language.code,
+      learningTrack: activeTrack.id,
+      level,
+      topic,
+    })
       .then((response) => {
         if (active) setResult(response);
       })
@@ -48,7 +60,7 @@ export function LearnPage() {
     return () => {
       active = false;
     };
-  }, [level, topic]);
+  }, [activeTrack, level, topic]);
 
   function applyTopic(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -62,13 +74,13 @@ export function LearnPage() {
           className="learn-page-header"
           icon={Compass}
           eyebrow="Thư viện từ vựng Mascot"
-          title={<>Khám phá tiếng Anh <em>theo cách của bạn.</em></>}
+          title={<>Khám phá {activeTrack?.language.name ?? "ngôn ngữ"} <em>theo cách của bạn.</em></>}
           description="Chọn trình độ, khám phá chủ đề phù hợp và bắt đầu xây dựng vốn từ của riêng bạn."
           titleId="learn-heading"
           aside={<div className="learn-hero-aside"><LearningIllustration variant="library" /><dl className="track-card">
-            <div><dt>Ngôn ngữ</dt><dd>Tiếng Anh</dd></div>
-            <div><dt>Lộ trình học</dt><dd>Tiếng Anh tổng quát</dd></div>
-            <div><dt>Khung trình độ</dt><dd>CEFR</dd></div>
+            <div><dt>Ngôn ngữ</dt><dd>{activeTrack?.language.name}</dd></div>
+            <div><dt>Lộ trình học</dt><dd>{activeTrack?.name}</dd></div>
+            <div><dt>Khung trình độ</dt><dd>{activeTrack?.level_framework}</dd></div>
           </dl></div>}
         />
       </div>
@@ -77,11 +89,11 @@ export function LearnPage() {
         <div className="section-heading-row">
           <div>
             <p className="eyebrow">Bước 1</p>
-            <h2 id="level-heading">Chọn trình độ CEFR</h2>
+            <h2 id="level-heading">Chọn trình độ {activeTrack?.level_framework}</h2>
           </div>
         </div>
-        <div className="level-tabs" role="tablist" aria-label="Trình độ CEFR">
-          {LEVELS.map((item) => (
+        <div className="level-tabs" role="tablist" aria-label={`Trình độ ${activeTrack?.level_framework ?? ""}`}>
+          {activeTrack?.level_codes.map((item) => (
             <button
               key={item}
               className={`level-tab level-tab-${item.toLowerCase()}${item === level ? " active" : ""}`}
@@ -94,7 +106,7 @@ export function LearnPage() {
                 setTopicDraft("");
               }}
             >
-              <strong>{item}</strong><small>{LEVEL_LABELS[item]}</small>
+              <strong>{item}</strong><small>{CEFR_LEVEL_LABELS[item] ?? `Cấp ${item.replace(/\D/g, "")}`}</small>
             </button>
           ))}
         </div>
@@ -152,7 +164,7 @@ export function LearnPage() {
           </div>
         ) : (
           <div className="list-state">
-            <PenguinMark size={68} />
+            <BeeMark size={68} />
             <h2>Chưa có bộ demo cho {level}</h2>
             <p>Dữ liệu seed hiện chỉ mang tính đại diện và sẽ được mở rộng bằng nội dung được biên tập.</p>
           </div>

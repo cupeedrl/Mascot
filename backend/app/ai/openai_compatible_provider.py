@@ -12,6 +12,7 @@ from app.ai.prompts import (
     EXERCISE_GENERATOR_SYSTEM_PROMPT,
     VOCABULARY_ASSISTANT_SYSTEM_PROMPT,
     exercise_user_prompt,
+    vocabulary_assistant_system_prompt,
     vocabulary_user_prompt,
 )
 from app.ai.provider import (
@@ -20,6 +21,7 @@ from app.ai.provider import (
     AIProviderError,
     AIProviderNotConfiguredError,
     AIProviderQuotaError,
+    AIProviderRequestError,
     AIProviderRateLimitError,
     AIProviderResponseError,
     AIProviderTimeoutError,
@@ -222,6 +224,20 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
 
             except (APIConnectionError, APIStatusError) as exc:
                 duration_ms = round((time.perf_counter() - start_time) * 1000)
+                if isinstance(exc, APIStatusError) and exc.status_code < 500:
+                    body = getattr(exc, "body", None)
+                    safe_details: dict[str, object] = {}
+                    if isinstance(body, dict):
+                        error = body.get("error")
+                        if isinstance(error, dict):
+                            for key in ("type", "message", "param", "code"):
+                                if error.get(key) is not None:
+                                    safe_details[key] = str(error[key])[:500]
+                    usage_logger.warning(
+                        "AI call error: provider_request, feature=%s, model=%s, status=%s, details=%s",
+                        feature, self._model, exc.status_code, safe_details,
+                    )
+                    raise AIProviderRequestError(exc.status_code, safe_details) from exc
                 is_server_error = isinstance(exc, APIStatusError) and exc.status_code >= 500
                 is_connection_error = isinstance(exc, APIConnectionError)
 
@@ -279,15 +295,24 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
                 raise AIProviderError from exc
 
     def generate_vocabulary(
-        self, word: str, part_of_speech: str, translation: str
+        self,
+        word: str,
+        part_of_speech: str,
+        translation: str,
+        learning_context: dict[str, object] | None = None,
     ) -> object:
         candidate = self._parse_structured(
             feature="vocabulary_enrichment",
             messages=[
-                {"role": "system", "content": VOCABULARY_ASSISTANT_SYSTEM_PROMPT},
+                {
+                    "role": "system",
+                    "content": vocabulary_assistant_system_prompt(learning_context),
+                },
                 {
                     "role": "user",
-                    "content": vocabulary_user_prompt(word, part_of_speech, translation),
+                    "content": vocabulary_user_prompt(
+                        word, part_of_speech, translation, learning_context
+                    ),
                 },
             ],
             text_format=VocabularyCandidate,

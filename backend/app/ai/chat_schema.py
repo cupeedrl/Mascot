@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import Any, TypedDict, List, NotRequired, Literal, Optional
 
 # Provider-neutral message structures used by the internal agent loop.
@@ -41,3 +42,14 @@ class ProviderResult(TypedDict, total=False):
 class PendingToolAction(TypedDict):
     tool_name: str
     arguments: dict[str, Any]
+
+
+@dataclass
+class AgentTrace:
+    """Sanitized request-scoped metrics populated by the agent loop."""
+
+    provider_calls: int = 0
+    tool_rounds: int = 0
+    total_tool_calls: int = 0
+    tool_names: list[str] = field(default_factory=list)
+    tool_latencies_ms: list[int] = field(default_factory=list)

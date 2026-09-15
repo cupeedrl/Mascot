@@ -13,6 +13,7 @@ interface ManageTopicsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onTopicsChanged: () => void;
+  learningTrackId?: string;
 }
 
 function errorMessage(error: unknown): string {
@@ -25,6 +26,7 @@ export function ManageTopicsModal({
   isOpen,
   onClose,
   onTopicsChanged,
+  learningTrackId,
 }: ManageTopicsModalProps) {
   const [topics, setTopics] = useState<TopicSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,7 +39,7 @@ export function ManageTopicsModal({
   function loadTopics() {
     setIsLoading(true);
     setError("");
-    listTopicSuggestions("", 100)
+    listTopicSuggestions("", 100, learningTrackId)
       .then((response) => setTopics(response.items))
       .catch((caughtError) => setError(errorMessage(caughtError)))
       .finally(() => setIsLoading(false));
@@ -48,7 +50,7 @@ export function ManageTopicsModal({
     loadTopics();
     setEditingTopic(null);
     setRemovingTopic(null);
-  }, [isOpen]);
+  }, [isOpen, learningTrackId]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -67,7 +69,7 @@ export function ManageTopicsModal({
     setIsMutating(true);
     setError("");
     try {
-      await renamePersonalTopic(editingTopic, renameValue);
+      await renamePersonalTopic(editingTopic, renameValue, learningTrackId);
       setEditingTopic(null);
       onTopicsChanged();
       loadTopics();
@@ -82,7 +84,7 @@ export function ManageTopicsModal({
     setIsMutating(true);
     setError("");
     try {
-      await removePersonalTopic(topic);
+      await removePersonalTopic(topic, learningTrackId);
       setRemovingTopic(null);
       onTopicsChanged();
       loadTopics();

@@ -1,6 +1,7 @@
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import {
   BookOpen,
+  ChevronDown,
   Dumbbell,
   Info,
   LayoutDashboard,
@@ -12,8 +13,9 @@ import {
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 
 import { useAuth } from "../auth/AuthContext";
+import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 import { AIChatDrawer } from "./AIChatDrawer";
-import { PenguinMark } from "./PenguinMark";
+import { BeeMark } from "./BeeMark";
 
 interface NavigationItem {
   to: string;
@@ -45,12 +47,32 @@ export function AppLayout() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
+  const { activeTrack } = useActiveLearningTrack();
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (!isAccountMenuOpen) return;
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (!accountMenuRef.current?.contains(event.target as Node)) setIsAccountMenuOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsAccountMenuOpen(false);
+    };
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isAccountMenuOpen]);
+
   async function handleLogout() {
+    setIsAccountMenuOpen(false);
     setIsLoggingOut(true);
     await logout();
   }
@@ -59,14 +81,14 @@ export function AppLayout() {
     <div className="app-shell">
       <aside className="app-sidebar">
         <NavLink className="wordmark" to="/app" aria-label="Trang chủ Mascot">
-          <PenguinMark size={38} />
+          <BeeMark size={38} />
           <span>Mascot</span>
         </NavLink>
 
         <div className="sidebar-context">
           <span>Hành trình hiện tại</span>
-          <strong>Tiếng Anh tổng quát</strong>
-          <small>Xây dựng vốn từ mỗi ngày</small>
+          <strong>{activeTrack?.name ?? "Đang tải lộ trình…"}</strong>
+          <small>{activeTrack ? `${activeTrack.language.name} · ${activeTrack.level_framework}` : "Xây dựng vốn từ mỗi ngày"}</small>
         </div>
 
         <nav className="app-navigation" aria-label="Điều hướng chính">
@@ -80,30 +102,44 @@ export function AppLayout() {
           </NavLink>
         )}
 
-        <div className="account-summary">
-          <div className="account-avatar" aria-hidden="true">
-            {user?.email?.charAt(0).toUpperCase() ?? "M"}
-          </div>
-          <div className="account-copy">
-            <strong>Mascoter</strong>
-            <span title={user?.email}>{user?.email}</span>
-          </div>
-          <button
-            className="icon-button logout-button"
-            type="button"
-            aria-label="Đăng xuất"
-            title="Đăng xuất"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-          >
-            <LogOut size={18} aria-hidden="true" />
-          </button>
-        </div>
       </aside>
+
+      <header className="desktop-account-bar" aria-label="Tài khoản người dùng">
+        <div className="desktop-account-menu" ref={accountMenuRef}>
+          <button
+            className="desktop-account-trigger"
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded={isAccountMenuOpen}
+            onClick={() => setIsAccountMenuOpen((isOpen) => !isOpen)}
+          >
+            <span className="account-avatar" aria-hidden="true">
+              {user?.email?.charAt(0).toUpperCase() ?? "M"}
+            </span>
+            <span className="desktop-account-copy">
+              <strong>Mascoter</strong>
+              <small>{user?.email}</small>
+            </span>
+            <ChevronDown size={16} aria-hidden="true" />
+          </button>
+          {isAccountMenuOpen && (
+            <div className="desktop-account-dropdown" role="menu">
+              <div>
+                <strong>Mascoter</strong>
+                <span title={user?.email}>{user?.email}</span>
+              </div>
+              <button type="button" role="menuitem" onClick={handleLogout} disabled={isLoggingOut}>
+                <LogOut size={16} aria-hidden="true" />
+                {isLoggingOut ? "Đang đăng xuất…" : "Đăng xuất"}
+              </button>
+            </div>
+          )}
+        </div>
+      </header>
 
       <header className="mobile-topbar">
         <NavLink className="wordmark" to="/app">
-          <PenguinMark size={34} />
+          <BeeMark size={34} />
           <span>Mascot</span>
         </NavLink>
         <button

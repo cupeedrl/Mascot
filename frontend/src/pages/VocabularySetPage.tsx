@@ -10,12 +10,14 @@ import {
   type VocabularySetDetail,
 } from "../api/client";
 import { PageSkeleton } from "../components/PageSkeleton";
+import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 
 function errorMessage(error: unknown): string {
   return error instanceof ApiError ? error.message : "Không thể hoàn thành yêu cầu.";
 }
 
 export function VocabularySetPage() {
+  const { activeTrack } = useActiveLearningTrack();
   const { setId } = useParams();
   const [detail, setDetail] = useState<VocabularySetDetail | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -29,7 +31,8 @@ export function VocabularySetPage() {
     setIsLoading(true);
     setError("");
     try {
-      const response = await getVocabularySet(setId);
+      if (!activeTrack) return;
+      const response = await getVocabularySet(setId, activeTrack.id);
       setDetail(response);
       setSelectedIds(new Set());
     } catch (caughtError) {
@@ -41,7 +44,7 @@ export function VocabularySetPage() {
 
   useEffect(() => {
     void loadDetail();
-  }, [setId]);
+  }, [activeTrack?.id, setId]);
 
   const availableIds = useMemo(
     () => detail?.entries.filter((entry) => !entry.is_added).map((entry) => entry.id) ?? [],
@@ -156,7 +159,11 @@ export function VocabularySetPage() {
                 />
                 <div className="entry-word">
                   <strong>{entry.word}</strong>
-                  {entry.ipa && <small className="entry-ipa">{entry.ipa}</small>}
+                  {entry.ipa && (
+                    <small className="entry-ipa">
+                      {detail.learning_track.language.code === "zh" ? "Pinyin" : "IPA"}: {entry.ipa}
+                    </small>
+                  )}
                   <span>{entry.part_of_speech}</span>
                 </div>
                 <div className="entry-definition">

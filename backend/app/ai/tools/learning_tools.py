@@ -9,11 +9,14 @@ from .schemas import (
     GetDueVocabArgs,
     DueVocabularyResult,
     VocabularyItem,
+    GetLearningProfileArgs,
+    LearningProfileResult,
 )
 
 # Domain services
 from app.services.dashboard import get_dashboard_snapshot
 from app.services.review import list_due_vocabularies
+from app.services.learning_profile import get_learning_profile
 
 
 def _to_recent_item(vocab) -> RecentVocabularyItem:
@@ -44,6 +47,7 @@ def handle_get_learning_stats(
     args: GetLearningStatsArgs,
     db: Session,
     user_id: UUID,
+    learning_track_id: UUID | None = None,
 ) -> LearningStatsResult:
     """Retrieve the dashboard snapshot for *user_id* and shape it for the tool.
 
@@ -51,7 +55,9 @@ def handle_get_learning_stats(
     ``recently_added_vocabulary`` list is trimmed to the first 5 entries to keep
     the payload compact.
     """
-    snapshot = get_dashboard_snapshot(db, user_id)
+    snapshot = get_dashboard_snapshot(
+        db, user_id, learning_track_id=learning_track_id
+    )
     recent_items = [_to_recent_item(v) for v in snapshot.recently_added_vocabulary[:5]]
     return LearningStatsResult(
         total_vocabulary=snapshot.total_vocabulary,
@@ -75,6 +81,7 @@ def handle_get_due_vocabulary(
     args: GetDueVocabArgs,
     db: Session,
     user_id: UUID,
+    learning_track_id: UUID | None = None,
 ) -> DueVocabularyResult:
     """Return a paginated list of vocabularies that are due for review.
 
@@ -85,8 +92,23 @@ def handle_get_due_vocabulary(
         db,
         user_id,
         limit=args.limit,
-        learning_track_id=None,
+        learning_track_id=learning_track_id,
         now=datetime.now(timezone.utc),
     )
     items = [_to_due_item(v) for v in queue.items]
     return DueVocabularyResult(items=items, total=queue.total, limit=queue.limit)
+
+
+def handle_get_learning_profile(
+    args: GetLearningProfileArgs,
+    db: Session,
+    user_id: UUID,
+    learning_track_id: UUID | None = None,
+) -> LearningProfileResult:
+    """Return a fresh, deterministic profile for the JWT user and active track."""
+    profile = get_learning_profile(
+        db,
+        user_id,
+        learning_track_id=learning_track_id,
+    )
+    return LearningProfileResult.model_validate(profile)

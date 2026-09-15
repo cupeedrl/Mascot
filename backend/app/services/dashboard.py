@@ -9,6 +9,7 @@ from sqlalchemy import and_, func, or_, select, union_all
 from sqlalchemy.orm import Session
 
 from app.models.exercise_attempt import ExerciseAttempt
+from app.models.exercise import Exercise
 from app.models.vocabulary import Vocabulary
 
 RECENT_VOCABULARY_LIMIT = 6
@@ -32,6 +33,17 @@ class DashboardSnapshot:
     longest_streak: int
     recent_active_dates: list[date]
     recently_added_vocabulary: list[Vocabulary]
+
+
+@dataclass(frozen=True)
+class StudyCalendarSnapshot:
+    year: int
+    month: int
+    today: date
+    active_dates: list[date]
+    current_streak: int
+    longest_streak: int
+    learning_track_id: uuid.UUID | None
 
 
 def _to_user_facing_date(value: datetime) -> date:
@@ -73,19 +85,28 @@ def _calculate_streaks(
     return current_streak, longest_streak, recent_active_dates
 
 
-def _learning_activity_times(db: Session, user_id: uuid.UUID) -> list[datetime]:
+def _learning_activity_times(
+    db: Session,
+    user_id: uuid.UUID,
+    learning_track_id: uuid.UUID | None = None,
+) -> list[datetime]:
     """Return all meaningful learner action times using one union query."""
+    vocabulary_conditions = [Vocabulary.user_id == user_id]
+    exercise_conditions = [ExerciseAttempt.user_id == user_id]
+    if learning_track_id is not None:
+        vocabulary_conditions.append(Vocabulary.learning_track_id == learning_track_id)
+        exercise_conditions.append(Exercise.learning_track_id == learning_track_id)
     activity_events = union_all(
         select(Vocabulary.created_at.label("occurred_at")).where(
-            Vocabulary.user_id == user_id
+            *vocabulary_conditions
         ),
         select(Vocabulary.last_reviewed_at.label("occurred_at")).where(
-            Vocabulary.user_id == user_id,
+            *vocabulary_conditions,
             Vocabulary.last_reviewed_at.is_not(None),
         ),
-        select(ExerciseAttempt.completed_at.label("occurred_at")).where(
-            ExerciseAttempt.user_id == user_id
-        ),
+        select(ExerciseAttempt.completed_at.label("occurred_at"))
+        .join(Exercise, Exercise.id == ExerciseAttempt.exercise_id)
+        .where(*exercise_conditions),
     ).subquery()
     return list(db.scalars(select(activity_events.c.occurred_at)))
 
@@ -95,8 +116,12 @@ def get_dashboard_snapshot(
     user_id: uuid.UUID,
     *,
     now: datetime | None = None,
+    learning_track_id: uuid.UUID | None = None,
 ) -> DashboardSnapshot:
     current_time = now or datetime.now(UTC)
+    vocabulary_conditions = [Vocabulary.user_id == user_id]
+    if learning_track_id is not None:
+        vocabulary_conditions.append(Vocabulary.learning_track_id == learning_track_id)
     vocabulary_metrics = db.execute(
         select(
             func.count(Vocabulary.id).label("total_vocabulary"),
@@ -123,9 +148,12 @@ def get_dashboard_snapshot(
                 )
             )
             .label("words_due_for_review"),
-        ).where(Vocabulary.user_id == user_id)
+        ).where(*vocabulary_conditions)
     ).one()
 
+    attempt_conditions = [ExerciseAttempt.user_id == user_id]
+    if learning_track_id is not None:
+        attempt_conditions.append(Exercise.learning_track_id == learning_track_id)
     attempt_metrics = db.execute(
         select(
             func.count(ExerciseAttempt.id).label("exercises_completed"),
@@ -135,7 +163,9 @@ def get_dashboard_snapshot(
             func.count(ExerciseAttempt.id)
             .filter(ExerciseAttempt.is_correct.is_(False))
             .label("incorrect_exercise_attempts"),
-        ).where(ExerciseAttempt.user_id == user_id)
+        )
+        .join(Exercise, Exercise.id == ExerciseAttempt.exercise_id)
+        .where(*attempt_conditions)
     ).one()
 
     exercises_completed = int(attempt_metrics.exercises_completed)
@@ -149,13 +179,13 @@ def get_dashboard_snapshot(
     recent_vocabulary = list(
         db.scalars(
             select(Vocabulary)
-            .where(Vocabulary.user_id == user_id)
+            .where(*vocabulary_conditions)
             .order_by(Vocabulary.created_at.desc(), Vocabulary.id.desc())
             .limit(RECENT_VOCABULARY_LIMIT)
         )
     )
     current_streak, longest_streak, recent_active_dates = _calculate_streaks(
-        _learning_activity_times(db, user_id),
+        _learning_activity_times(db, user_id, learning_track_id),
         current_time=current_time,
     )
 
@@ -176,4 +206,39 @@ def get_dashboard_snapshot(
         longest_streak=longest_streak,
         recent_active_dates=recent_active_dates,
         recently_added_vocabulary=recent_vocabulary,
+    )
+
+
+def get_study_calendar_snapshot(
+    db: Session,
+    user_id: uuid.UUID,
+    *,
+    year: int,
+    month: int,
+    now: datetime | None = None,
+    learning_track_id: uuid.UUID | None = None,
+) -> StudyCalendarSnapshot:
+    """Return track-scoped learner activity for one calendar month."""
+    current_time = now or datetime.now(UTC)
+    activity_times = _learning_activity_times(db, user_id, learning_track_id)
+    current_streak, longest_streak, _ = _calculate_streaks(
+        activity_times,
+        current_time=current_time,
+    )
+    active_dates = sorted(
+        {
+            activity_date
+            for value in activity_times
+            if (activity_date := _to_user_facing_date(value)).year == year
+            and activity_date.month == month
+        }
+    )
+    return StudyCalendarSnapshot(
+        year=year,
+        month=month,
+        today=_to_user_facing_date(current_time),
+        active_dates=active_dates,
+        current_streak=current_streak,
+        longest_streak=longest_streak,
+        learning_track_id=learning_track_id,
     )

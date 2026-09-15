@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from app.catalog.constants import GENERAL_ENGLISH_TRACK_ID, SEED_NAMESPACE
 from app.catalog.schema import CatalogEntrySeed, CatalogSetSeed
 from app.catalog.validator import validate_catalog_dataset
+from app.models.learning_track import LearningTrack
 from app.models.vocabulary_entry import VocabularyEntry
 from app.models.vocabulary_set import VocabularySet
 from app.services.normalization import normalize_word
@@ -19,12 +20,21 @@ from app.services.normalization import normalize_word
 DATA_DIR = Path(__file__).parent / "data"
 
 
-def seed_set_id(code: str) -> uuid.UUID:
-    return uuid.uuid5(SEED_NAMESPACE, f"set:{code}")
+def seed_set_id(
+    code: str, track_id: uuid.UUID = GENERAL_ENGLISH_TRACK_ID
+) -> uuid.UUID:
+    key = f"set:{code}" if track_id == GENERAL_ENGLISH_TRACK_ID else f"set:{track_id}:{code}"
+    return uuid.uuid5(SEED_NAMESPACE, key)
 
 
-def seed_entry_id(set_code: str, word: str, part_of_speech: str) -> uuid.UUID:
-    return uuid.uuid5(SEED_NAMESPACE, f"entry:{set_code}:{word}:{part_of_speech}")
+def seed_entry_id(
+    set_code: str,
+    word: str,
+    part_of_speech: str,
+    track_id: uuid.UUID = GENERAL_ENGLISH_TRACK_ID,
+) -> uuid.UUID:
+    prefix = "entry" if track_id == GENERAL_ENGLISH_TRACK_ID else f"entry:{track_id}"
+    return uuid.uuid5(SEED_NAMESPACE, f"{prefix}:{set_code}:{word}:{part_of_speech}")
 
 
 @dataclass
@@ -63,6 +73,11 @@ def load_catalog_into_db(
     """
     if validate_first:
         validate_catalog_dataset(sets, raise_on_error=True)
+    track = db.get(LearningTrack, track_id)
+    if track is None or any(
+        item.level_framework != track.level_framework.upper() for item in sets
+    ):
+        raise ValueError("Catalog framework does not match the target learning track")
 
     result = CatalogLoadResult()
 
@@ -71,10 +86,12 @@ def load_catalog_into_db(
     entry_plan: list[tuple[uuid.UUID, uuid.UUID, CatalogEntrySeed, int]] = []
 
     for set_index, set_seed in enumerate(sets):
-        s_id = seed_set_id(set_seed.code)
+        s_id = seed_set_id(set_seed.code, track_id)
         set_plan.append((s_id, set_seed))
         for entry_index, entry_seed in enumerate(set_seed.entries):
-            e_id = seed_entry_id(set_seed.code, entry_seed.word, entry_seed.part_of_speech)
+            e_id = seed_entry_id(
+                set_seed.code, entry_seed.word, entry_seed.part_of_speech, track_id
+            )
             entry_plan.append((e_id, s_id, entry_seed, entry_index))
 
     # 2. Bulk prefetch existing VocabularySet rows

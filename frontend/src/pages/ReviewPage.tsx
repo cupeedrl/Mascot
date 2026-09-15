@@ -21,7 +21,6 @@ import { Link } from "react-router-dom";
 
 import {
   ApiError,
-  CefrLevel,
   getDueVocabularies,
   listAllVocabularies,
   listTopicSuggestions,
@@ -31,14 +30,14 @@ import {
 } from "../api/client";
 import { PageHeader } from "../components/PageHeader";
 import { PageSkeleton } from "../components/PageSkeleton";
-import { PenguinMark } from "../components/PenguinMark";
+import { BeeMark } from "../components/BeeMark";
 import {
   filterEligibleVocabularies,
   RECENT_REVIEW_LIMIT,
   type ReviewSourceMode,
 } from "../features/review/reviewSetup";
+import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 
-const CEFR_LEVELS: CefrLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
 function errorMessage(error: unknown): string {
   return error instanceof ApiError
@@ -47,6 +46,7 @@ function errorMessage(error: unknown): string {
 }
 
 export function ReviewPage() {
+  const { activeTrack } = useActiveLearningTrack();
   // Source setup state
   const [sourceMode, setSourceMode] = useState<ReviewSourceMode>("due");
   const [dueItems, setDueItems] = useState<Vocabulary[]>([]);
@@ -57,7 +57,7 @@ export function ReviewPage() {
 
   // Custom filter state
   const [searchQuery, setSearchQuery] = useState("");
-  const [levelFilter, setLevelFilter] = useState<CefrLevel | "">("");
+  const [levelFilter, setLevelFilter] = useState("");
   const [topicFilter, setTopicFilter] = useState("");
   const [selectedCustomIds, setSelectedCustomIds] = useState<Set<string>>(new Set());
 
@@ -75,19 +75,23 @@ export function ReviewPage() {
   const [error, setError] = useState("");
 
   const loadData = useCallback(async () => {
+    if (!activeTrack) return;
     setIsLoading(true);
     setError("");
     try {
       const [dueRes, vocabRes, topicRes] = await Promise.all([
-        getDueVocabularies(100),
-        listAllVocabularies(),
-        listTopicSuggestions("", 100),
+        getDueVocabularies(100, activeTrack?.id),
+        listAllVocabularies(activeTrack?.id),
+        listTopicSuggestions("", 100, activeTrack?.id),
       ]);
       setDueItems(dueRes.items);
       setDueTotal(dueRes.total);
       setAllVocabularies(vocabRes);
       setTopics(topicRes.items);
-      if (topicRes.items.length > 0 && !selectedTopic) {
+      if (
+        topicRes.items.length > 0
+        && !topicRes.items.some((item) => item.name === selectedTopic)
+      ) {
         setSelectedTopic(topicRes.items[0].name);
       }
     } catch (caughtError) {
@@ -95,11 +99,18 @@ export function ReviewPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedTopic]);
+  }, [activeTrack?.id, selectedTopic]);
 
   useEffect(() => {
     void loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    setSelectedCustomIds(new Set());
+    setLevelFilter("");
+    setTopicFilter("");
+    setIsReviewing(false);
+  }, [activeTrack?.id]);
 
   // Derived lists for each source mode
   const recentItems = useMemo(() => {
@@ -311,7 +322,7 @@ export function ReviewPage() {
                 </div>
               ) : (
                 <div className="review-setup-empty">
-                  <PenguinMark size={56} variant="scholar" />
+                  <BeeMark size={56} variant="learning" />
                   <p>Tuyệt vời! Hiện tại bạn không có từ nào đến hạn ôn.</p>
                   <p className="empty-subtext">
                     Bạn có thể chọn <strong>Từ gần đây</strong>, <strong>Theo chủ đề</strong>, hoặc <strong>Tự chọn</strong> để ôn tập ngay bất kỳ lúc nào.
@@ -411,10 +422,10 @@ export function ReviewPage() {
                 <label className="filter-input-wrap">
                   <select
                     value={levelFilter}
-                    onChange={(e) => setLevelFilter(e.target.value as CefrLevel | "")}
+                    onChange={(e) => setLevelFilter(e.target.value)}
                   >
-                    <option value="">Tất cả CEFR</option>
-                    {CEFR_LEVELS.map((lvl) => (
+                    <option value="">Tất cả {activeTrack?.level_framework}</option>
+                    {activeTrack?.level_codes.map((lvl) => (
                       <option key={lvl} value={lvl}>{lvl}</option>
                     ))}
                   </select>
@@ -477,7 +488,7 @@ export function ReviewPage() {
                         <div className="custom-item-content">
                           <div className="custom-item-head">
                             <strong>{item.word}</strong>
-                            {item.ipa && <span className="custom-item-ipa">{item.ipa}</span>}
+                            {item.ipa && <span className="custom-item-ipa">{item.learning_track.language.code === "zh" ? "Pinyin" : "IPA"}: {item.ipa}</span>}
                             <span className="level-badge">{item.level_code}</span>
                             <span className="pos-badge">{item.part_of_speech}</span>
                             {item.topic && <span className="topic-tag">#{item.topic}</span>}
@@ -515,7 +526,7 @@ export function ReviewPage() {
       ) : isComplete ? (
         /* Complete Screen */
         <div className="review-complete" role="status">
-          <PenguinMark size={76} variant="scholar" />
+          <BeeMark size={76} variant="learning" />
           <p className="eyebrow">Hoàn thành phiên ôn</p>
           <h2>Đã xong phiên ôn này!</h2>
           <div className="review-summary">
@@ -598,7 +609,7 @@ export function ReviewPage() {
             </div>
             <div className="review-prompt">
               <h2>{currentItem.word}</h2>
-              {currentItem.ipa && <p className="review-ipa">{currentItem.ipa}</p>}
+              {currentItem.ipa && <p className="review-ipa">{currentItem.learning_track.language.code === "zh" ? "Pinyin" : "IPA"}: {currentItem.ipa}</p>}
               {currentItem.part_of_speech && <p className="review-pos">{currentItem.part_of_speech}</p>}
             </div>
 

@@ -5,6 +5,7 @@ import { ProtectedRoute } from "./auth/ProtectedRoute";
 import { AdminLayout } from "./components/AdminLayout";
 import { AdminRoute } from "./components/AdminRoute";
 import { AppLayout } from "./components/AppLayout";
+import { ActiveLearningTrackProvider } from "./learning/ActiveLearningTrackContext";
 import { AboutPage } from "./pages/AboutPage";
 import { AdminAIUsagePage } from "./pages/AdminAIUsagePage";
 import { AdminCatalogPage } from "./pages/AdminCatalogPage";
@@ -49,7 +50,9 @@ function App() {
             path="/app"
             element={
               <ProtectedRoute>
-                <AppLayout />
+                <ActiveLearningTrackProvider>
+                  <AppLayout />
+                </ActiveLearningTrackProvider>
               </ProtectedRoute>
             }
           >

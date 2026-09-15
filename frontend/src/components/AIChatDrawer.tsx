@@ -1,27 +1,138 @@
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, X, Send, Bot, User, AlertCircle, Loader2, Plus, Ban } from "lucide-react";
+import { Sparkles, X, Send, Bot, User, AlertCircle, Loader2, Plus, Ban, History } from "lucide-react";
 import {
   cancelAIAction,
   confirmAIAction,
+  createAIConversation,
+  getAIConversation,
+  listAIConversations,
   postAIChat,
   type AIActionConfirmation,
+  type AIConversationSummary,
   type ChatMessage,
 } from "../api/client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import {
+  getActionErrorState,
+  getChatErrorMessage,
+  getChatProgressLabel,
+} from "../ai/chatUiState";
+import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
+import { useAuth } from "../auth/AuthContext";
+
+const ACTIVE_CONVERSATION_STORAGE_PREFIX = "mascot.aiConversationId";
 
 export function AIChatDrawer() {
+  const { activeTrack } = useActiveLearningTrack();
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   type ChatEntry = ChatMessage & {
+    id?: string;
     confirmation?: AIActionConfirmation;
-    actionStatus?: "pending" | "confirming" | "executed" | "canceled";
+    actionStatus?: "pending" | "confirming" | "executed" | "canceled" | "expired" | "used";
   };
 
   const [messages, setMessages] = useState<ChatEntry[]>([]);
+  const [conversations, setConversations] = useState<AIConversationSummary[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(true);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [progressLabel, setProgressLabel] = useState("AI đang suy nghĩ…");
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setMessages([]);
+      setConversations([]);
+      setActiveConversationId(null);
+      setIsRestoring(false);
+      return;
+    }
+
+    let active = true;
+    const storageKey = `${ACTIVE_CONVERSATION_STORAGE_PREFIX}.${user.id}`;
+    setIsRestoring(true);
+
+    async function restoreConversation() {
+      try {
+        const available = await listAIConversations();
+        if (!active) return;
+        setConversations(available);
+        const preferredId = localStorage.getItem(storageKey);
+        const selected =
+          available.find((conversation) => conversation.id === preferredId) ??
+          available[0];
+        if (!selected) {
+          setMessages([]);
+          setActiveConversationId(null);
+          localStorage.removeItem(storageKey);
+          return;
+        }
+        const detail = await getAIConversation(selected.id);
+        if (!active) return;
+        setActiveConversationId(detail.id);
+        setMessages(detail.messages);
+        localStorage.setItem(storageKey, detail.id);
+      } catch (err) {
+        if (active) setError(getChatErrorMessage(err));
+      } finally {
+        if (active) setIsRestoring(false);
+      }
+    }
+
+    void restoreConversation();
+    return () => {
+      active = false;
+    };
+  }, [user]);
+
+  async function handleNewChat() {
+    if (!user || isLoading) return;
+    setError(null);
+    try {
+      const conversation = await createAIConversation();
+      setConversations((current) => [
+        conversation,
+        ...current.filter((item) => item.id !== conversation.id),
+      ]);
+      setActiveConversationId(conversation.id);
+      setMessages([]);
+      setIsHistoryOpen(false);
+      localStorage.setItem(
+        `${ACTIVE_CONVERSATION_STORAGE_PREFIX}.${user.id}`,
+        conversation.id,
+      );
+    } catch (err) {
+      setError(getChatErrorMessage(err));
+    }
+  }
+
+  async function handleSelectConversation(conversationId: string) {
+    if (!user || conversationId === activeConversationId || isLoading) {
+      setIsHistoryOpen(false);
+      return;
+    }
+    setError(null);
+    setIsRestoring(true);
+    try {
+      const detail = await getAIConversation(conversationId);
+      setActiveConversationId(detail.id);
+      setMessages(detail.messages);
+      setIsHistoryOpen(false);
+      localStorage.setItem(
+        `${ACTIVE_CONVERSATION_STORAGE_PREFIX}.${user.id}`,
+        detail.id,
+      );
+    } catch (err) {
+      setError(getChatErrorMessage(err));
+    } finally {
+      setIsRestoring(false);
+    }
+  }
 
   function updateActionStatus(
     actionId: string,
@@ -40,15 +151,19 @@ export function AIChatDrawer() {
     setError(null);
     updateActionStatus(action.action_id, "confirming");
     try {
-      const result = await confirmAIAction(action.action_token);
+      const result = await confirmAIAction(
+        action.action_token,
+        activeConversationId ?? undefined,
+      );
       updateActionStatus(action.action_id, "executed");
       setMessages((current) => [
         ...current,
         { role: "assistant", content: result.message },
       ]);
     } catch (err) {
-      updateActionStatus(action.action_id, "pending");
-      setError(err instanceof Error ? err.message : "Không thể xác nhận thao tác.");
+      const failure = getActionErrorState(err);
+      updateActionStatus(action.action_id, failure.state);
+      setError(failure.message);
     }
   }
 
@@ -56,15 +171,19 @@ export function AIChatDrawer() {
     setError(null);
     updateActionStatus(action.action_id, "confirming");
     try {
-      const result = await cancelAIAction(action.action_token);
+      const result = await cancelAIAction(
+        action.action_token,
+        activeConversationId ?? undefined,
+      );
       updateActionStatus(action.action_id, "canceled");
       setMessages((current) => [
         ...current,
         { role: "assistant", content: result.message },
       ]);
     } catch (err) {
-      updateActionStatus(action.action_id, "pending");
-      setError(err instanceof Error ? err.message : "Không thể hủy thao tác.");
+      const failure = getActionErrorState(err);
+      updateActionStatus(action.action_id, failure.state);
+      setError(failure.message);
     }
   }
 
@@ -90,12 +209,22 @@ export function AIChatDrawer() {
 
     setMessages(nextMessages);
     setInput("");
+    setProgressLabel(getChatProgressLabel(trimmed));
     setIsLoading(true);
 
     try {
       const response = await postAIChat(
-        nextMessages.map(({ role, content }) => ({ role, content })),
+        trimmed,
+        activeTrack?.id,
+        activeConversationId ?? undefined,
       );
+      setActiveConversationId(response.conversation_id);
+      if (user) {
+        localStorage.setItem(
+          `${ACTIVE_CONVERSATION_STORAGE_PREFIX}.${user.id}`,
+          response.conversation_id,
+        );
+      }
       setMessages((prev) => [
         ...prev,
         {
@@ -104,10 +233,10 @@ export function AIChatDrawer() {
           actionStatus: response.confirmation_required ? "pending" : undefined,
         },
       ]);
+      const available = await listAIConversations();
+      setConversations(available);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Không thể kết nối với Trợ lý AI.";
-      setError(errorMessage);
+      setError(getChatErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -115,18 +244,6 @@ export function AIChatDrawer() {
 
   return (
     <div className="ai-chat-widget">
-      {!isOpen && (
-        <button
-          className="ai-chat-trigger-button"
-          type="button"
-          aria-label="Mở Trợ lý AI Mascot"
-          onClick={() => setIsOpen(true)}
-        >
-          <Sparkles size={20} className="ai-sparkle-icon" />
-          <span>Trợ lý AI</span>
-        </button>
-      )}
-
       {isOpen && (
         <div className="ai-chat-drawer-container" role="dialog" aria-label="Khung trò chuyện Trợ lý AI Mascot">
           <header className="ai-chat-header">
@@ -134,20 +251,61 @@ export function AIChatDrawer() {
               <div className="ai-badge-icon">
                 <Sparkles size={16} />
               </div>
-              <div>
-                <strong>Trợ lý AI Mascot</strong>
-                <small>Hỏi đáp tiếng Anh & hướng dẫn học tập</small>
+                <div>
+                  <strong>Trợ lý AI Mascot</strong>
+                  <div>
+                    <small>Hỏi đáp {activeTrack?.language.name ?? "ngôn ngữ"} & hướng dẫn học tập</small>
+                  </div>
+                </div>
+            </div>
+            <div className="ai-chat-header-actions">
+              <button
+                className="icon-button"
+                type="button"
+                aria-label="Lịch sử trò chuyện"
+                aria-expanded={isHistoryOpen}
+                onClick={() => setIsHistoryOpen((current) => !current)}
+              >
+                <History size={17} />
+              </button>
+              <button
+                className="icon-button ai-chat-close-button"
+                type="button"
+                aria-label="Đóng Trợ lý AI"
+                onClick={() => setIsOpen(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+          </header>
+
+          {isHistoryOpen && (
+            <div className="ai-chat-history-panel">
+              <button
+                type="button"
+                className="ai-chat-new-button"
+                onClick={() => void handleNewChat()}
+              >
+                <Plus size={14} /> New Chat
+              </button>
+              <div className="ai-chat-history-list" aria-label="Danh sách cuộc trò chuyện">
+                {conversations.length === 0 ? (
+                  <small>Chưa có cuộc trò chuyện.</small>
+                ) : (
+                  conversations.map((conversation) => (
+                    <button
+                      type="button"
+                      key={conversation.id}
+                      className={conversation.id === activeConversationId ? "active" : ""}
+                      onClick={() => void handleSelectConversation(conversation.id)}
+                    >
+                      {conversation.title}
+                    </button>
+                  ))
+                )}
               </div>
             </div>
-            <button
-              className="icon-button ai-chat-close-button"
-              type="button"
-              aria-label="Đóng Trợ lý AI"
-              onClick={() => setIsOpen(false)}
-            >
-              <X size={18} />
-            </button>
-          </header>
+          )}
 
           {error && (
             <div className="ai-chat-error-banner" role="alert">
@@ -157,16 +315,21 @@ export function AIChatDrawer() {
           )}
 
           <div className="ai-chat-messages-list">
-            {messages.length === 0 ? (
+            {isRestoring ? (
+              <div className="ai-chat-empty-state">
+                <Loader2 size={24} className="spin-loader" />
+                <small>Đang tải lịch sử trò chuyện…</small>
+              </div>
+            ) : messages.length === 0 ? (
               <div className="ai-chat-empty-state">
                 <Bot size={32} />
-                <p>Xin chào! Tôi là Trợ lý AI Mascot.</p>
-                <small>Hãy đặt câu hỏi bất kỳ về từ vựng hoặc lộ trình học tập của bạn!</small>
+                <p>Xin chào! Tôi là Mascot.</p>
+                <small>Hãy đặt bất kỳ câu hỏi về kiến thức nào bạn thắc mắc nhé!</small>
               </div>
             ) : (
               messages.map((msg, index) => (
                 <div
-                  key={index}
+                  key={msg.id ?? index}
                   className={`ai-chat-message-bubble ${
                     msg.role === "user" ? "user-bubble" : "assistant-bubble"
                   }`}
@@ -190,6 +353,9 @@ export function AIChatDrawer() {
                           <Plus size={15} />
                           <strong>{msg.confirmation.summary}</strong>
                         </div>
+                        {msg.actionStatus === "pending" && (
+                          <div className="ai-action-required-label">Confirmation required</div>
+                        )}
                         <dl>
                           <div><dt>Word</dt><dd>{msg.confirmation.vocabulary.word}</dd></div>
                           <div><dt>Meaning</dt><dd>{msg.confirmation.vocabulary.meaning}</dd></div>
@@ -219,6 +385,8 @@ export function AIChatDrawer() {
                         )}
                         {msg.actionStatus === "executed" && <div className="ai-action-card-status success">Confirmed</div>}
                         {msg.actionStatus === "canceled" && <div className="ai-action-card-status">Canceled</div>}
+                        {msg.actionStatus === "expired" && <div className="ai-action-card-status error">Expired</div>}
+                        {msg.actionStatus === "used" && <div className="ai-action-card-status">Already used</div>}
                       </div>
                     )}
                   </div>
@@ -232,7 +400,7 @@ export function AIChatDrawer() {
                 </div>
                 <div className="message-content loading-content">
                   <Loader2 size={16} className="spin-loader" />
-                  <span>Đang suy nghĩ...</span>
+                  <span>{progressLabel}</span>
                 </div>
               </div>
             )}
@@ -243,16 +411,16 @@ export function AIChatDrawer() {
             <input
               type="text"
               className="ai-chat-input-field"
-              placeholder="Nhập câu hỏi của bạn..."
+              placeholder="Nhập câu hỏi..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              disabled={isLoading}
+              disabled={isLoading || isRestoring}
               maxLength={1000}
             />
             <button
               type="submit"
               className="ai-chat-send-button"
-              disabled={!input.trim() || isLoading}
+              disabled={!input.trim() || isLoading || isRestoring}
               aria-label="Gửi tin nhắn"
             >
               <Send size={16} />
@@ -260,6 +428,16 @@ export function AIChatDrawer() {
           </form>
         </div>
       )}
+
+      <button
+        className="ai-chat-trigger-button"
+        type="button"
+        aria-label="Mở Mascot Chatbot"
+        onClick={() => setIsOpen(true)}
+      >
+        <Sparkles size={20} className="ai-sparkle-icon" />
+        <span>Mascot AI</span>
+      </button>
     </div>
   );
 }

@@ -132,7 +132,7 @@ export function AdminAIUsagePage() {
       {summary && (
         <section className="admin-metrics-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
           <article className="admin-metric-card">
-            <div className="admin-metric-icon" style={{ background: "#f3effc", color: "#7c3aed" }}>
+            <div className="admin-metric-icon" style={{ background: "#fff4cc", color: "#92400e" }}>
               <BrainCircuit size={22} />
             </div>
             <div className="admin-metric-info">
@@ -180,7 +180,7 @@ export function AdminAIUsagePage() {
           </article>
 
           <article className="admin-metric-card">
-            <div className="admin-metric-icon" style={{ background: "#eff6ff", color: "#2563eb" }}>
+            <div className="admin-metric-icon" style={{ background: "#fff4cc", color: "#92400e" }}>
               <Clock size={22} />
             </div>
             <div className="admin-metric-info">

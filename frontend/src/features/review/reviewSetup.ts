@@ -8,7 +8,7 @@ export function filterEligibleVocabularies(
   vocabularies: Vocabulary[],
   filters: {
     search?: string;
-    level?: CefrLevel | "";
+    level?: string;
     topic?: string;
   },
 ): Vocabulary[] {

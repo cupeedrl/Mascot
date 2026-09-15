@@ -6,18 +6,17 @@ import {
   ApiError,
   deleteVocabulary,
   listVocabularies,
-  type CefrLevel,
   type LearningStatus,
   type Vocabulary,
   type VocabularyListResponse,
 } from "../api/client";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { PageHeader } from "../components/PageHeader";
-import { PenguinMark } from "../components/PenguinMark";
+import { BeeMark } from "../components/BeeMark";
 import { ManageTopicsModal } from "../components/ManageTopicsModal";
 import { TopicCombobox } from "../components/TopicCombobox";
+import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 
-const CEFR_LEVELS: CefrLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const STATUSES: Array<{ value: LearningStatus; label: string }> = [
   { value: "new", label: "Mới" },
   { value: "learning", label: "Đang học" },
@@ -32,6 +31,7 @@ function errorMessage(error: unknown): string {
 }
 
 export function VocabularyPage() {
+  const { activeTrack } = useActiveLearningTrack();
   const location = useLocation();
   const navigate = useNavigate();
   const [result, setResult] = useState<VocabularyListResponse | null>(null);
@@ -41,7 +41,7 @@ export function VocabularyPage() {
   const [search, setSearch] = useState("");
   const [topic, setTopic] = useState("");
   const [statusFilter, setStatusFilter] = useState<LearningStatus | "">("");
-  const [levelFilter, setLevelFilter] = useState<CefrLevel | "">("");
+  const [levelFilter, setLevelFilter] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState("");
   const [success, setSuccess] = useState(
@@ -58,6 +58,7 @@ export function VocabularyPage() {
   }, [location.pathname, location.state, navigate]);
 
   useEffect(() => {
+    if (!activeTrack) return;
     let active = true;
     setIsLoading(true);
     setPageError("");
@@ -68,6 +69,7 @@ export function VocabularyPage() {
       topic,
       learningStatus: statusFilter,
       level: levelFilter,
+      learningTrackId: activeTrack?.id,
     })
       .then((response) => {
         if (active) setResult(response);
@@ -81,7 +83,14 @@ export function VocabularyPage() {
     return () => {
       active = false;
     };
-  }, [levelFilter, page, refreshKey, search, statusFilter, topic]);
+  }, [activeTrack?.id, levelFilter, page, refreshKey, search, statusFilter, topic]);
+
+  useEffect(() => {
+    setPage(1);
+    setLevelFilter("");
+    setTopic("");
+    setDraftTopic("");
+  }, [activeTrack?.id]);
 
   const hasFilters = useMemo(
     () => Boolean(search || topic || statusFilter || levelFilter),
@@ -128,7 +137,7 @@ export function VocabularyPage() {
   return (
     <section className="vocabulary-page" aria-labelledby="vocabulary-heading">
       <PageHeader
-        eyebrow="Tiếng Anh tổng quát"
+        eyebrow={activeTrack?.name ?? "Lộ trình học"}
         title="Từ vựng của tôi"
         description="Từ bạn tự thêm và từ đang học từ thư viện Mascot."
         titleId="vocabulary-heading"
@@ -166,16 +175,16 @@ export function VocabularyPage() {
           </select>
         </label>
         <label>
-          CEFR
+          {activeTrack?.level_framework ?? "Trình độ"}
           <select
             value={levelFilter}
             onChange={(event) => {
-              setLevelFilter(event.target.value as CefrLevel | "");
+              setLevelFilter(event.target.value);
               setPage(1);
             }}
           >
             <option value="">Tất cả</option>
-            {CEFR_LEVELS.map((level) => <option key={level}>{level}</option>)}
+            {activeTrack?.level_codes.map((level) => <option key={level}>{level}</option>)}
           </select>
         </label>
         <TopicCombobox
@@ -184,6 +193,7 @@ export function VocabularyPage() {
           onChange={setDraftTopic}
           placeholder="Work"
           allowCreate={false}
+          learningTrackId={activeTrack?.id}
         />
         <div className="filter-actions">
           <button className="primary-button compact-button" type="submit">Áp dụng</button>
@@ -211,7 +221,7 @@ export function VocabularyPage() {
                     <h2>{item.word}</h2>
                     <span className="level-badge">{item.level_code}</span>
                   </div>
-                  {item.ipa && <p className="vocabulary-ipa">{item.ipa}</p>}
+                  {item.ipa && <p className="vocabulary-ipa">{item.learning_track.language.code === "zh" ? "Pinyin" : "IPA"}: {item.ipa}</p>}
                   <p className="part-of-speech">{item.part_of_speech}</p>
                 </div>
                 <span className={`status-badge status-${item.learning_status}`}>
@@ -246,7 +256,7 @@ export function VocabularyPage() {
         </div>
       ) : (
         <div className="list-state">
-          {!hasFilters && <PenguinMark size={68} />}
+          {!hasFilters && <BeeMark size={68} />}
           <h2>{hasFilters ? "Không tìm thấy kết quả" : "Kho từ vựng đang trống"}</h2>
           <p>
             {hasFilters
@@ -287,6 +297,7 @@ export function VocabularyPage() {
           setPage(1);
           setRefreshKey((value) => value + 1);
         }}
+        learningTrackId={activeTrack?.id}
       />
     </section>
   );

@@ -11,6 +11,7 @@ from app.models.language import Language
 from app.models.learning_track import LearningTrack
 from app.models.vocabulary import Vocabulary
 from app.models.vocabulary_entry import VocabularyEntry
+from app.learning_levels import is_valid_level
 from app.schemas.vocabulary import VocabularyCreate, VocabularyUpdate
 from app.services.normalization import (
     clean_topic,
@@ -18,9 +19,6 @@ from app.services.normalization import (
     normalize_topic,
     normalize_word,
 )
-
-CEFR_LEVELS = {"A1", "A2", "B1", "B2", "C1", "C2"}
-
 
 def _vocabulary_load_options():
     return (
@@ -101,7 +99,7 @@ def _load_active_track(db: Session, track_id: uuid.UUID) -> LearningTrack:
 
 
 def _validate_level(track: LearningTrack, level_code: str) -> None:
-    if track.level_framework != "CEFR" or level_code not in CEFR_LEVELS:
+    if not is_valid_level(track.level_framework, level_code):
         raise TrackLevelError
 
 
@@ -109,12 +107,16 @@ def _find_duplicate_sense(
     db: Session,
     user_id: uuid.UUID,
     *,
+    learning_track_id: uuid.UUID,
     word: str,
     meaning: str,
     translation: str,
     exclude_vocabulary_id: uuid.UUID | None = None,
 ) -> Vocabulary | None:
-    conditions = [Vocabulary.user_id == user_id]
+    conditions = [
+        Vocabulary.user_id == user_id,
+        Vocabulary.learning_track_id == learning_track_id,
+    ]
     if exclude_vocabulary_id is not None:
         conditions.append(Vocabulary.id != exclude_vocabulary_id)
 
@@ -133,6 +135,7 @@ def _ensure_distinct_sense(
     db: Session,
     user_id: uuid.UUID,
     *,
+    learning_track_id: uuid.UUID,
     word: str,
     meaning: str,
     translation: str,
@@ -141,6 +144,7 @@ def _ensure_distinct_sense(
     duplicate = _find_duplicate_sense(
         db,
         user_id,
+        learning_track_id=learning_track_id,
         word=word,
         meaning=meaning,
         translation=translation,
@@ -158,6 +162,7 @@ def create_vocabulary(
     _ensure_distinct_sense(
         db,
         user_id,
+        learning_track_id=track.id,
         word=payload.word,
         meaning=payload.meaning,
         translation=payload.translation,
@@ -218,8 +223,8 @@ def list_owned_vocabularies(
         )
     if learning_status:
         conditions.append(Vocabulary.learning_status == learning_status)
-    if level:
-        conditions.append(Vocabulary.level_code == level)
+    if level and (normalized_level := level.strip().upper()):
+        conditions.append(Vocabulary.level_code == normalized_level)
     if topic and (requested_topic := clean_topic(topic)):
         conditions.append(func.lower(Vocabulary.topic) == requested_topic.lower())
     if learning_track_id:
@@ -263,6 +268,7 @@ def update_vocabulary(
     _ensure_distinct_sense(
         db,
         user_id,
+        learning_track_id=track.id,
         word=changes.get("word", item.word),
         meaning=changes.get("meaning", item.meaning),
         translation=changes.get("translation", item.translation),
@@ -293,10 +299,14 @@ def list_personal_topics(
     *,
     query: str | None,
     limit: int,
+    learning_track_id: uuid.UUID | None = None,
 ) -> list[PersonalTopic]:
+    conditions = [Vocabulary.user_id == user_id, Vocabulary.topic.is_not(None)]
+    if learning_track_id is not None:
+        conditions.append(Vocabulary.learning_track_id == learning_track_id)
     rows = db.execute(
         select(Vocabulary.topic, func.count(Vocabulary.id))
-        .where(Vocabulary.user_id == user_id, Vocabulary.topic.is_not(None))
+        .where(*conditions)
         .group_by(Vocabulary.topic)
     ).all()
 
@@ -339,17 +349,18 @@ def rename_personal_topic(
     *,
     old_topic: str,
     new_topic: str,
+    learning_track_id: uuid.UUID | None = None,
 ) -> int:
     requested = normalize_topic(old_topic)
     replacement = clean_topic(new_topic)
     if replacement is None:
         raise ValueError("topic must not be blank")
+    conditions = [Vocabulary.user_id == user_id, Vocabulary.topic.is_not(None)]
+    if learning_track_id is not None:
+        conditions.append(Vocabulary.learning_track_id == learning_track_id)
     items = list(
         db.scalars(
-            select(Vocabulary).where(
-                Vocabulary.user_id == user_id,
-                Vocabulary.topic.is_not(None),
-            )
+            select(Vocabulary).where(*conditions)
         )
     )
     matching = [item for item in items if normalize_topic(item.topic or "") == requested]
@@ -366,14 +377,15 @@ def remove_personal_topic(
     user_id: uuid.UUID,
     *,
     topic: str,
+    learning_track_id: uuid.UUID | None = None,
 ) -> int:
     requested = normalize_topic(topic)
+    conditions = [Vocabulary.user_id == user_id, Vocabulary.topic.is_not(None)]
+    if learning_track_id is not None:
+        conditions.append(Vocabulary.learning_track_id == learning_track_id)
     items = list(
         db.scalars(
-            select(Vocabulary).where(
-                Vocabulary.user_id == user_id,
-                Vocabulary.topic.is_not(None),
-            )
+            select(Vocabulary).where(*conditions)
         )
     )
     matching = [item for item in items if normalize_topic(item.topic or "") == requested]

@@ -31,7 +31,7 @@ import {
 import { LearningIllustration } from "../components/LearningIllustration";
 import { PageHeader } from "../components/PageHeader";
 import { PageSkeleton } from "../components/PageSkeleton";
-import { PenguinMark } from "../components/PenguinMark";
+import { BeeMark } from "../components/BeeMark";
 import { TopicCombobox } from "../components/TopicCombobox";
 import {
   DEFAULT_QUESTION_COUNT,
@@ -45,6 +45,7 @@ import {
   questionCountError,
   type PracticeSourceMode,
 } from "../features/exercises/practiceSetup";
+import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 
 function errorMessage(error: unknown): string {
   return error instanceof ApiError
@@ -90,6 +91,7 @@ function optionLabel(options: ExerciseOption[], optionId: string): string {
 }
 
 export function PracticePage() {
+  const { activeTrack } = useActiveLearningTrack();
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [activeSessionExercises, setActiveSessionExercises] = useState<Exercise[]>([]);
   const [vocabularies, setVocabularies] = useState<Vocabulary[]>([]);
@@ -117,6 +119,7 @@ export function PracticePage() {
   const [error, setError] = useState<string | null>(null);
 
   const loadSession = useCallback(async () => {
+    if (!activeTrack) return;
     setIsLoading(true);
     setError(null);
     setIsComplete(false);
@@ -129,8 +132,8 @@ export function PracticePage() {
     try {
       setExercises([]);
       const [vocabList, activeResp] = await Promise.all([
-        listAllVocabularies(),
-        getActiveAIExercises().catch(() => ({ items: [], created_count: 0, resumed: false })),
+        listAllVocabularies(activeTrack?.id),
+        getActiveAIExercises(activeTrack?.id).catch(() => ({ items: [], created_count: 0, resumed: false })),
       ]);
       setVocabularies(vocabList);
       if (activeResp.items && activeResp.items.length > 0) {
@@ -144,11 +147,16 @@ export function PracticePage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activeTrack?.id]);
 
   useEffect(() => {
     void loadSession();
   }, [loadSession]);
+
+  useEffect(() => {
+    setSelectedIds([]);
+    setSelectedTopic("");
+  }, [activeTrack?.id]);
 
   const currentExercise = exercises[currentIndex];
   const currentClozeBlanks = clozeBlanks(currentExercise);
@@ -270,6 +278,7 @@ export function PracticePage() {
           generationType,
           parsedQuestionCount ?? DEFAULT_QUESTION_COUNT,
         ),
+        learning_track_id: activeTrack?.id,
       });
       resetPracticeSession(generated.items);
       setActiveSessionExercises([]);
@@ -421,7 +430,7 @@ export function PracticePage() {
 
               {sourceMode === "topic" && (
                 <div className="topic-source-control">
-                  <TopicCombobox label="Chủ đề trong Từ vựng của tôi" value={selectedTopic} onChange={(topic) => { setSelectedTopic(topic); setGenerationError(null); }} allowCreate={false} disabled={isGenerating} placeholder="Ví dụ: Công việc" />
+                  <TopicCombobox label="Chủ đề trong Từ vựng của tôi" value={selectedTopic} onChange={(topic) => { setSelectedTopic(topic); setGenerationError(null); }} allowCreate={false} disabled={isGenerating} placeholder="Ví dụ: Công việc" learningTrackId={activeTrack?.id} />
                 </div>
               )}
 
@@ -504,7 +513,7 @@ export function PracticePage() {
 
       {exercises.length === 0 ? (
         <div className="empty-state practice-empty">
-          <PenguinMark size={68} />
+          <BeeMark size={68} />
           <h2>Chưa có bài tập</h2>
           <p>Chọn từ vựng ở trên để tạo phiên luyện tập đầu tiên.</p>
         </div>
@@ -660,7 +669,7 @@ function PracticeSummary({
   return (
     <div className="practice-complete">
       <div className="practice-result-hero">
-        <div className="result-celebration"><PenguinMark size={82} /></div>
+        <div className="result-celebration"><BeeMark size={82} variant="learning" /></div>
         <div><p className="eyebrow">HOÀN THÀNH PHIÊN</p><h2>Bạn đã hoàn thành phiên luyện tập!</h2><p>Mỗi câu trả lời là một bước giúp vốn từ của bạn vững hơn.</p></div>
         <div className="practice-summary">
           <div><strong>{correctCount}/{completedCount}</strong><span>Kết quả</span></div>

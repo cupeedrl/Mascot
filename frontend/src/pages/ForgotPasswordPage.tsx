@@ -4,7 +4,7 @@ import { Link, Navigate } from "react-router-dom";
 
 import { ApiError, forgotPassword } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
-import { PenguinMark } from "../components/PenguinMark";
+import { BeeMark } from "../components/BeeMark";
 
 export function ForgotPasswordPage() {
   const { user } = useAuth();
@@ -48,7 +48,7 @@ export function ForgotPasswordPage() {
     <main className="auth-layout">
       <section className="brand-panel" aria-labelledby="brand-heading">
         <div className="auth-wordmark">
-          <PenguinMark size={42} />
+          <BeeMark size={42} />
           <strong>Mascot</strong>
         </div>
         <p className="eyebrow">KHÔI PHỤC TÀI KHOẢN</p>
@@ -64,13 +64,13 @@ export function ForgotPasswordPage() {
         <div className="brand-mascot-visual" aria-hidden="true">
           <span className="mascot-orbit mascot-orbit-one" />
           <span className="mascot-orbit mascot-orbit-two" />
-          <PenguinMark size={170} />
+          <BeeMark size={170} variant="learning" />
         </div>
       </section>
 
       <section className="form-panel">
         <div className="auth-card">
-          <div className="mobile-auth-brand"><PenguinMark size={32} /> Mascot</div>
+          <div className="mobile-auth-brand"><BeeMark size={32} /> Mascot</div>
           <Link className="back-link auth-back-link" to="/login">
             <ArrowLeft size={16} /> Quay lại đăng nhập
           </Link>

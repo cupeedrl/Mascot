@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class ChatMessage(BaseModel):
@@ -17,7 +17,18 @@ class ChatMessage(BaseModel):
 class AIChatRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    messages: list[ChatMessage] = Field(..., min_length=1)
+    message: str | None = Field(default=None, min_length=1)
+    messages: list[ChatMessage] | None = Field(default=None, min_length=1)
+    conversation_id: UUID | None = None
+    learning_track_id: UUID | None = None
+
+    @model_validator(mode="after")
+    def require_one_message_source(self) -> "AIChatRequest":
+        if self.message is None and not self.messages:
+            raise ValueError("A message is required")
+        if self.message is not None and self.messages is not None:
+            raise ValueError("Send either message or messages, not both")
+        return self
 
 
 class AIActionVocabularyDetails(BaseModel):
@@ -50,6 +61,7 @@ class AIActionDecisionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     action_token: str = Field(min_length=1, max_length=16384)
+    conversation_id: UUID | None = None
 
 
 class AIActionVocabularyResult(BaseModel):
@@ -85,4 +97,5 @@ class AIChatResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     message: ChatMessage
+    conversation_id: UUID
     confirmation_required: AIActionConfirmation | None = None

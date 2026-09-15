@@ -23,6 +23,7 @@ from app.schemas.ai_vocabulary import VocabularyCandidate, VocabularyGenerationR
 from app.services.ai_guard import ai_guard, AICooldownError, AIDuplicateRequestError
 from app.services.ai_logger import record_ai_usage
 from app.services.ai_vocabulary import (
+    AIVocabularyTrackUnavailableError,
     InvalidAIVocabularyResponseError,
     generate_vocabulary_candidate,
 )
@@ -47,6 +48,7 @@ def generate_vocabulary(
             "word": payload.word.strip().lower(),
             "part_of_speech": payload.part_of_speech.strip().lower(),
             "translation": payload.translation.strip(),
+            "learning_track_id": str(payload.learning_track_id or "default"),
         },
     )
 
@@ -92,10 +94,12 @@ def generate_vocabulary(
 
     try:
         candidate = generate_vocabulary_candidate(
+            db,
             provider,
             word=payload.word,
             part_of_speech=payload.part_of_speech,
             translation=payload.translation,
+            learning_track_id=payload.learning_track_id,
         )
         latency_ms = round((time.perf_counter() - start_time) * 1000)
         record_ai_usage(
@@ -108,6 +112,9 @@ def generate_vocabulary(
         )
         ai_guard.release(current_user.id, "vocabulary_enrichment", fingerprint, mark_success=True)
         return candidate
+    except AIVocabularyTrackUnavailableError as exc:
+        ai_guard.release(current_user.id, "vocabulary_enrichment", fingerprint, mark_success=False)
+        raise HTTPException(status_code=400, detail="Learning track is not available") from exc
     except AIProviderNotConfiguredError as exc:
         latency_ms = round((time.perf_counter() - start_time) * 1000)
         record_ai_usage(

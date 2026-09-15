@@ -33,6 +33,15 @@ class AIProviderConfigurationError(AIProviderError):
     pass
 
 
+class AIProviderRequestError(AIProviderError):
+    """Non-retryable provider request rejection with safe diagnostic metadata."""
+
+    def __init__(self, status_code: int | None = None, details: dict[str, object] | None = None) -> None:
+        super().__init__("provider rejected the request")
+        self.status_code = status_code
+        self.details = details or {}
+
+
 class AIProviderResponseError(AIProviderError):
     """The provider replied, but no safe structured candidate could be read."""
 
@@ -48,7 +57,11 @@ class AIProviderResponseError(AIProviderError):
 
 class VocabularyAIProvider(Protocol):
     def generate_vocabulary(
-        self, word: str, part_of_speech: str, translation: str
+        self,
+        word: str,
+        part_of_speech: str,
+        translation: str,
+        learning_context: dict[str, object] | None = None,
     ) -> object:
         """Return untrusted structured candidate data for final service validation."""
 

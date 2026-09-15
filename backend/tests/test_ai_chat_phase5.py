@@ -142,10 +142,11 @@ def vocabulary_count(session_factory: Any, user_id: UUID) -> int:
         ) or 0
 
 
-def test_registry_has_two_reads_and_one_confirmed_write() -> None:
+def test_registry_has_three_reads_and_one_confirmed_write() -> None:
     assert set(TOOL_REGISTRY) == {
         "get_learning_stats",
         "get_due_vocabulary",
+        "get_learning_profile",
         "add_vocabulary",
     }
     assert TOOL_REGISTRY["get_learning_stats"]["classification"] == "read"

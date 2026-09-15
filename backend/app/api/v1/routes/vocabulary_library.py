@@ -9,7 +9,6 @@ from sqlalchemy.orm import Session
 from app.api.dependencies import get_current_user
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.vocabulary import CEFRLevel
 from app.schemas.vocabulary_library import (
     VocabularyEntryImportRequest,
     VocabularyImportResponse,
@@ -44,7 +43,7 @@ def list_sets(
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
     language: Annotated[str | None, Query(max_length=16)] = None,
     learning_track: Annotated[str | None, Query(max_length=64)] = None,
-    level: CEFRLevel | None = None,
+    level: Annotated[str | None, Query(min_length=1, max_length=32)] = None,
     topic: Annotated[str | None, Query(max_length=120)] = None,
 ) -> VocabularySetListResponse:
     result = list_vocabulary_sets(
@@ -74,10 +73,16 @@ def get_set(
     vocabulary_set_id: uuid.UUID,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
+    learning_track_id: uuid.UUID | None = None,
 ) -> VocabularySetDetailResponse:
     try:
         return VocabularySetDetailResponse.model_validate(
-            get_vocabulary_set(db, current_user.id, vocabulary_set_id)
+            get_vocabulary_set(
+                db,
+                current_user.id,
+                vocabulary_set_id,
+                learning_track_id=learning_track_id,
+            )
         )
     except VocabularySetNotFoundError as exc:
         raise _set_not_found() from exc

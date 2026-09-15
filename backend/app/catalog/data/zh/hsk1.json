@@ -1,0 +1,18 @@
+{
+  "code": "hsk1-daily-foundations",
+  "level_framework": "HSK",
+  "level_code": "HSK1",
+  "topic": "Daily Life",
+  "name": "HSK 1 · Daily Foundations",
+  "description": "A small reviewed starter set for basic Mandarin learning flows.",
+  "entries": [
+    {"word":"学习","part_of_speech":"verb","ipa":"xuéxí","meaning":"to study or learn","translation":"học tập","example_sentences":["我每天学习中文。"]},
+    {"word":"你好","part_of_speech":"phrase","ipa":"nǐ hǎo","meaning":"a common greeting","translation":"xin chào","example_sentences":["你好，很高兴认识你。"]},
+    {"word":"谢谢","part_of_speech":"phrase","ipa":"xièxie","meaning":"to express gratitude","translation":"cảm ơn","example_sentences":["谢谢你的帮助。"]},
+    {"word":"水","part_of_speech":"noun","ipa":"shuǐ","meaning":"water","translation":"nước","example_sentences":["我想喝水。"]},
+    {"word":"吃","part_of_speech":"verb","ipa":"chī","meaning":"to eat","translation":"ăn","example_sentences":["我们一起吃饭吧。"]},
+    {"word":"家","part_of_speech":"noun","ipa":"jiā","meaning":"home or family","translation":"nhà, gia đình","example_sentences":["我的家在河内。"]},
+    {"word":"朋友","part_of_speech":"noun","ipa":"péngyou","meaning":"a friend","translation":"bạn bè","example_sentences":["他是我的朋友。"]},
+    {"word":"喜欢","part_of_speech":"verb","ipa":"xǐhuan","meaning":"to like","translation":"thích","example_sentences":["我喜欢喝茶。"]}
+  ]
+}

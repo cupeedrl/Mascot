@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -47,8 +48,11 @@ logger = logging.getLogger(__name__)
 def get_active_session(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
+    learning_track_id: uuid.UUID | None = None,
 ) -> AIExerciseGenerationResponse:
-    exercises = get_active_unfinished_exercises(db, current_user.id)
+    exercises = get_active_unfinished_exercises(
+        db, current_user.id, learning_track_id
+    )
     items = [ExerciseResponse.model_validate(exercise) for exercise in exercises]
     return AIExerciseGenerationResponse(
         items=items,

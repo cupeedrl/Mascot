@@ -9,7 +9,6 @@ import {
   getLearningTracks,
   getVocabulary,
   updateVocabulary,
-  type CefrLevel,
   type LearningStatus,
   type LearningTrack,
   type Vocabulary,
@@ -22,8 +21,8 @@ import {
   getVocabularyEditRoute,
 } from "../features/vocabulary/duplicateConflict";
 import { PARTS_OF_SPEECH } from "../features/vocabulary/partsOfSpeech";
+import { pronunciationLabel, useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 
-const CEFR_LEVELS: CefrLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
 const STATUSES: Array<{ value: LearningStatus; label: string }> = [
   { value: "new", label: "Mới" },
@@ -40,7 +39,7 @@ interface FormState {
   meaning: string;
   translation: string;
   example: string;
-  level: CefrLevel;
+  level: string;
   topic: string;
   status: LearningStatus;
 }
@@ -69,7 +68,7 @@ function fromVocabulary(item: Vocabulary): FormState {
     meaning: item.meaning,
     translation: item.translation,
     example: item.example_sentences[0] ?? "",
-    level: item.level_code as CefrLevel,
+    level: item.level_code,
     topic: item.topic ?? "",
     status: item.learning_status,
   };
@@ -82,6 +81,7 @@ function errorMessage(error: unknown): string {
 }
 
 export function VocabularyEditorPage() {
+  const { activeTrack } = useActiveLearningTrack();
   const { vocabularyId } = useParams();
   const navigate = useNavigate();
   const isEditing = Boolean(vocabularyId);
@@ -96,6 +96,7 @@ export function VocabularyEditorPage() {
   const [duplicateVocabularyId, setDuplicateVocabularyId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!activeTrack) return;
     let active = true;
     setIsLoading(true);
     setError("");
@@ -107,7 +108,16 @@ export function VocabularyEditorPage() {
       .then(([catalog, item]) => {
         if (!active) return;
         setTracks(catalog);
-        setForm(item ? fromVocabulary(item) : { ...emptyForm(), learningTrackId: catalog[0]?.id ?? "" });
+        const initialTrack = item
+          ? catalog.find((track) => track.id === item.learning_track_id)
+          : catalog.find((track) => track.id === activeTrack?.id) ?? catalog[0];
+        setForm(item
+          ? fromVocabulary(item)
+          : {
+              ...emptyForm(),
+              learningTrackId: initialTrack?.id ?? "",
+              level: initialTrack?.level_codes[0] ?? "",
+            });
       })
       .catch((caughtError: unknown) => {
         if (active) setError(errorMessage(caughtError));
@@ -118,7 +128,10 @@ export function VocabularyEditorPage() {
     return () => {
       active = false;
     };
-  }, [vocabularyId]);
+  }, [activeTrack?.id, vocabularyId]);
+
+  const selectedTrack = tracks.find((track) => track.id === form.learningTrackId)
+    ?? activeTrack;
 
   async function handleAIGeneration() {
     setAIError("");
@@ -127,7 +140,7 @@ export function VocabularyEditorPage() {
     const translation = form.translation.trim();
 
     if (!word) {
-      setAIError("Vui lòng nhập Từ tiếng Anh trước khi hoàn thiện với AI.");
+      setAIError(`Vui lòng nhập từ ${selectedTrack?.language.name ?? "cần học"} trước khi hoàn thiện với AI.`);
       return;
     }
     if (!pos) {
@@ -145,6 +158,7 @@ export function VocabularyEditorPage() {
         word,
         part_of_speech: pos,
         translation,
+        learning_track_id: form.learningTrackId,
       });
       setForm((current) => ({
         ...current,
@@ -164,9 +178,11 @@ export function VocabularyEditorPage() {
   }
 
   function discardAIPreview() {
+    const firstLevel = selectedTrack?.level_codes[0] ?? "";
     setForm((current) => ({
       ...emptyForm(),
       learningTrackId: current.learningTrackId,
+      level: firstLevel,
       word: current.word,
       partOfSpeech: current.partOfSpeech,
       translation: current.translation,
@@ -238,7 +254,14 @@ export function VocabularyEditorPage() {
             Lộ trình học
             <select
               value={form.learningTrackId}
-              onChange={(event) => setForm({ ...form, learningTrackId: event.target.value })}
+              onChange={(event) => {
+                const track = tracks.find((item) => item.id === event.target.value);
+                setForm({
+                  ...form,
+                  learningTrackId: event.target.value,
+                  level: track?.level_codes[0] ?? "",
+                });
+              }}
               required
             >
               {tracks.map((track) => (
@@ -247,13 +270,13 @@ export function VocabularyEditorPage() {
             </select>
           </label>
           <label>
-            Từ tiếng Anh <span className="field-required">*</span>
+            Từ {selectedTrack?.language.name ?? "cần học"} <span className="field-required">*</span>
             <input
               value={form.word}
               onChange={(event) => setForm({ ...form, word: event.target.value })}
               required
               maxLength={255}
-              placeholder="solely"
+              placeholder={selectedTrack?.language.code === "zh" ? "学习" : "solely"}
             />
           </label>
           <label>
@@ -290,7 +313,7 @@ export function VocabularyEditorPage() {
               >
                 <Sparkles size={17} /> {isGenerating ? "Đang hoàn thiện…" : "Hoàn thiện với Mascot AI"}
               </button>
-              <small>AI sử dụng Từ, Từ loại và Nghĩa tiếng Việt của bạn để sinh IPA, định nghĩa, ví dụ và CEFR chuẩn xác.</small>
+              <small>AI dùng dữ liệu bạn nhập để gợi ý {pronunciationLabel(selectedTrack)}, định nghĩa, ví dụ và mức {selectedTrack?.level_framework}.</small>
             </div>
           )}
           {aiError && <div className="form-error wide-field" role="alert">{aiError}</div>}
@@ -306,29 +329,29 @@ export function VocabularyEditorPage() {
             </div>
           )}
           <label>
-            Phiên âm IPA
+            {pronunciationLabel(selectedTrack)}
             <input
               value={form.ipa}
               onChange={(event) => setForm({ ...form, ipa: event.target.value })}
               maxLength={100}
-              placeholder="/ˈsəʊl.li/"
+              placeholder={selectedTrack?.language.code === "zh" ? "xuéxí" : "/ˈsəʊl.li/"}
             />
           </label>
           <label>
-            Trình độ CEFR
-            <select value={form.level} onChange={(event) => setForm({ ...form, level: event.target.value as CefrLevel })}>
-              {CEFR_LEVELS.map((level) => <option key={level}>{level}</option>)}
+            Trình độ {selectedTrack?.level_framework}
+            <select value={form.level} onChange={(event) => setForm({ ...form, level: event.target.value })}>
+              {selectedTrack?.level_codes.map((level) => <option key={level}>{level}</option>)}
             </select>
           </label>
           <label className="wide-field">
-            Định nghĩa tiếng Anh
+            Định nghĩa / ghi chú
             <textarea
               value={form.meaning}
               onChange={(event) => setForm({ ...form, meaning: event.target.value })}
               required
               maxLength={4000}
               rows={3}
-              placeholder="Not involving anyone or anything else; only."
+              placeholder={selectedTrack?.language.code === "zh" ? "学习知识或技能。" : "Not involving anyone or anything else; only."}
             />
           </label>
           <label className="wide-field">
@@ -338,7 +361,7 @@ export function VocabularyEditorPage() {
               onChange={(event) => setForm({ ...form, example: event.target.value })}
               rows={2}
               maxLength={500}
-              placeholder="The decision was based solely on cost."
+              placeholder={selectedTrack?.language.code === "zh" ? "我每天学习中文。" : "The decision was based solely on cost."}
             />
           </label>
           <TopicCombobox
@@ -346,6 +369,7 @@ export function VocabularyEditorPage() {
             value={form.topic}
             onChange={(topic) => setForm((current) => ({ ...current, topic }))}
             placeholder="Khác"
+            learningTrackId={form.learningTrackId}
           />
           <label>
             Trạng thái học

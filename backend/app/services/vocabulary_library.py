@@ -164,8 +164,20 @@ def list_vocabulary_sets(
 
 
 def get_vocabulary_set(
-    db: Session, user_id: uuid.UUID, vocabulary_set_id: uuid.UUID
+    db: Session,
+    user_id: uuid.UUID,
+    vocabulary_set_id: uuid.UUID,
+    *,
+    learning_track_id: uuid.UUID | None = None,
 ) -> dict[str, object]:
+    conditions = [
+        VocabularySet.id == vocabulary_set_id,
+        VocabularySet.is_active.is_(True),
+        LearningTrack.is_active.is_(True),
+        Language.is_active.is_(True),
+    ]
+    if learning_track_id is not None:
+        conditions.append(VocabularySet.learning_track_id == learning_track_id)
     item = db.scalar(
         select(VocabularySet)
         .join(VocabularySet.learning_track)
@@ -174,12 +186,7 @@ def get_vocabulary_set(
             joinedload(VocabularySet.learning_track).joinedload(LearningTrack.language),
             selectinload(VocabularySet.entries),
         )
-        .where(
-            VocabularySet.id == vocabulary_set_id,
-            VocabularySet.is_active.is_(True),
-            LearningTrack.is_active.is_(True),
-            Language.is_active.is_(True),
-        )
+        .where(*conditions)
     )
     if item is None:
         raise VocabularySetNotFoundError

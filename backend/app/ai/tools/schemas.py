@@ -22,6 +22,12 @@ class GetDueVocabArgs(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class GetLearningProfileArgs(BaseModel):
+    """No model-controlled identity or track arguments."""
+
+    model_config = ConfigDict(extra="forbid")
+
+
 class AddVocabularyArgs(BaseModel):
     """Strict model-authored proposal; identity and track are backend-owned."""
 
@@ -126,6 +132,29 @@ class DueVocabularyResult(BaseModel):
     limit: int
 
     model_config = ConfigDict(extra="forbid")
+
+
+class LearningProfileResult(BaseModel):
+    language_code: str
+    language_name: str
+    track_code: str
+    track_name: str
+    framework: str
+    current_level: str | None
+    total_vocabulary: int
+    new_words: int
+    learning_words: int
+    review_words: int
+    mastered_words: int
+    due_words: int
+    recent_accuracy: float | None
+    recent_attempts: int
+    current_streak: int
+    weak_topics: list[str]
+    recent_topics: list[str]
+    recent_active_dates: list[date]
+
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
 
 class AddVocabularyResult(BaseModel):

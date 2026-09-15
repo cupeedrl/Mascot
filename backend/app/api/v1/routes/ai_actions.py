@@ -41,8 +41,14 @@ from app.schemas.ai_chat import (
     AIActionVocabularyResult,
 )
 from app.services.ai_logger import record_ai_usage
+from app.services.ai_conversation import (
+    AIConversationNotFoundError,
+    append_visible_messages,
+    get_owned_conversation,
+)
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("uvicorn.error")
+logger.setLevel(logging.INFO)
 
 router = APIRouter(prefix="/ai/actions", tags=["ai"])
 
@@ -59,6 +65,15 @@ def _validate_confirmable_action(tool_name: str, arguments: dict) -> None:
         or not meta["requires_confirmation"]
     ):
         raise ToolConfirmationRequiredError("Action is not confirmable")
+
+
+def _owned_conversation(db: Session, user_id: UUID, conversation_id: UUID | None):
+    if conversation_id is None:
+        return None
+    try:
+        return get_owned_conversation(db, user_id, conversation_id)
+    except AIConversationNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="AI conversation not found.") from exc
 
 
 def _audit(
@@ -90,15 +105,21 @@ def confirm_action(
     db: Annotated[Session, Depends(get_db)],
 ) -> AIActionExecutionResponse:
     started_at = time.perf_counter()
+    conversation = _owned_conversation(
+        db, current_user.id, payload.conversation_id
+    )
     try:
         claims = verify_action_token(payload.action_token, current_user.id)
         _validate_confirmable_action(claims.tool_name, claims.arguments)
         action_replay_guard.reserve(claims.action_id, claims.expires_at)
     except ActionTokenExpiredError as exc:
+        logger.warning("AI action rejected (action_id=unavailable, tool=unknown, status=expired)")
         raise HTTPException(status_code=400, detail="AI action has expired.") from exc
     except ActionOwnerMismatchError as exc:
+        logger.warning("AI action rejected (action_id=unavailable, tool=unknown, status=owner_mismatch)")
         raise HTTPException(status_code=403, detail="AI action belongs to another user.") from exc
     except ActionReplayError as exc:
+        logger.warning("AI action rejected (action_id=%s, tool=%s, status=replay)", claims.action_id, claims.tool_name)
         raise HTTPException(status_code=409, detail="AI action was already handled.") from exc
     except (
         ActionTokenError,
@@ -106,6 +127,7 @@ def confirm_action(
         ToolValidationError,
         ToolConfirmationRequiredError,
     ) as exc:
+        logger.warning("AI action rejected (action_id=unavailable, tool=unknown, status=invalid)")
         raise _invalid_action() from exc
 
     settings = get_settings()
@@ -120,6 +142,12 @@ def confirm_action(
         )
     except AddVocabularyDuplicateError as exc:
         latency_ms = round((time.perf_counter() - started_at) * 1000)
+        logger.warning(
+            "AI action rejected (action_id=%s, tool=%s, status=conflict, latency_ms=%d)",
+            claims.action_id,
+            claims.tool_name,
+            latency_ms,
+        )
         _audit(
             db,
             user_id=current_user.id,
@@ -147,12 +175,15 @@ def confirm_action(
         raise _invalid_action() from exc
     except ToolTimeoutError as exc:
         action_replay_guard.release(claims.action_id)
+        logger.warning("AI action failed (action_id=%s, tool=%s, status=timeout)", claims.action_id, claims.tool_name)
         raise HTTPException(status_code=504, detail="AI action timed out.") from exc
     except ToolPayloadTooLargeError as exc:
         action_replay_guard.release(claims.action_id)
+        logger.warning("AI action failed (action_id=%s, tool=%s, status=invalid_result)", claims.action_id, claims.tool_name)
         raise HTTPException(status_code=502, detail="AI action returned an invalid result.") from exc
     except ToolExecutionError as exc:
         action_replay_guard.release(claims.action_id)
+        logger.warning("AI action failed (action_id=%s, tool=%s, status=execution_error)", claims.action_id, claims.tool_name)
         raise HTTPException(status_code=502, detail="AI action could not be completed.") from exc
     except Exception as exc:
         action_replay_guard.release(claims.action_id)
@@ -178,9 +209,12 @@ def confirm_action(
         latency_ms=latency_ms,
     )
     vocabulary = AIActionVocabularyResult.model_validate(result)
+    message = f'Added "{vocabulary.word}" to My Vocabulary.'
+    if conversation is not None:
+        append_visible_messages(db, conversation, [("assistant", message)])
     return AIActionExecutionResponse(
         action_id=claims.action_id,
-        message=f'Added "{vocabulary.word}" to My Vocabulary.',
+        message=message,
         vocabulary=vocabulary,
     )
 
@@ -192,17 +226,24 @@ def cancel_action(
     db: Annotated[Session, Depends(get_db)],
 ) -> AIActionCancellationResponse:
     started_at = time.perf_counter()
+    conversation = _owned_conversation(
+        db, current_user.id, payload.conversation_id
+    )
     try:
         claims = verify_action_token(payload.action_token, current_user.id)
         _validate_confirmable_action(claims.tool_name, claims.arguments)
         action_replay_guard.reserve(claims.action_id, claims.expires_at)
     except ActionTokenExpiredError as exc:
+        logger.warning("AI action rejected (action_id=unavailable, tool=unknown, status=expired)")
         raise HTTPException(status_code=400, detail="AI action has expired.") from exc
     except ActionOwnerMismatchError as exc:
+        logger.warning("AI action rejected (action_id=unavailable, tool=unknown, status=owner_mismatch)")
         raise HTTPException(status_code=403, detail="AI action belongs to another user.") from exc
     except ActionReplayError as exc:
+        logger.warning("AI action rejected (action_id=%s, tool=%s, status=replay)", claims.action_id, claims.tool_name)
         raise HTTPException(status_code=409, detail="AI action was already handled.") from exc
     except (ActionTokenError, ToolNotFoundError, ToolValidationError, ToolConfirmationRequiredError) as exc:
+        logger.warning("AI action rejected (action_id=unavailable, tool=unknown, status=invalid)")
         raise _invalid_action() from exc
 
     latency_ms = round((time.perf_counter() - started_at) * 1000)
@@ -219,7 +260,10 @@ def cancel_action(
         status_code=200,
         latency_ms=latency_ms,
     )
+    message = "Vocabulary addition canceled."
+    if conversation is not None:
+        append_visible_messages(db, conversation, [("assistant", message)])
     return AIActionCancellationResponse(
         action_id=claims.action_id,
-        message="Vocabulary addition canceled.",
+        message=message,
     )

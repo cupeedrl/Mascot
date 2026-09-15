@@ -10,10 +10,13 @@ from .schemas import (
     DueVocabularyResult,
     AddVocabularyArgs,
     AddVocabularyResult,
+    GetLearningProfileArgs,
+    LearningProfileResult,
 )
 from .learning_tools import (
     handle_get_learning_stats,
     handle_get_due_vocabulary,
+    handle_get_learning_profile,
 )
 from .vocabulary_tools import handle_add_vocabulary
 
@@ -50,9 +53,29 @@ _register(
 
 _register(
     {
+        "name": "get_learning_profile",
+        "description": (
+            "Return the authenticated learner's fresh, track-scoped profile for "
+            "personalized study advice: vocabulary state counts, due count, recent "
+            "practice accuracy, streak, weak topics, and recent topics. Use this for "
+            "questions about what to study today, weaknesses, priorities, or a study "
+            "recommendation. Do not use it for an exact due-word list."
+        ),
+        "arg_schema": GetLearningProfileArgs,
+        "result_schema": LearningProfileResult,
+        "handler": handle_get_learning_profile,
+        "classification": "read",
+        "requires_confirmation": False,
+    }
+)
+
+_register(
+    {
         "name": "add_vocabulary",
         "description": (
-            "Propose adding exactly one English vocabulary item for the current user. "
+            "Propose adding exactly one English vocabulary item only when the latest "
+            "user message explicitly asks to add, save, or store it. Never use this "
+            "tool for meaning, translation, definition, example, or usage questions. "
             "This write always requires explicit UI confirmation before execution."
         ),
         "arg_schema": AddVocabularyArgs,

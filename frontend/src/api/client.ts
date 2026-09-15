@@ -1,4 +1,11 @@
 import { persistAccessToken, readAccessToken } from "../auth/sessionStorage.ts";
+import {
+  BackendWarmupTimeoutError,
+  isTransientBackendUnavailable,
+  runBackendWarmup,
+  type BackendWarmupOptions,
+  type BackendWarmupProgress,
+} from "./backendWarmup.ts";
 
 
 const configuredBaseUrl =
@@ -40,13 +47,20 @@ export class ApiError extends Error {
   public readonly status: number;
   public readonly detail?: ApiErrorDetail;
   public readonly code?: string;
+  public readonly reason: "http" | "network" | "timeout";
 
-  constructor(status: number, message: string, detail?: ApiErrorDetail) {
+  constructor(
+    status: number,
+    message: string,
+    detail?: ApiErrorDetail,
+    reason: "http" | "network" | "timeout" = "http",
+  ) {
     super(message);
     this.status = status;
     this.detail = detail;
     this.name = "ApiError";
     this.code = detail?.code;
+    this.reason = reason;
   }
 }
 
@@ -64,7 +78,15 @@ export function setUnauthorizedHandler(handler: (() => void) | null): void {
   unauthorizedHandler = handler;
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+interface RequestOptions {
+  timeoutMs?: number;
+}
+
+async function request<T>(
+  path: string,
+  init: RequestInit = {},
+  options: RequestOptions = {},
+): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
   if (init.body) {
@@ -74,11 +96,39 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
+  const controller = new AbortController();
+  let didTimeout = false;
+  const timeout = options.timeoutMs
+    ? globalThis.setTimeout(() => {
+        didTimeout = true;
+        controller.abort();
+      }, options.timeoutMs)
+    : null;
+  const callerSignal = init.signal;
+  const handleCallerAbort = () => controller.abort();
+  callerSignal?.addEventListener("abort", handleCallerAbort, { once: true });
+  if (callerSignal?.aborted) controller.abort();
+
   let response: Response;
   try {
-    response = await fetch(`${apiBaseUrl}${path}`, { ...init, headers });
-  } catch {
-    throw new ApiError(0, "Không thể kết nối tới máy chủ.");
+    response = await fetch(`${apiBaseUrl}${path}`, {
+      ...init,
+      headers,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (callerSignal?.aborted) throw new DOMException("Operation cancelled", "AbortError");
+    throw new ApiError(
+      0,
+      didTimeout
+        ? "Yêu cầu tới máy chủ đã hết thời gian chờ."
+        : "Không thể kết nối tới máy chủ.",
+      undefined,
+      didTimeout ? "timeout" : "network",
+    );
+  } finally {
+    if (timeout !== null) globalThis.clearTimeout(timeout);
+    callerSignal?.removeEventListener("abort", handleCallerAbort);
   }
 
   if (!response.ok) {
@@ -112,22 +162,172 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return (await response.json()) as T;
 }
 
-export function register(email: string, password: string): Promise<User> {
-  return request<User>("/auth/register", {
-    method: "POST",
-    body: JSON.stringify({ email, password }),
+const BACKEND_READY_CACHE_MS = 60_000;
+const HEALTH_REQUEST_TIMEOUT_MS = 5_000;
+const AUTH_REQUEST_TIMEOUT_MS = 12_000;
+
+interface SharedWarmup {
+  controller: AbortController;
+  consumers: number;
+  listeners: Set<(progress: BackendWarmupProgress) => void>;
+  promise: Promise<void>;
+  startedAt: number;
+}
+
+let backendReadyAt = 0;
+let sharedWarmup: SharedWarmup | null = null;
+
+function recordWarmup(event: string, fields: Record<string, number>): void {
+  console.info("Mascot backend warm-up", { event, ...fields });
+}
+
+function createSharedWarmup(): SharedWarmup {
+  const flow: SharedWarmup = {
+    controller: new AbortController(),
+    consumers: 0,
+    listeners: new Set(),
+    promise: Promise.resolve(),
+    startedAt: Date.now(),
+  };
+  recordWarmup("backend_warmup_started", { retry_count: 0, total_warmup_ms: 0 });
+  flow.promise = runBackendWarmup(
+    async (signal) => {
+      await request(
+        "/health/database",
+        { method: "GET", signal },
+        { timeoutMs: HEALTH_REQUEST_TIMEOUT_MS },
+      );
+    },
+    {
+      signal: flow.controller.signal,
+      onProgress: (progress) => {
+        for (const listener of flow.listeners) listener(progress);
+      },
+    },
+  )
+    .then((result) => {
+      backendReadyAt = Date.now();
+      if (result.retryCount > 0) {
+        recordWarmup("backend_warmup_success", {
+          retry_count: result.retryCount,
+          total_warmup_ms: result.totalWarmupMs,
+        });
+      }
+    })
+    .catch((error) => {
+      if (error instanceof BackendWarmupTimeoutError) {
+        recordWarmup("backend_warmup_timeout", {
+          retry_count: 4,
+          total_warmup_ms: Date.now() - flow.startedAt,
+        });
+      }
+      throw error;
+    })
+    .finally(() => {
+      if (sharedWarmup === flow) sharedWarmup = null;
+    });
+  return flow;
+}
+
+export function invalidateBackendReadiness(): void {
+  backendReadyAt = 0;
+}
+
+export function waitForBackendReady(
+  options: BackendWarmupOptions = {},
+): Promise<void> {
+  if (Date.now() - backendReadyAt < BACKEND_READY_CACHE_MS) {
+    return Promise.resolve();
+  }
+  const flow = sharedWarmup ?? createSharedWarmup();
+  sharedWarmup = flow;
+  flow.consumers += 1;
+  if (options.onProgress) flow.listeners.add(options.onProgress);
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const cleanup = () => {
+      if (settled) return;
+      settled = true;
+      flow.consumers -= 1;
+      if (options.onProgress) flow.listeners.delete(options.onProgress);
+      options.signal?.removeEventListener("abort", handleAbort);
+      if (flow.consumers === 0 && sharedWarmup === flow) flow.controller.abort();
+    };
+    const handleAbort = () => {
+      cleanup();
+      reject(new DOMException("Operation cancelled", "AbortError"));
+    };
+    options.signal?.addEventListener("abort", handleAbort, { once: true });
+    if (options.signal?.aborted) {
+      handleAbort();
+      return;
+    }
+    flow.promise.then(
+      () => {
+        cleanup();
+        resolve();
+      },
+      (error) => {
+        cleanup();
+        reject(error);
+      },
+    );
   });
 }
 
-export function login(email: string, password: string): Promise<TokenResponse> {
-  return request<TokenResponse>("/auth/login", {
-    method: "POST",
-    body: JSON.stringify({ email, password }),
-  });
+async function requestAfterBackendWarmup<T>(
+  path: string,
+  init: RequestInit,
+  warmupOptions: BackendWarmupOptions,
+  retryTransient: boolean,
+): Promise<T> {
+  await waitForBackendReady(warmupOptions);
+  try {
+    return await request<T>(path, { ...init, signal: warmupOptions.signal }, {
+      timeoutMs: AUTH_REQUEST_TIMEOUT_MS,
+    });
+  } catch (error) {
+    if (!retryTransient || !isTransientBackendUnavailable(error)) throw error;
+    invalidateBackendReadiness();
+    await waitForBackendReady(warmupOptions);
+    return request<T>(path, { ...init, signal: warmupOptions.signal }, {
+      timeoutMs: AUTH_REQUEST_TIMEOUT_MS,
+    });
+  }
 }
 
-export function getCurrentUser(): Promise<User> {
-  return request<User>("/auth/me");
+export function register(
+  email: string,
+  password: string,
+  warmupOptions: BackendWarmupOptions = {},
+): Promise<User> {
+  return requestAfterBackendWarmup<User>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  }, warmupOptions, false);
+}
+
+export function login(
+  email: string,
+  password: string,
+  warmupOptions: BackendWarmupOptions = {},
+): Promise<TokenResponse> {
+  return requestAfterBackendWarmup<TokenResponse>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  }, warmupOptions, true);
+}
+
+export function getCurrentUser(
+  warmupOptions: BackendWarmupOptions = {},
+): Promise<User> {
+  return requestAfterBackendWarmup<User>(
+    "/auth/me",
+    { method: "GET", signal: warmupOptions.signal },
+    warmupOptions,
+    true,
+  );
 }
 
 export function logout(): Promise<{ status: "ok" }> {
@@ -166,7 +366,7 @@ export interface AIVocabularyCandidate {
   translation: string;
   ipa: string;
   definition: string;
-  cefr_level: CefrLevel;
+  cefr_level: string;
   examples: string[];
   topic?: string | null;
 }
@@ -175,6 +375,7 @@ export function generateAIVocabulary(params: {
   word: string;
   part_of_speech: string;
   translation: string;
+  learning_track_id?: string;
 }): Promise<AIVocabularyCandidate> {
   return request<AIVocabularyCandidate>("/ai/vocabulary", {
     method: "POST",
@@ -195,7 +396,36 @@ export interface LearningTrack {
   name: string;
   description: string | null;
   level_framework: string;
+  level_codes: string[];
   language: Language;
+}
+
+export interface LearningPreference {
+  learning_track_id: string;
+  framework: string;
+  current_level_code: string | null;
+  level_codes: string[];
+}
+
+export function getLearningPreference(
+  learningTrackId: string,
+): Promise<LearningPreference> {
+  return request<LearningPreference>(
+    `/learning-preferences/${encodeURIComponent(learningTrackId)}`,
+  );
+}
+
+export function updateLearningPreference(
+  learningTrackId: string,
+  currentLevelCode: string | null,
+): Promise<LearningPreference> {
+  return request<LearningPreference>(
+    `/learning-preferences/${encodeURIComponent(learningTrackId)}`,
+    {
+      method: "PUT",
+      body: JSON.stringify({ current_level_code: currentLevelCode }),
+    },
+  );
 }
 
 export interface Vocabulary {
@@ -241,7 +471,7 @@ export interface VocabularyInput {
   translation: string;
   translation_language_code: string;
   example_sentences: string[];
-  level_code: CefrLevel;
+  level_code: string;
   topic: string | null;
   learning_status: LearningStatus;
 }
@@ -259,12 +489,14 @@ export interface VocabularyListParams {
   pageSize: number;
   search?: string;
   learningStatus?: LearningStatus | "";
-  level?: CefrLevel | "";
+  level?: string;
   topic?: string;
+  learningTrackId?: string;
 }
 
-export function getLearningTracks(): Promise<LearningTrack[]> {
-  return request<LearningTrack[]>("/catalog/learning-tracks?language_code=en");
+export function getLearningTracks(languageCode?: string): Promise<LearningTrack[]> {
+  const query = languageCode ? `?language_code=${encodeURIComponent(languageCode)}` : "";
+  return request<LearningTrack[]>(`/catalog/learning-tracks${query}`);
 }
 
 export function listVocabularies(
@@ -278,15 +510,16 @@ export function listVocabularies(
   if (params.learningStatus) query.set("learning_status", params.learningStatus);
   if (params.level) query.set("level", params.level);
   if (params.topic?.trim()) query.set("topic", params.topic.trim());
+  if (params.learningTrackId) query.set("learning_track_id", params.learningTrackId);
   return request<VocabularyListResponse>(`/vocabularies?${query.toString()}`);
 }
 
-export async function listAllVocabularies(): Promise<Vocabulary[]> {
-  const firstPage = await listVocabularies({ page: 1, pageSize: 100 });
+export async function listAllVocabularies(learningTrackId?: string): Promise<Vocabulary[]> {
+  const firstPage = await listVocabularies({ page: 1, pageSize: 100, learningTrackId });
   if (firstPage.total_pages <= 1) return firstPage.items;
   const remainingPages = await Promise.all(
     Array.from({ length: firstPage.total_pages - 1 }, (_, index) =>
-      listVocabularies({ page: index + 2, pageSize: 100 }),
+      listVocabularies({ page: index + 2, pageSize: 100, learningTrackId }),
     ),
   );
   return [
@@ -336,26 +569,29 @@ export interface TopicMutationResponse {
 export function listTopicSuggestions(
   query = "",
   limit = 20,
+  learningTrackId?: string,
 ): Promise<TopicSuggestionListResponse> {
   const params = new URLSearchParams({ limit: String(limit) });
   if (query.trim()) params.set("q", query.trim());
+  if (learningTrackId) params.set("learning_track_id", learningTrackId);
   return request<TopicSuggestionListResponse>(`/vocabularies/topics?${params.toString()}`);
 }
 
 export function renamePersonalTopic(
   oldTopic: string,
   newTopic: string,
+  learningTrackId?: string,
 ): Promise<TopicMutationResponse> {
   return request<TopicMutationResponse>("/vocabularies/topics", {
     method: "PATCH",
-    body: JSON.stringify({ old_topic: oldTopic, new_topic: newTopic }),
+    body: JSON.stringify({ old_topic: oldTopic, new_topic: newTopic, learning_track_id: learningTrackId }),
   });
 }
 
-export function removePersonalTopic(topic: string): Promise<TopicMutationResponse> {
+export function removePersonalTopic(topic: string, learningTrackId?: string): Promise<TopicMutationResponse> {
   return request<TopicMutationResponse>("/vocabularies/topics", {
     method: "DELETE",
-    body: JSON.stringify({ topic }),
+    body: JSON.stringify({ topic, learning_track_id: learningTrackId }),
   });
 }
 
@@ -365,8 +601,10 @@ export interface ReviewQueueResponse {
   limit: number;
 }
 
-export function getDueVocabularies(limit = 50): Promise<ReviewQueueResponse> {
-  return request<ReviewQueueResponse>(`/vocabularies/due-for-review?limit=${limit}`);
+export function getDueVocabularies(limit = 50, learningTrackId?: string): Promise<ReviewQueueResponse> {
+  const query = new URLSearchParams({ limit: String(limit) });
+  if (learningTrackId) query.set("learning_track_id", learningTrackId);
+  return request<ReviewQueueResponse>(`/vocabularies/due-for-review?${query.toString()}`);
 }
 
 export function submitVocabularyReview(
@@ -406,8 +644,32 @@ export interface DashboardResponse {
   recently_added_vocabulary: DashboardRecentVocabulary[];
 }
 
-export function getDashboard(): Promise<DashboardResponse> {
-  return request<DashboardResponse>("/dashboard");
+export function getDashboard(learningTrackId?: string): Promise<DashboardResponse> {
+  const query = learningTrackId ? `?learning_track_id=${encodeURIComponent(learningTrackId)}` : "";
+  return request<DashboardResponse>(`/dashboard${query}`);
+}
+
+export interface StudyCalendarResponse {
+  year: number;
+  month: number;
+  today: string;
+  active_dates: string[];
+  current_streak: number;
+  longest_streak: number;
+  learning_track_id: string | null;
+}
+
+export function getStudyCalendar(
+  learningTrackId: string,
+  year: number,
+  month: number,
+): Promise<StudyCalendarResponse> {
+  const query = new URLSearchParams({
+    learning_track_id: learningTrackId,
+    year: String(year),
+    month: String(month),
+  });
+  return request<StudyCalendarResponse>(`/dashboard/study-calendar?${query.toString()}`);
 }
 
 export type ExerciseType = "multiple_choice" | "fill_in_blank";
@@ -475,10 +737,13 @@ export interface AIExerciseGenerationInput {
   vocabulary_ids?: string[];
   exercise_type: ExerciseType;
   count: number;
+  learning_track_id?: string;
 }
 
-export function listExercises(pageSize = 100): Promise<ExerciseListResponse> {
-  return request<ExerciseListResponse>(`/exercises?page=1&page_size=${pageSize}`);
+export function listExercises(pageSize = 100, learningTrackId?: string): Promise<ExerciseListResponse> {
+  const query = new URLSearchParams({ page: "1", page_size: String(pageSize) });
+  if (learningTrackId) query.set("learning_track_id", learningTrackId);
+  return request<ExerciseListResponse>(`/exercises?${query.toString()}`);
 }
 
 export function submitExerciseAttempt(
@@ -493,8 +758,9 @@ export function submitExerciseAttempt(
   });
 }
 
-export function getActiveAIExercises(): Promise<AIExerciseGenerationResponse> {
-  return request<AIExerciseGenerationResponse>("/ai/exercises/active");
+export function getActiveAIExercises(learningTrackId?: string): Promise<AIExerciseGenerationResponse> {
+  const query = learningTrackId ? `?learning_track_id=${encodeURIComponent(learningTrackId)}` : "";
+  return request<AIExerciseGenerationResponse>(`/ai/exercises/active${query}`);
 }
 
 export function generateAIExercises(
@@ -512,7 +778,7 @@ export interface VocabularySetListItem {
   id: string;
   name: string;
   description: string | null;
-  level_code: CefrLevel;
+  level_code: string;
   topic: string;
   order_index: number;
   learning_track: LearningTrack;
@@ -554,14 +820,16 @@ export interface VocabularyImportResponse {
 }
 
 export function listVocabularySets(params: {
-  level?: CefrLevel | "";
+  language?: string;
+  learningTrack?: string;
+  level?: string;
   topic?: string;
   page?: number;
   pageSize?: number;
 }): Promise<VocabularySetListResponse> {
   const query = new URLSearchParams({
-    language: "en",
-    learning_track: "general-english",
+    ...(params.language ? { language: params.language } : {}),
+    ...(params.learningTrack ? { learning_track: params.learningTrack } : {}),
     page: String(params.page ?? 1),
     page_size: String(params.pageSize ?? 20),
   });
@@ -570,8 +838,9 @@ export function listVocabularySets(params: {
   return request<VocabularySetListResponse>(`/vocabulary-sets?${query.toString()}`);
 }
 
-export function getVocabularySet(setId: string): Promise<VocabularySetDetail> {
-  return request<VocabularySetDetail>(`/vocabulary-sets/${setId}`);
+export function getVocabularySet(setId: string, learningTrackId?: string): Promise<VocabularySetDetail> {
+  const query = learningTrackId ? `?learning_track_id=${encodeURIComponent(learningTrackId)}` : "";
+  return request<VocabularySetDetail>(`/vocabulary-sets/${setId}${query}`);
 }
 
 export function importVocabularyEntries(
@@ -851,11 +1120,15 @@ export interface ChatMessage {
 }
 
 export interface AIChatRequest {
-  messages: ChatMessage[];
+  message?: string;
+  messages?: ChatMessage[];
+  conversation_id?: string;
+  learning_track_id?: string;
 }
 
 export interface AIChatResponse {
   message: ChatMessage;
+  conversation_id: string;
   confirmation_required: AIActionConfirmation | null;
 }
 
@@ -902,24 +1175,73 @@ export interface AIActionCancellationResponse {
   message: string;
 }
 
-export function postAIChat(messages: ChatMessage[]): Promise<AIChatResponse> {
+export interface AIConversationSummary {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AIConversationMessage extends ChatMessage {
+  id: string;
+  created_at: string;
+}
+
+export interface AIConversationDetail extends AIConversationSummary {
+  messages: AIConversationMessage[];
+}
+
+export function listAIConversations(): Promise<AIConversationSummary[]> {
+  return request<AIConversationSummary[]>("/ai/conversations");
+}
+
+export function createAIConversation(): Promise<AIConversationSummary> {
+  return request<AIConversationSummary>("/ai/conversations", { method: "POST" });
+}
+
+export function getAIConversation(conversationId: string): Promise<AIConversationDetail> {
+  return request<AIConversationDetail>(`/ai/conversations/${conversationId}`);
+}
+
+export function deleteAIConversation(conversationId: string): Promise<void> {
+  return request<void>(`/ai/conversations/${conversationId}`, { method: "DELETE" });
+}
+
+export function postAIChat(
+  messageOrMessages: string | ChatMessage[],
+  learningTrackId?: string,
+  conversationId?: string,
+): Promise<AIChatResponse> {
+  const payload: AIChatRequest = Array.isArray(messageOrMessages)
+    ? { messages: messageOrMessages, learning_track_id: learningTrackId }
+    : {
+        message: messageOrMessages,
+        conversation_id: conversationId,
+        learning_track_id: learningTrackId,
+      };
   return request<AIChatResponse>("/ai/chat", {
     method: "POST",
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify(payload),
   });
 }
 
-export function confirmAIAction(actionToken: string): Promise<AIActionExecutionResponse> {
+export function confirmAIAction(
+  actionToken: string,
+  conversationId?: string,
+): Promise<AIActionExecutionResponse> {
   return request<AIActionExecutionResponse>("/ai/actions/confirm", {
     method: "POST",
-    body: JSON.stringify({ action_token: actionToken }),
+    body: JSON.stringify({ action_token: actionToken, conversation_id: conversationId }),
   });
 }
 
-export function cancelAIAction(actionToken: string): Promise<AIActionCancellationResponse> {
+export function cancelAIAction(
+  actionToken: string,
+  conversationId?: string,
+): Promise<AIActionCancellationResponse> {
   return request<AIActionCancellationResponse>("/ai/actions/cancel", {
     method: "POST",
-    body: JSON.stringify({ action_token: actionToken }),
+    body: JSON.stringify({ action_token: actionToken, conversation_id: conversationId }),
   });
 }
 
