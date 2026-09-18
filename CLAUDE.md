@@ -14,9 +14,12 @@ Mascot is an AI-assisted language learning platform: personal vocabulary, CEFR E
 
 ## AI chatbot (CURRENT)
 
-A custom, bounded, single-agent tool-calling loop. LangChain and LangGraph are **not** installed. Full detail: `docs/ai/ARCHITECTURE.md`.
+A bounded, single-agent tool-calling workflow. LangGraph orchestrates the loop; LangChain provides the chat-model abstraction and messages; Mascot owns every rule (decision D-006). Full detail: `docs/ai/ARCHITECTURE.md`.
 
-- `POST /api/v1/ai/chat` → `backend/app/api/v1/routes/ai_chat.py` → `run_chat_agent()` in `backend/app/ai/chat_agent.py`
+- `POST /api/v1/ai/chat` → `backend/app/api/v1/routes/ai_chat.py` → `run_chat_agent()` in `backend/app/ai/chat_agent.py` → `run_agent_graph()` in `ai/agent_graph.py` (`START → model ⇄ tools → END`)
+- Engine flag: `settings.ai_agent_engine` — `langgraph` (default) or `legacy` (original loop `_run_legacy_chat_agent`, kept for rollback)
+- LangChain adapter: `ProviderChatModel` in `ai/langchain_chat_model.py` wraps any `ChatAIProvider`
+- Shared guardrails for both engines: `ai/agent_guardrails.py`
 - Provider: `ChatAIProvider` protocol (`ai/provider.py`), implemented by `ai/openai_compatible_provider.py`, selected in `ai/dependencies.py`
 - Tools: `ai/tools/registry.py` (`TOOL_REGISTRY`), `ai/tools/executor.py`, handlers in `learning_tools.py` / `vocabulary_tools.py`
 - Human-in-the-loop writes: `ai/action_tokens.py` + `routes/ai_actions.py` (`/ai/actions/confirm`, `/ai/actions/cancel`)
@@ -25,7 +28,7 @@ A custom, bounded, single-agent tool-calling loop. LangChain and LangGraph are *
 
 ## Architectural constraints — do not break
 
-1. Provider output is untrusted and is validated before entering the conversation (`_validate_provider_result`).
+1. Provider output is untrusted and is validated before entering the conversation (`validate_provider_result` in `agent_guardrails.py`).
 2. Write tools never execute inside the agent loop. `execute_tool` is read-only; `execute_confirmed_tool` runs only after action-token verification.
 3. A write proposal must be the only tool call in its round.
 4. `user_id` and `learning_track_id` come from the JWT/request, never from model-authored arguments.
@@ -34,6 +37,7 @@ A custom, bounded, single-agent tool-calling loop. LangChain and LangGraph are *
 7. The system prompt is backend-owned and first; the response-language hint is deterministic (no model call).
 8. Error types map to stable HTTP status codes, and the frontend depends on the `AIChatResponse` shape (including `confirmation_required`).
 9. `ChatAIProvider` is the seam that tests and evals mock — keep it working.
+10. LangChain/LangGraph orchestrate; they never own these rules. Do not execute Mascot tools through the prebuilt `ToolNode` or `create_agent`, and keep both engines passing `tests/test_agent_graph_migration.py` until the legacy engine is removed.
 
 ## Working rules
 
@@ -67,7 +71,7 @@ Project slash commands: `/verify`, `/explain <file|symbol|topic>`.
 
 ## Learning mode
 
-The user is using Mascot to learn LangChain and LangGraph. Roadmap: `docs/ai/LEARNING_PLAN.md`. Decisions: `docs/ai/DECISIONS.md` (the custom loop stays in production during learning).
+The user is using Mascot to learn LangChain and LangGraph. Roadmap: `docs/ai/LEARNING_PLAN.md`. Decisions: `docs/ai/DECISIONS.md`. Since D-006, LangGraph is the default AI agent engine; the legacy custom loop remains available as a rollback path via `AI_AGENT_ENGINE=legacy`, and `backend/tests/test_agent_graph_migration.py` holds parity tests covering both engines.
 
 For any request about learning, LangChain, LangGraph, or changes to the AI architecture, follow this workflow:
 
@@ -80,4 +84,4 @@ For any request about learning, LangChain, LangGraph, or changes to the AI archi
 7. **Run relevant verification** (`/verify`).
 8. **Summarize what changed and why.**
 
-Learning prototypes stay isolated from `backend/app/` (proposed location: `backend/learning/`, not yet created) and use fake chat models by default so they cost no tokens. Adding LangChain/LangGraph to `pyproject.toml` is a configuration change and requires an explicit request.
+Learning prototypes stay isolated from `backend/app/` (in `backend/learning/`) and use fake chat models by default so they cost no tokens. `langchain-core` and `langgraph` are production dependencies since D-006; changing their versions or adding other LangChain packages still requires an explicit request.

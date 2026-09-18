@@ -1,15 +1,22 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import logging
-import re
 import time
 from typing import Any
 from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from app.ai.agent_graph import run_agent_graph
+from app.ai.agent_guardrails import (
+    build_tool_definitions as _build_tool_definitions,
+    parse_tool_arguments as _parse_tool_arguments,
+    record_tool_latency as _record_tool_latency,
+    safe_log_identifier as _safe_log_identifier,
+    safe_tool_name as _safe_tool_name,
+    validate_provider_result as _validate_provider_result,
+)
 from app.ai.chat_schema import (
     AssistantMessage,
     AgentTrace,
@@ -36,6 +43,7 @@ from app.ai.tools.executor import (
     validate_tool_arguments,
 )
 from app.ai.tools.registry import TOOL_REGISTRY
+from app.core.config import get_settings
 
 logger = logging.getLogger("uvicorn.error")
 logger.setLevel(logging.INFO)
@@ -46,25 +54,6 @@ DEFAULT_MAX_TOTAL_TOOL_CALLS = 8
 DEFAULT_MAX_TOOL_ARGUMENT_BYTES = 8192
 DEFAULT_MAX_TOOL_PAYLOAD_BYTES = 65536
 DEFAULT_TOOL_TIMEOUT_SECONDS = 5.0
-
-
-def _build_tool_definitions() -> list[dict[str, Any]]:
-    """Create provider-neutral tool specifications for the LLM."""
-    tools: list[dict[str, Any]] = []
-    for tool_name, tool_meta in TOOL_REGISTRY.items():
-        arg_schema = tool_meta.get("arg_schema") if isinstance(tool_meta, dict) else getattr(tool_meta, "arg_schema", None)
-        parameters = (
-            arg_schema.model_json_schema()
-            if hasattr(arg_schema, "model_json_schema")
-            else {"type": "object", "properties": {}}
-        )
-        desc = tool_meta.get("description") if isinstance(tool_meta, dict) else getattr(tool_meta, "description", "")
-        tools.append({
-            "name": tool_name,
-            "description": desc,
-            "parameters": parameters,
-        })
-    return tools
 
 
 def run_chat_agent(
@@ -82,7 +71,55 @@ def run_chat_agent(
     request_id: str = "untracked",
     learning_track_id: UUID | None = None,
 ) -> str | PendingToolAction:
-    """Run the bounded single-agent loop for the Mascot AI Learning Assistant."""
+    """Run the bounded single-agent workflow for the Mascot AI Learning Assistant.
+
+    By default the workflow runs as a LangGraph graph (`agent_graph.py`).
+    `settings.ai_agent_engine = "legacy"` selects the original custom loop, kept
+    for rollback. Both engines share the same guardrails and return the final
+    answer text, or a PendingToolAction that still needs explicit confirmation.
+    """
+    if not callable(getattr(provider, "generate_chat_response_with_tools", None)):
+        raise AIProviderConfigurationError(
+            "Configured AI provider does not support tool calling required by chat agent."
+        )
+    options: dict[str, Any] = {
+        "provider": provider,
+        "messages": messages,
+        "db": db,
+        "user_id": user_id,
+        "max_tool_rounds": max_tool_rounds,
+        "max_tool_calls_per_round": max_tool_calls_per_round,
+        "max_total_tool_calls": max_total_tool_calls,
+        "max_tool_argument_bytes": max_tool_argument_bytes,
+        "max_tool_payload_bytes": max_tool_payload_bytes,
+        "tool_timeout_seconds": tool_timeout_seconds,
+        "trace": trace,
+        "request_id": request_id,
+        "learning_track_id": learning_track_id,
+    }
+    if get_settings().ai_agent_engine == "legacy":
+        return _run_legacy_chat_agent(**options)
+    # execute_tool is resolved from this module at call time, so the executor
+    # seam is the same for both engines.
+    return run_agent_graph(**options, execute_tool=execute_tool)
+
+
+def _run_legacy_chat_agent(
+    provider: ChatAIProvider,
+    messages: list[dict[str, str]],
+    db: Session,
+    user_id: UUID,
+    max_tool_rounds: int = DEFAULT_MAX_TOOL_ROUNDS,
+    max_tool_calls_per_round: int = DEFAULT_MAX_TOOL_CALLS_PER_ROUND,
+    max_total_tool_calls: int = DEFAULT_MAX_TOTAL_TOOL_CALLS,
+    max_tool_argument_bytes: int = DEFAULT_MAX_TOOL_ARGUMENT_BYTES,
+    max_tool_payload_bytes: int = DEFAULT_MAX_TOOL_PAYLOAD_BYTES,
+    tool_timeout_seconds: float = DEFAULT_TOOL_TIMEOUT_SECONDS,
+    trace: AgentTrace | None = None,
+    request_id: str = "untracked",
+    learning_track_id: UUID | None = None,
+) -> str | PendingToolAction:
+    """Original custom agent loop, kept unchanged for rollback (AI_AGENT_ENGINE=legacy)."""
     generate_with_tools_fn = getattr(
         provider, "generate_chat_response_with_tools", None
     )
@@ -295,92 +332,3 @@ def run_chat_agent(
         tool_rounds += 1
         if trace is not None:
             trace.tool_rounds = tool_rounds
-
-
-def _record_tool_latency(trace: AgentTrace | None, started_at: float) -> int:
-    latency_ms = round((time.perf_counter() - started_at) * 1000)
-    if trace is not None:
-        trace.tool_latencies_ms.append(latency_ms)
-    return latency_ms
-
-
-def _safe_tool_name(name: object) -> str:
-    return name if isinstance(name, str) and name in TOOL_REGISTRY else "unknown"
-
-
-def _safe_log_identifier(value: object) -> str:
-    text = value if isinstance(value, str) else ""
-    if re.fullmatch(r"[A-Za-z0-9_.:-]{1,128}", text):
-        return text
-    digest = hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
-    return f"sha256:{digest}"
-
-
-def _parse_tool_arguments(arguments: str, max_bytes: int) -> dict[str, Any]:
-    try:
-        if len(arguments.encode("utf-8")) > max_bytes:
-            raise ValueError("Tool arguments exceed the size limit.")
-        parsed = json.loads(arguments) if arguments else {}
-        if not isinstance(parsed, dict):
-            raise ValueError("Tool arguments must be a JSON object.")
-        return parsed
-    except Exception as exc:
-        raise ToolValidationError("Invalid tool arguments") from exc
-
-
-def _validate_provider_result(result: object) -> tuple[str | None, list[ProviderToolCall]]:
-    """Validate untrusted provider output before adding it to the conversation."""
-    if not isinstance(result, dict):
-        raise AIProviderResponseError("invalid_result", "Provider result must be an object.")
-    if set(result) - {"content", "tool_calls"}:
-        raise AIProviderResponseError(
-            "invalid_result", "Provider result contains unsupported fields."
-        )
-
-    content = result.get("content")
-    if content is not None and not isinstance(content, str):
-        raise AIProviderResponseError(
-            "invalid_content", "Provider content must be text or null."
-        )
-
-    raw_tool_calls = result.get("tool_calls")
-    if raw_tool_calls is None:
-        return content, []
-    if not isinstance(raw_tool_calls, list):
-        raise AIProviderResponseError(
-            "invalid_tool_calls", "Provider tool_calls must be a list."
-        )
-
-    validated: list[ProviderToolCall] = []
-    seen_ids: set[str] = set()
-    for raw_call in raw_tool_calls:
-        if not isinstance(raw_call, dict) or set(raw_call) != {
-            "id",
-            "name",
-            "arguments",
-        }:
-            raise AIProviderResponseError(
-                "invalid_tool_call", "Provider tool call has an invalid shape."
-            )
-        call_id = raw_call["id"]
-        name = raw_call["name"]
-        arguments = raw_call["arguments"]
-        if (
-            not isinstance(call_id, str)
-            or not call_id.strip()
-            or call_id in seen_ids
-        ):
-            raise AIProviderResponseError(
-                "invalid_tool_call_id", "Provider tool call id is invalid."
-            )
-        if not isinstance(name, str) or not name.strip():
-            raise AIProviderResponseError(
-                "invalid_tool_name", "Provider tool name is invalid."
-            )
-        if not isinstance(arguments, str):
-            raise AIProviderResponseError(
-                "invalid_tool_arguments", "Provider tool arguments must be JSON text."
-            )
-        seen_ids.add(call_id)
-        validated.append({"id": call_id, "name": name, "arguments": arguments})
-    return content, validated

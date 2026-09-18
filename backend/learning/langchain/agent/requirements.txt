@@ -1,0 +1,4 @@
+# Learning-only dependencies. Not part of Mascot's production pyproject.toml.
+# langchain 1.x installs langgraph as a dependency: create_agent() is built on it.
+langchain>=1.0,<2.0
+pytest>=9.0.3,<10.0

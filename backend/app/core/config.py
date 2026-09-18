@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     ai_request_timeout_seconds: float = Field(default=20.0, ge=1.0, le=120.0)
     ai_max_output_tokens: int = Field(default=800, ge=200, le=4000)
     ai_exercise_max_output_tokens: int = Field(default=4000, ge=800, le=8000)
+    # "legacy" selects the original custom agent loop; kept for rollback.
+    ai_agent_engine: Literal["langgraph", "legacy"] = "langgraph"
     ai_max_tool_rounds: int = Field(default=5, ge=1, le=10)
     ai_max_tool_calls_per_round: int = Field(default=4, ge=1, le=10)
     ai_max_total_tool_calls: int = Field(default=8, ge=1, le=50)
