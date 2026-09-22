@@ -66,6 +66,9 @@ but every prompt must be meaningfully different; never duplicate a question.
 Read target_language, target_language_code, level_framework, level_code, and
 translation_language from the supplied records. All records belong to one learning
 track. Write prompts, passages, and vocabulary options naturally in target_language.
+When the records do not include target_language, the learning language is English:
+write every prompt, passage, and option in English.
+Never write a prompt or passage in Vietnamese; only explanations use Vietnamese.
 Write explanations in Vietnamese.
 
 For multiple_choice:
@@ -76,6 +79,16 @@ For multiple_choice:
 - use exact supplied vocabulary words as all option texts;
 - make exactly one option clearly correct;
 - make distractors grammatically plausible but unambiguous;
+- the sentence must contain a decisive clue that rules out all three distractors,
+  such as a definition, a role, a place, a time, a number, a gender marker, a
+  collocation, or a cause-and-effect link; before returning an exercise, test each
+  distractor in the blank and discard the exercise if any distractor still reads
+  as a possible answer;
+- distractors from the same category as the answer are welcome, but the sentence
+  must then name the feature that separates them. For example, with the options
+  aunt, cousin, brother and uncle, do not write "My _______ plays football with me
+  every weekend", because several options fit. Write "My _______ is my mother's
+  sister and she lives next door" instead, so only aunt is possible;
 - the correct option text must equal the word referenced by target_vocabulary_id;
 - correct_answer is the correct option ID.
 - never ask for a definition and never write "What does ... mean?" or

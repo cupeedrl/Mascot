@@ -11,7 +11,7 @@ import { Link, Navigate, useSearchParams } from "react-router-dom";
 
 import { ApiError, resetPassword, validateResetToken } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
-import { BeeMark } from "../components/BeeMark";
+import { PenguinMark } from "../components/PenguinMark";
 
 export type ResetTokenValidationStatus = "checking" | "valid" | "invalid" | "success";
 
@@ -103,7 +103,7 @@ export function ResetPasswordPage() {
     <main className="auth-layout">
       <section className="brand-panel" aria-labelledby="brand-heading">
         <div className="auth-wordmark">
-          <BeeMark size={42} />
+          <PenguinMark size={42} />
           <strong>Mascot</strong>
         </div>
         <p className="eyebrow">BẢO MẬT TÀI KHOẢN</p>
@@ -118,13 +118,13 @@ export function ResetPasswordPage() {
         <div className="brand-mascot-visual" aria-hidden="true">
           <span className="mascot-orbit mascot-orbit-one" />
           <span className="mascot-orbit mascot-orbit-two" />
-          <BeeMark size={170} variant="learning" />
+          <PenguinMark size={170} variant="scholar" />
         </div>
       </section>
 
       <section className="form-panel">
         <div className="auth-card">
-          <div className="mobile-auth-brand"><BeeMark size={32} /> Mascot</div>
+          <div className="mobile-auth-brand"><PenguinMark size={32} /> Mascot</div>
 
           {validationState === "checking" ? (
             <div className="auth-loading" role="status" aria-live="polite">

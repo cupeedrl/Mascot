@@ -5,47 +5,47 @@ import test from "node:test";
 const source = (path: string) =>
   readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("brand tokens use the final warm yellow and orange palette", async () => {
+test("brand tokens use the restored purple palette", async () => {
   const css = await source("src/styles.css");
 
-  assert.match(css, /--primary:\s*#f59e0b/);
-  assert.match(css, /--primary-hover:\s*#d97706/);
-  assert.match(css, /--accent:\s*#fdba74/);
-  assert.match(css, /--background:\s*#fffcf5/);
-  assert.match(css, /--ink:\s*#1f2937/);
-  assert.match(css, /--hero-gradient-start:\s*#fffdf7/);
-  assert.match(css, /--hero-gradient-end:\s*#fff3d6/);
+  assert.match(css, /--primary:\s*#6658e8/);
+  assert.match(css, /--primary-hover:\s*#5044c8/);
+  assert.match(css, /--accent:\s*#a89df7/);
+  assert.match(css, /--background:\s*#f6f5fb/);
+  assert.match(css, /--ink:\s*#19182b/);
+  assert.match(css, /--hero-gradient-start:\s*#f1efff/);
+  assert.match(css, /--hero-gradient-end:\s*#ebe8ff/);
 });
 
-test("dashboard combines the bee brand with the selected warm background", async () => {
+test("dashboard combines the penguin brand with the purple background", async () => {
   const [css, dashboard] = await Promise.all([
     source("src/styles.css"),
     source("src/pages/AppHomePage.tsx"),
   ]);
 
-  assert.match(css, /\.dashboard-page\s*{[^}]*--dashboard-warm:\s*#fffdf7;[^}]*--dashboard-warm-soft:\s*#fff8e8;[^}]*display:\s*grid;/s);
-  assert.match(css, /\.dashboard-learning-hero\s*{[^}]*linear-gradient\(135deg, var\(--hero-gradient-start\) 0%, #fff8e8 58%, var\(--hero-gradient-end\) 100%\)/s);
-  assert.match(dashboard, /BeeMark size=\{224\} variant="hero"/);
-  assert.doesNotMatch(dashboard, /DolphinMark|PenguinMark/);
+  assert.match(css, /\.dashboard-page\s*{[^}]*--dashboard-warm:\s*#f1efff;[^}]*--dashboard-warm-soft:\s*#f6f4ff;[^}]*display:\s*grid;/s);
+  assert.match(css, /\.dashboard-learning-hero\s*{[^}]*linear-gradient\(135deg, var\(--hero-gradient-start\) 0%, #f6f4ff 58%, var\(--hero-gradient-end\) 100%\)/s);
+  assert.match(dashboard, /PenguinMark size=\{224\} variant="scholar"/);
+  assert.doesNotMatch(dashboard, /DolphinMark|BeeMark/);
 });
 
-test("homepage hero uses a side-facing learning bee and useful summary cards", async () => {
+test("homepage hero uses the scholar penguin and useful summary cards", async () => {
   const [mark, dashboard] = await Promise.all([
-    source("src/components/BeeMark.tsx"),
+    source("src/components/PenguinMark.tsx"),
     source("src/pages/AppHomePage.tsx"),
   ]);
 
-  assert.match(mark, /hero:\s*"\/mascot\/bee-hero\.png"/);
-  assert.match(mark, /bee-mark-side/);
-  assert.match(mark, /Mascot bee learning from a book/);
+  assert.match(mark, /variant === "scholar" \|\| variant === "learning"/);
+  assert.match(mark, /penguin-mark-scholar/);
+  assert.match(mark, /Mascot scholar penguin/);
   assert.match(dashboard, /activeTrack\.name/);
   assert.match(dashboard, /dashboard\.words_due_for_review/);
   assert.match(dashboard, /dashboard\.total_vocabulary/);
-  assert.match(dashboard, /Trọng tâm hôm nay/);
+  assert.match(dashboard, /Công việc bây giờ/);
   assert.match(dashboard, /<b>10<\/b> phút/);
   assert.match(dashboard, /hasStudiedToday/);
   assert.match(dashboard, /today-date-copy/);
-  assert.match(dashboard, /<span>Hôm nay<\/span>\s*<strong>\{today\.weekday\}<\/strong>\s*<time>· \{today\.dayAndMonth\}<\/time>/);
+  assert.match(dashboard, /<span>Hôm nay<\/span>\s*<strong>\{today\.weekday\}<\/strong>\s*<time>\{today\.dayAndMonth\}<\/time>/);
   assert.match(dashboard, /today-action-row/);
   assert.match(dashboard, /Ôn ngay/);
 });
@@ -110,16 +110,17 @@ test("desktop account control is top-right and logout remains in its menu", asyn
   assert.match(css, /\.desktop-account-bar\s*{[^}]*position:\s*fixed;[^}]*top:\s*16px;[^}]*right:/s);
 });
 
-test("legacy purple brand values are absent from active frontend styles", async () => {
+test("retired warm yellow brand values are absent from active frontend styles", async () => {
   const css = (await source("src/styles.css")).toLowerCase();
-  for (const legacyColor of ["#6658e8", "#5044c8", "#7c3aed", "rgb(102 88 232"]) {
-    assert.equal(css.includes(legacyColor), false, legacyColor);
+  // Warm-theme token values only; semantic amber accents such as the practice icon predate the refresh.
+  for (const retiredColor of ["#92400e", "#fdba74", "#fff4cc", "#fffcf5", "#f5e4b8", "#efd394", "#fffdf7", "#fff3d6"]) {
+    assert.equal(css.includes(retiredColor), false, retiredColor);
   }
 });
 
-test("bee mark is used at primary brand and learning moments", async () => {
+test("penguin mark is used at primary brand and learning moments", async () => {
   const [mark, auth, dashboard, layout, review, practice] = await Promise.all([
-    source("src/components/BeeMark.tsx"),
+    source("src/components/PenguinMark.tsx"),
     source("src/pages/AuthPage.tsx"),
     source("src/pages/AppHomePage.tsx"),
     source("src/components/AppLayout.tsx"),
@@ -127,30 +128,26 @@ test("bee mark is used at primary brand and learning moments", async () => {
     source("src/pages/PracticePage.tsx"),
   ]);
 
-  assert.match(mark, /alt=\{decorative \? "" : "Mascot bee learning from a book"\}/);
-  assert.match(mark, /default:\s*"\/mascot\/bee-mark\.png"/);
-  assert.match(mark, /learning:\s*"\/mascot\/bee-learning\.png"/);
-  assert.match(mark, /scholar:\s*"\/mascot\/bee-learning\.png"/);
-  assert.match(mark, /hero:\s*"\/mascot\/bee-hero\.png"/);
-  assert.doesNotMatch(mark, /<svg|<path|useId/);
-  assert.match(auth, /BeeMark/);
-  assert.match(dashboard, /BeeMark/);
-  assert.match(layout, /BeeMark/);
-  assert.match(review, /BeeMark/);
-  assert.match(practice, /BeeMark/);
+  assert.match(mark, /aria-label=\{decorative \? undefined : "Mascot scholar penguin"\}/);
+  assert.match(mark, /<svg/);
+  assert.match(auth, /PenguinMark/);
+  assert.match(dashboard, /PenguinMark/);
+  assert.match(layout, /PenguinMark/);
+  assert.match(review, /PenguinMark/);
+  assert.match(practice, /PenguinMark/);
 });
 
-test("favicon uses the same graduate bee direction", async () => {
+test("favicon uses the penguin mark", async () => {
   const index = await source("index.html");
 
-  assert.match(index, /type="image\/png" href="\/mascot\/favicon\.png"/);
+  assert.match(index, /type="image\/svg\+xml" href="\/favicon\.svg"/);
 });
 
-test("external mascot images are ready for transparent replacement assets", async () => {
+test("mascot mark keeps a transparent, blend-free base style", async () => {
   const css = await source("src/styles.css");
 
-  assert.match(css, /\.bee-mark\s*{[^}]*object-fit:\s*contain;[^}]*background:\s*transparent;/s);
-  assert.doesNotMatch(css, /\.bee-mark\s*{[^}]*mix-blend-mode:/s);
+  assert.match(css, /\.penguin-mark\s*{[^}]*object-fit:\s*contain;[^}]*background:\s*transparent;/s);
+  assert.doesNotMatch(css, /\.penguin-mark\s*{[^}]*mix-blend-mode:/s);
 });
 
 test("chat positioning and responsive viewport bounds remain intact", async () => {

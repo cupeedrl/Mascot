@@ -10,7 +10,7 @@ import {
 import { PageSkeleton } from "../components/PageSkeleton";
 import { LearningIllustration } from "../components/LearningIllustration";
 import { PageHeader } from "../components/PageHeader";
-import { BeeMark } from "../components/BeeMark";
+import { PenguinMark } from "../components/PenguinMark";
 import { getTopicAccent, getTopicIcon } from "../features/learn/topicPresentation";
 import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 
@@ -164,7 +164,7 @@ export function LearnPage() {
           </div>
         ) : (
           <div className="list-state">
-            <BeeMark size={68} />
+            <PenguinMark size={68} />
             <h2>Chưa có bộ demo cho {level}</h2>
             <p>Dữ liệu seed hiện chỉ mang tính đại diện và sẽ được mở rộng bằng nội dung được biên tập.</p>
           </div>

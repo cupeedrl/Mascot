@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Pencil, Plus, Search, Settings2, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Library, Pencil, Plus, Search, Settings2, Trash2 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import {
@@ -11,8 +11,9 @@ import {
   type VocabularyListResponse,
 } from "../api/client";
 import { PageSkeleton } from "../components/PageSkeleton";
+import { LearningIllustration } from "../components/LearningIllustration";
 import { PageHeader } from "../components/PageHeader";
-import { BeeMark } from "../components/BeeMark";
+import { PenguinMark } from "../components/PenguinMark";
 import { ManageTopicsModal } from "../components/ManageTopicsModal";
 import { TopicCombobox } from "../components/TopicCombobox";
 import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
@@ -137,11 +138,18 @@ export function VocabularyPage() {
   return (
     <section className="vocabulary-page" aria-labelledby="vocabulary-heading">
       <PageHeader
+        className="vocabulary-page-header"
+        icon={Library}
         eyebrow={activeTrack?.name ?? "Lộ trình học"}
         title="Từ vựng của tôi"
-        description="Từ bạn tự thêm và từ đang học từ thư viện Mascot."
+        description={"Tất cả từ bạn tự thêm và từ đã lưu từ thư viện Mascot đều nằm ở đây. Lọc theo trạng thái, trình độ CEFR hoặc chủ đề để tập trung vào đúng nhóm từ bạn muốn học."}
         titleId="vocabulary-heading"
-        aside={<Link className="primary-link compact-button" to="/app/vocabulary/new"><Plus size={17} /> Thêm từ vựng</Link>}
+        aside={(
+          <div className="vocabulary-hero-aside">
+            <LearningIllustration variant="vocabulary" />
+            <Link className="primary-link compact-button" to="/app/vocabulary/new"><Plus size={17} /> Thêm từ vựng</Link>
+          </div>
+        )}
       />
 
       {success && <div className="success-banner" role="status">{success}</div>}
@@ -256,7 +264,7 @@ export function VocabularyPage() {
         </div>
       ) : (
         <div className="list-state">
-          {!hasFilters && <BeeMark size={68} />}
+          {!hasFilters && <PenguinMark size={68} />}
           <h2>{hasFilters ? "Không tìm thấy kết quả" : "Kho từ vựng đang trống"}</h2>
           <p>
             {hasFilters

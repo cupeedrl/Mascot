@@ -252,7 +252,12 @@ export function waitForBackendReady(
       flow.consumers -= 1;
       if (options.onProgress) flow.listeners.delete(options.onProgress);
       options.signal?.removeEventListener("abort", handleAbort);
-      if (flow.consumers === 0 && sharedWarmup === flow) flow.controller.abort();
+      if (flow.consumers === 0 && sharedWarmup === flow) {
+        // Detach before aborting so the next caller (e.g. a StrictMode remount)
+        // starts a fresh probe instead of joining this cancelled one.
+        sharedWarmup = null;
+        flow.controller.abort();
+      }
     };
     const handleAbort = () => {
       cleanup();

@@ -9,7 +9,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
-import { BeeMark } from "../components/BeeMark";
+import { PenguinMark } from "../components/PenguinMark";
 
 function GitHubIcon({ size = 18 }: { size?: number }) {
   return (
@@ -66,7 +66,7 @@ export function AboutPage() {
             <div className="about-mascot-stage">
               <span className="hero-sparkle hero-sparkle-one">✦</span>
               <span className="hero-sparkle hero-sparkle-two">✦</span>
-              <BeeMark size={140} variant="learning" />
+              <PenguinMark size={140} variant="scholar" />
             </div>
           </div>
         </section>

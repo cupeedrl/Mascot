@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, X, Send, Bot, User, AlertCircle, Loader2, Plus, Ban, History } from "lucide-react";
+import { Sparkles, X, Send, User, AlertCircle, Loader2, Plus, Ban, History } from "lucide-react";
 import {
   cancelAIAction,
   confirmAIAction,
@@ -20,6 +20,7 @@ import {
 } from "../ai/chatUiState";
 import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 import { useAuth } from "../auth/AuthContext";
+import { PenguinMark } from "./PenguinMark";
 
 const ACTIVE_CONVERSATION_STORAGE_PREFIX = "mascot.aiConversationId";
 
@@ -43,6 +44,23 @@ export function AIChatDrawer() {
   const [progressLabel, setProgressLabel] = useState("AI đang suy nghĩ…");
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const triggerButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (inputRef.current && !inputRef.current.disabled) {
+      inputRef.current.focus();
+    } else {
+      closeButtonRef.current?.focus();
+    }
+  }, [isOpen]);
+
+  function closeDrawer() {
+    setIsOpen(false);
+    triggerButtonRef.current?.focus();
+  }
 
   useEffect(() => {
     if (!user) {
@@ -245,7 +263,18 @@ export function AIChatDrawer() {
   return (
     <div className="ai-chat-widget">
       {isOpen && (
-        <div className="ai-chat-drawer-container" role="dialog" aria-label="Khung trò chuyện Trợ lý AI Mascot">
+        <div
+          id="ai-chat-drawer"
+          className="ai-chat-drawer-container"
+          role="dialog"
+          aria-label="Khung trò chuyện Trợ lý AI Mascot"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.stopPropagation();
+              closeDrawer();
+            }
+          }}
+        >
           <header className="ai-chat-header">
             <div className="ai-chat-title">
               <div className="ai-badge-icon">
@@ -269,10 +298,11 @@ export function AIChatDrawer() {
                 <History size={17} />
               </button>
               <button
+                ref={closeButtonRef}
                 className="icon-button ai-chat-close-button"
                 type="button"
                 aria-label="Đóng Trợ lý AI"
-                onClick={() => setIsOpen(false)}
+                onClick={closeDrawer}
               >
                 <X size={18} />
               </button>
@@ -322,7 +352,7 @@ export function AIChatDrawer() {
               </div>
             ) : messages.length === 0 ? (
               <div className="ai-chat-empty-state">
-                <Bot size={32} />
+                <PenguinMark size={32} />
                 <p>Xin chào! Tôi là Mascot.</p>
                 <small>Hãy đặt bất kỳ câu hỏi về kiến thức nào bạn thắc mắc nhé!</small>
               </div>
@@ -335,7 +365,7 @@ export function AIChatDrawer() {
                   }`}
                 >
                   <div className="avatar-icon">
-                    {msg.role === "user" ? <User size={14} /> : <Bot size={14} />}
+                    {msg.role === "user" ? <User size={14} /> : <PenguinMark size={24} />}
                   </div>
                   <div className="message-content">
                     {msg.role === "assistant" ? (
@@ -396,7 +426,7 @@ export function AIChatDrawer() {
             {isLoading && (
               <div className="ai-chat-message-bubble assistant-bubble loading-bubble">
                 <div className="avatar-icon">
-                  <Bot size={14} />
+                  <PenguinMark size={24} />
                 </div>
                 <div className="message-content loading-content">
                   <Loader2 size={16} className="spin-loader" />
@@ -409,6 +439,7 @@ export function AIChatDrawer() {
 
           <form className="ai-chat-input-form" onSubmit={handleSend}>
             <input
+              ref={inputRef}
               type="text"
               className="ai-chat-input-field"
               placeholder="Nhập câu hỏi..."
@@ -430,9 +461,12 @@ export function AIChatDrawer() {
       )}
 
       <button
+        ref={triggerButtonRef}
         className="ai-chat-trigger-button"
         type="button"
         aria-label="Mở Mascot Chatbot"
+        aria-expanded={isOpen}
+        aria-controls="ai-chat-drawer"
         onClick={() => setIsOpen(true)}
       >
         <Sparkles size={20} className="ai-sparkle-icon" />

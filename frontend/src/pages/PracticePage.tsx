@@ -8,6 +8,7 @@ import {
   ListChecks,
   Minus,
   Plus,
+  RefreshCw,
   RotateCcw,
   Sparkles,
   Tags,
@@ -31,7 +32,7 @@ import {
 import { LearningIllustration } from "../components/LearningIllustration";
 import { PageHeader } from "../components/PageHeader";
 import { PageSkeleton } from "../components/PageSkeleton";
-import { BeeMark } from "../components/BeeMark";
+import { PenguinMark } from "../components/PenguinMark";
 import { TopicCombobox } from "../components/TopicCombobox";
 import {
   DEFAULT_QUESTION_COUNT,
@@ -348,7 +349,9 @@ export function PracticePage() {
 
   if (error && exercises.length === 0 && vocabularies.length === 0) {
     return (
-      <section className="page-state error-state">
+      <section className="page-state error-state" role="alert">
+        <div className="state-icon"><RefreshCw size={24} /></div>
+        <h2>Chưa thể tải phiên luyện tập</h2>
         <p>{error}</p>
         <button className="primary-button" type="button" onClick={() => void loadSession()}>
           Thử lại
@@ -418,13 +421,13 @@ export function PracticePage() {
               </div>
               <div className="source-mode-grid" role="radiogroup" aria-label="Nguồn từ vựng">
                 <button className={sourceMode === "recent" ? "active" : ""} type="button" role="radio" aria-checked={sourceMode === "recent"} disabled={isGenerating} onClick={() => selectSourceMode("recent")}>
-                  <Clock3 size={19} /><span><strong>Từ gần đây</strong><small>Từ mới thêm gần nhất</small></span>
+                  <Clock3 size={19} className="source-mode-icon source-icon-recent" aria-hidden="true" /><span><strong>Từ gần đây</strong><small>Từ mới thêm gần nhất</small></span>
                 </button>
                 <button className={sourceMode === "topic" ? "active" : ""} type="button" role="radio" aria-checked={sourceMode === "topic"} disabled={isGenerating} onClick={() => selectSourceMode("topic")}>
-                  <Tags size={19} /><span><strong>Theo chủ đề</strong><small>Chọn một chủ đề cá nhân</small></span>
+                  <Tags size={19} className="source-mode-icon source-icon-topic" aria-hidden="true" /><span><strong>Theo chủ đề</strong><small>Chọn một chủ đề cá nhân</small></span>
                 </button>
                 <button className={sourceMode === "custom" ? "active" : ""} type="button" role="radio" aria-checked={sourceMode === "custom"} disabled={isGenerating} onClick={() => selectSourceMode("custom")}>
-                  <ListChecks size={19} /><span><strong>Tự chọn</strong><small>Chọn từng từ bạn muốn</small></span>
+                  <ListChecks size={19} className="source-mode-icon source-icon-custom" aria-hidden="true" /><span><strong>Tự chọn</strong><small>Chọn từng từ bạn muốn</small></span>
                 </button>
               </div>
 
@@ -439,8 +442,8 @@ export function PracticePage() {
                   <div className="generator-selection-actions">
                     <strong>{selectedIds.length} từ đã chọn</strong>
                     <div>
-                      <button type="button" disabled={isGenerating || selectedIds.length === availableVocabularies.length} onClick={() => { setSelectedIds(availableVocabularies.map((item) => item.id)); setGenerationError(null); }}>Chọn tất cả</button>
-                      <button type="button" disabled={isGenerating || selectedIds.length === 0} onClick={() => { setSelectedIds([]); setGenerationError(null); }}>Bỏ chọn</button>
+                      <button className="secondary-button compact-button" type="button" disabled={isGenerating || selectedIds.length === availableVocabularies.length} onClick={() => { setSelectedIds(availableVocabularies.map((item) => item.id)); setGenerationError(null); }}>Chọn tất cả</button>
+                      <button className="secondary-button compact-button" type="button" disabled={isGenerating || selectedIds.length === 0} onClick={() => { setSelectedIds([]); setGenerationError(null); }}>Bỏ chọn</button>
                     </div>
                   </div>
                   <div className="generator-vocabulary-list">
@@ -513,7 +516,7 @@ export function PracticePage() {
 
       {exercises.length === 0 ? (
         <div className="empty-state practice-empty">
-          <BeeMark size={68} />
+          <PenguinMark size={68} />
           <h2>Chưa có bài tập</h2>
           <p>Chọn từ vựng ở trên để tạo phiên luyện tập đầu tiên.</p>
         </div>
@@ -669,7 +672,7 @@ function PracticeSummary({
   return (
     <div className="practice-complete">
       <div className="practice-result-hero">
-        <div className="result-celebration"><BeeMark size={82} variant="learning" /></div>
+        <div className="result-celebration"><PenguinMark size={82} variant="scholar" /></div>
         <div><p className="eyebrow">HOÀN THÀNH PHIÊN</p><h2>Bạn đã hoàn thành phiên luyện tập!</h2><p>Mỗi câu trả lời là một bước giúp vốn từ của bạn vững hơn.</p></div>
         <div className="practice-summary">
           <div><strong>{correctCount}/{completedCount}</strong><span>Kết quả</span></div>

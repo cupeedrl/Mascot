@@ -28,9 +28,10 @@ import {
   type TopicSuggestion,
   type Vocabulary,
 } from "../api/client";
+import { LearningIllustration } from "../components/LearningIllustration";
 import { PageHeader } from "../components/PageHeader";
 import { PageSkeleton } from "../components/PageSkeleton";
-import { BeeMark } from "../components/BeeMark";
+import { PenguinMark } from "../components/PenguinMark";
 import {
   filterEligibleVocabularies,
   RECENT_REVIEW_LIMIT,
@@ -233,10 +234,12 @@ export function ReviewPage() {
         <>
           <PageHeader
             className="review-heading"
+            icon={RefreshCw}
             eyebrow="Ôn tập từ vựng"
             title="Chọn nguồn từ để ôn tập."
             description="Ôn từ đến hạn theo lịch ngắt quãng hoặc chủ động chọn nhóm từ cá nhân bạn muốn củng cố."
             titleId="review-heading"
+            aside={<LearningIllustration variant="review" />}
           />
 
           {error && <div className="form-error" role="alert">{error}</div>}
@@ -250,7 +253,7 @@ export function ReviewPage() {
               aria-checked={sourceMode === "due"}
               onClick={() => setSourceMode("due")}
             >
-              <Clock3 size={20} />
+              <Clock3 size={20} className="source-mode-icon source-icon-review" aria-hidden="true" />
               <span>
                 <strong>Từ đến hạn</strong>
                 <small>{dueTotal} từ cần ôn theo lịch</small>
@@ -264,7 +267,7 @@ export function ReviewPage() {
               aria-checked={sourceMode === "recent"}
               onClick={() => setSourceMode("recent")}
             >
-              <Sparkles size={20} />
+              <Sparkles size={20} className="source-mode-icon source-icon-recent" aria-hidden="true" />
               <span>
                 <strong>Từ gần đây</strong>
                 <small>Tối đa {RECENT_REVIEW_LIMIT} từ thêm mới nhất</small>
@@ -278,7 +281,7 @@ export function ReviewPage() {
               aria-checked={sourceMode === "topic"}
               onClick={() => setSourceMode("topic")}
             >
-              <Tags size={20} />
+              <Tags size={20} className="source-mode-icon source-icon-topic" aria-hidden="true" />
               <span>
                 <strong>Theo chủ đề</strong>
                 <small>{topics.length} chủ đề có sẵn</small>
@@ -292,7 +295,7 @@ export function ReviewPage() {
               aria-checked={sourceMode === "custom"}
               onClick={() => setSourceMode("custom")}
             >
-              <ListChecks size={20} />
+              <ListChecks size={20} className="source-mode-icon source-icon-custom" aria-hidden="true" />
               <span>
                 <strong>Tự chọn</strong>
                 <small>Chọn từng từ bạn muốn</small>
@@ -322,7 +325,7 @@ export function ReviewPage() {
                 </div>
               ) : (
                 <div className="review-setup-empty">
-                  <BeeMark size={56} variant="learning" />
+                  <PenguinMark size={56} variant="scholar" />
                   <p>Tuyệt vời! Hiện tại bạn không có từ nào đến hạn ôn.</p>
                   <p className="empty-subtext">
                     Bạn có thể chọn <strong>Từ gần đây</strong>, <strong>Theo chủ đề</strong>, hoặc <strong>Tự chọn</strong> để ôn tập ngay bất kỳ lúc nào.
@@ -526,7 +529,7 @@ export function ReviewPage() {
       ) : isComplete ? (
         /* Complete Screen */
         <div className="review-complete" role="status">
-          <BeeMark size={76} variant="learning" />
+          <PenguinMark size={76} variant="scholar" />
           <p className="eyebrow">Hoàn thành phiên ôn</p>
           <h2>Đã xong phiên ôn này!</h2>
           <div className="review-summary">

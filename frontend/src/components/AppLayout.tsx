@@ -15,7 +15,7 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 import { AIChatDrawer } from "./AIChatDrawer";
-import { BeeMark } from "./BeeMark";
+import { PenguinMark } from "./PenguinMark";
 
 interface NavigationItem {
   to: string;
@@ -81,7 +81,7 @@ export function AppLayout() {
     <div className="app-shell">
       <aside className="app-sidebar">
         <NavLink className="wordmark" to="/app" aria-label="Trang chủ Mascot">
-          <BeeMark size={38} />
+          <PenguinMark size={38} />
           <span>Mascot</span>
         </NavLink>
 
@@ -139,7 +139,7 @@ export function AppLayout() {
 
       <header className="mobile-topbar">
         <NavLink className="wordmark" to="/app">
-          <BeeMark size={34} />
+          <PenguinMark size={34} />
           <span>Mascot</span>
         </NavLink>
         <button

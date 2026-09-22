@@ -22,7 +22,7 @@ import {
   updateLearningPreference,
 } from "../api/client";
 import { PageSkeleton } from "../components/PageSkeleton";
-import { BeeMark } from "../components/BeeMark";
+import { PenguinMark } from "../components/PenguinMark";
 import { StudyActivityCalendar } from "../components/StudyActivityCalendar";
 import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 
@@ -214,7 +214,7 @@ export function AppHomePage() {
         <section className="dashboard-learning-hero" aria-labelledby="journey-heading">
           <div className="dashboard-hero-copy">
             <p className="eyebrow">CHÀO MỪNG TRỞ LẠI</p>
-            <h1 id="journey-heading">Hôm nay mình học gì?</h1>
+            <h1 id="journey-heading">Hôm nay mình <em>học gì?</em></h1>
             <p className="dashboard-hero-description">
               Mascot đã sắp xếp những bước quan trọng nhất để bạn tiếp tục tiến bộ.
             </p>
@@ -229,19 +229,16 @@ export function AppHomePage() {
               <Link className="hero-text-link" to="/app/vocabulary">Xem từ vựng của tôi</Link>
             </div>
           </div>
-          <div className="journey-visual dashboard-mascot-visual" aria-label="Linh vật ong Mascot">
-            <span className="hero-microcopy" aria-hidden="true">
-              Học đều mỗi ngày.<br />Tiến bộ thật!
-            </span>
+          <div className="journey-visual dashboard-mascot-visual" aria-label="Linh vật chim cánh cụt Mascot">
             <div className="bee-hero-stage" aria-hidden="true">
               <span className="hero-sparkle hero-sparkle-one">✦</span>
               <span className="hero-sparkle hero-sparkle-two">✦</span>
-              <BeeMark size={224} variant="hero" />
+              <PenguinMark size={224} variant="scholar" />
             </div>
           </div>
           <section className="dashboard-track-selector" aria-label="Chọn lộ trình học">
             <div className="track-summary-main">
-              <span className="track-summary-bee"><BeeMark size={42} /></span>
+              <span className="track-summary-bee"><PenguinMark size={42} /></span>
               <div>
                 <span className="track-summary-eyebrow">Lộ trình đang học</span>
                 <strong>{activeTrack.name}</strong>
@@ -323,14 +320,15 @@ export function AppHomePage() {
               <div className="today-date-copy">
                 <span>Hôm nay</span>
                 <strong>{today.weekday}</strong>
-                <time>· {today.dayAndMonth}</time>
+                <time>{today.dayAndMonth}</time>
               </div>
               <span className={`today-state-pill ${hasStudiedToday ? "complete" : "pending"}`}>
                 {hasStudiedToday ? "Đã học" : "Sẵn sàng"}
               </span>
             </div>
             <div className="today-focus">
-              <span>Trọng tâm hôm nay</span>
+              <span className="today-focus-icon"><Target size={15} aria-hidden="true" /></span>
+              <span>Công việc bây giờ</span>
               <strong>{todayFocus}</strong>
               <div className="today-action-row">
                 <span><RefreshCw size={13} /><b>{dashboard.words_due_for_review}</b> từ cần ôn</span>
@@ -354,7 +352,7 @@ export function AppHomePage() {
             onNextMonth={() => moveCalendarMonth(1)}
           />
           <section className="dashboard-motivation-card" aria-label="Gợi ý từ Mascot">
-            <BeeMark size={44} className="motivation-bee" />
+            <PenguinMark size={44} className="motivation-bee" />
             <div className="motivation-eyebrow">
               <Sparkles size={14} />
               <span>GỢI Ý TỪ MASCOT</span>
@@ -433,7 +431,7 @@ export function AppHomePage() {
 
         {dashboard.recently_added_vocabulary.length === 0 ? (
           <div className="dashboard-empty">
-            <BeeMark size={76} />
+            <PenguinMark size={76} />
             <h3>Thư viện đang chờ bạn</h3>
             <p>Khám phá một chủ đề và thêm những từ đầu tiên.</p>
             <Link className="primary-link" to="/app/learn">Khám phá chủ đề</Link>

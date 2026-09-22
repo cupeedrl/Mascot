@@ -11,7 +11,7 @@ import {
 import { Link, NavLink, Outlet } from "react-router-dom";
 
 import { useAuth } from "../auth/AuthContext";
-import { BeeMark } from "./BeeMark";
+import { PenguinMark } from "./PenguinMark";
 
 export function AdminLayout() {
   const { user, logout } = useAuth();
@@ -26,7 +26,7 @@ export function AdminLayout() {
     <div className="admin-shell">
       <aside className="admin-sidebar" aria-label="Bảng điều khiển quản trị">
         <div className="admin-wordmark">
-          <BeeMark size={34} />
+          <PenguinMark size={34} />
           <div className="admin-brand-copy">
             <strong>Mascot</strong>
             <span className="admin-badge"><Shield size={11} /> Admin</span>
