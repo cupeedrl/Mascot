@@ -9,11 +9,25 @@ import urllib.request
 from abc import ABC, abstractmethod
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import parseaddr
 from typing import Any
 
 from app.core.config import get_settings
 
 logger = logging.getLogger(__name__)
+
+
+def parse_from_address(from_address: str) -> tuple[str, str]:
+    """Split "Mascot <noreply@example.com>" into its name and address.
+
+    EMAIL_FROM already carries the display name for Resend and SMTP, and Brevo
+    wants the two parts separately, so read the same setting instead of asking
+    for another one.
+    """
+
+    name, address = parseaddr(from_address or "")
+    return name.strip(), address.strip()
+
 
 
 class EmailProvider(ABC):
@@ -127,6 +141,79 @@ class ResendEmailProvider(EmailProvider):
             return False
 
 
+class BrevoEmailProvider(EmailProvider):
+    """Brevo transactional email over HTTPS.
+
+    Render's free tier blocks outbound SMTP, and Brevo verifies a single sender
+    address by email code, so this works without owning a domain.
+    """
+
+    API_URL = "https://api.brevo.com/v3/smtp/email"
+
+    def __init__(self, api_key: str, from_address: str) -> None:
+        self._api_key = api_key.strip()
+        self._from_name, self._from_email = parse_from_address(from_address)
+
+    def send_email(
+        self,
+        *,
+        to_email: str,
+        subject: str,
+        html_content: str,
+        text_content: str,
+    ) -> bool:
+        if not self._api_key:
+            logger.error("password_reset_email_send_failed: provider=brevo error_type=MissingApiKey")
+            return False
+        if not self._from_email:
+            logger.error("password_reset_email_send_failed: provider=brevo error_type=MissingSender")
+            return False
+
+        sender: dict[str, str] = {"email": self._from_email}
+        if self._from_name:
+            sender["name"] = self._from_name
+        payload = {
+            "sender": sender,
+            "to": [{"email": to_email}],
+            "subject": subject,
+            "htmlContent": html_content,
+            "textContent": text_content,
+        }
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            self.API_URL,
+            data=data,
+            headers={
+                "api-key": self._api_key,
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "User-Agent": "Mascot-App/1.0",
+            },
+            method="POST",
+        )
+
+        try:
+            with urllib.request.urlopen(req, timeout=10.0) as resp:
+                status_code = resp.getcode()
+                if 200 <= status_code < 300:
+                    logger.info("Email sent successfully via Brevo to %s", to_email)
+                    return True
+                logger.warning("password_reset_email_send_failed: provider=brevo status_code=%s", status_code)
+                return False
+        except urllib.error.HTTPError as exc:
+            logger.error(
+                "password_reset_email_send_failed: provider=brevo status_code=%s error_type=HTTPError",
+                exc.code,
+            )
+            return False
+        except (urllib.error.URLError, TimeoutError) as exc:
+            logger.error("password_reset_email_send_failed: provider=brevo error_type=%s", type(exc).__name__)
+            return False
+        except Exception as exc:
+            logger.error("password_reset_email_send_failed: provider=brevo error_type=%s", type(exc).__name__)
+            return False
+
+
 class GmailSmtpEmailProvider(EmailProvider):
     def __init__(
         self,
@@ -236,6 +323,11 @@ def get_email_provider() -> EmailProvider:
             app_password=settings.smtp_app_password.get_secret_value(),
             from_address=settings.email_from,
             timeout=settings.smtp_timeout_seconds,
+        )
+    if settings.email_provider == "brevo" and settings.brevo_api_key:
+        return BrevoEmailProvider(
+            api_key=settings.brevo_api_key.get_secret_value(),
+            from_address=settings.email_from,
         )
     if settings.email_provider == "resend" and settings.resend_api_key:
         return ResendEmailProvider(

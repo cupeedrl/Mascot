@@ -58,8 +58,11 @@ class Settings(BaseSettings):
     )
     ai_chat_max_history_messages: int = Field(default=20, ge=2, le=100)
     ai_chat_max_message_length: int = Field(default=1000, ge=10, le=5000)
-    email_provider: Literal["console", "resend", "gmail_smtp", "test"] = "console"
+    email_provider: Literal[
+        "console", "resend", "brevo", "gmail_smtp", "test"
+    ] = "console"
     resend_api_key: SecretStr | None = None
+    brevo_api_key: SecretStr | None = None
     smtp_host: str = Field(default="smtp.gmail.com", min_length=1, max_length=255)
     smtp_port: int = Field(default=587, ge=1, le=65535)
     smtp_username: str | None = None
@@ -108,6 +111,11 @@ class Settings(BaseSettings):
             if not self.resend_api_key:
                 raise ValueError(
                     "RESEND_API_KEY is required when EMAIL_PROVIDER is set to resend"
+                )
+        elif self.email_provider == "brevo":
+            if not self.brevo_api_key:
+                raise ValueError(
+                    "BREVO_API_KEY is required when EMAIL_PROVIDER is set to brevo"
                 )
         return self
 
