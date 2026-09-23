@@ -24,6 +24,7 @@ from app.models.user import User
 from app.schemas.ai_exercise import (
     AIExerciseGenerationRequest,
     AIExerciseGenerationResponse,
+    CLOZE_BLANK_COUNT,
 )
 from app.schemas.exercise import ExerciseResponse
 from app.services.ai_exercise import (
@@ -137,9 +138,18 @@ def generate_exercises(
             detail="Các từ được chọn phải thuộc cùng một learning track.",
         ) from exc
     except InsufficientVocabularyError as exc:
+        required = 4 if payload.exercise_type == "multiple_choice" else CLOZE_BLANK_COUNT
+        exercise_label = (
+            "trắc nghiệm"
+            if payload.exercise_type == "multiple_choice"
+            else "điền từ vào đoạn văn"
+        )
         raise HTTPException(
             status_code=422,
-            detail="Bạn cần ít nhất 4 từ khác nhau để tạo bài tập trắc nghiệm.",
+            detail=(
+                f"Bạn cần ít nhất {required} từ khác nhau "
+                f"để tạo bài tập {exercise_label}."
+            ),
         ) from exc
     except AIProviderNotConfiguredError as exc:
         latency_ms = round((time.perf_counter() - start_time) * 1000)

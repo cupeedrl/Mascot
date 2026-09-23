@@ -37,7 +37,7 @@ def _select_vocabularies(
     headers: dict[str, str],
     track_id: uuid.UUID,
 ) -> list[dict[str, object]]:
-    words = ["solely", "sustainable", "compromise", "revenue"]
+    words = ["solely", "sustainable", "compromise", "revenue", "threshold"]
     return [
         create_item(
             client,
@@ -69,7 +69,7 @@ def _multiple_choice(vocabularies: list[dict[str, object]], **overrides: object)
 
 
 def _fill_in_blank(vocabularies: list[dict[str, object]], **overrides: object):
-    targets = [vocabularies[index % len(vocabularies)] for index in range(4)]
+    targets = [vocabularies[index % len(vocabularies)] for index in range(5)]
     candidate: dict[str, object] = {
         "exercise_type": "fill_in_blank",
         "title": "TEAM UPDATE",
@@ -77,7 +77,8 @@ def _fill_in_blank(vocabularies: list[dict[str, object]], **overrides: object):
             "The team chose (1) ______ for the opening sentence.\n"
             "The next report used (2) ______ in a clear example.\n"
             "During the meeting, we practised (3) ______ together.\n"
-            "Finally, the summary included (4) ______ for review."
+            "The summary included (4) ______ for review.\n"
+            "We agreed on (5) ______ before closing the meeting."
         ),
         "blanks": [
             {
@@ -186,6 +187,8 @@ def test_generate_multiple_choice_is_stored_linked_and_learner_safe(
         assert hidden_field not in item
     assert len(provider.calls) == 1
     sent_context = provider.calls[0][0]
+    # The learning track is always described now, so the provider knows which
+    # language to write in even on the English track.
     assert set(sent_context[0]) == {
         "id",
         "word",
@@ -193,7 +196,13 @@ def test_generate_multiple_choice_is_stored_linked_and_learner_safe(
         "meaning",
         "cefr_level",
         "example_sentences",
+        "level_code",
+        "target_language",
+        "target_language_code",
+        "level_framework",
+        "translation_language",
     }
+    assert sent_context[0]["target_language_code"] == "en"
     with session_factory() as db:
         exercise = db.scalar(select(Exercise))
         assert exercise is not None
@@ -229,7 +238,7 @@ def test_generate_fill_in_blank_and_grade_deterministically(
     learner_item = generated.json()["items"][0]
     exercise_id = learner_item["id"]
     assert learner_item["prompt"].count("(1) ______") == 1
-    assert [blank["number"] for blank in learner_item["options"]] == [1, 2, 3, 4]
+    assert [blank["number"] for blank in learner_item["options"]] == [1, 2, 3, 4, 5]
     assert all(len(blank["options"]) == 4 for blank in learner_item["options"])
     assert all(set(blank) == {"number", "options"} for blank in learner_item["options"])
     assert all(
@@ -240,19 +249,25 @@ def test_generate_fill_in_blank_and_grade_deterministically(
     graded = client.post(
         f"/api/v1/exercises/{exercise_id}/attempts",
         headers=headers,
-        json={"answers": {"1": "A", "2": "B", "3": "A", "4": "A"}},
+        json={"answers": {"1": "A", "2": "B", "3": "A", "4": "A", "5": "A"}},
     )
 
     assert graded.status_code == 200
     assert graded.json()["is_correct"] is False
-    assert graded.json()["correct_count"] == 3
-    assert graded.json()["total"] == 4
-    assert graded.json()["score_percent"] == 75
-    assert [item["is_correct"] for item in graded.json()["results"]] == [True, False, True, True]
+    assert graded.json()["correct_count"] == 4
+    assert graded.json()["total"] == 5
+    assert graded.json()["score_percent"] == 80
+    assert [item["is_correct"] for item in graded.json()["results"]] == [
+        True,
+        False,
+        True,
+        True,
+        True,
+    ]
     all_correct = client.post(
         f"/api/v1/exercises/{exercise_id}/attempts",
         headers=headers,
-        json={"answers": {"1": "A", "2": "A", "3": "A", "4": "A"}},
+        json={"answers": {"1": "A", "2": "A", "3": "A", "4": "A", "5": "A"}},
     )
     partial_submission = client.post(
         f"/api/v1/exercises/{exercise_id}/attempts",
@@ -261,13 +276,13 @@ def test_generate_fill_in_blank_and_grade_deterministically(
     )
     assert all_correct.status_code == 200
     assert all_correct.json()["is_correct"] is True
-    assert all_correct.json()["correct_count"] == 4
+    assert all_correct.json()["correct_count"] == 5
     assert partial_submission.status_code == 422
     with session_factory() as db:
         attempts = list(db.scalars(select(ExerciseAttempt)))
         assert len(attempts) == 2
         assert {attempt.correct_answer for attempt in attempts} == {
-            '{"1": "A", "2": "A", "3": "A", "4": "A"}'
+            '{"1": "A", "2": "A", "3": "A", "4": "A", "5": "A"}'
         }
 
 
@@ -561,7 +576,7 @@ def test_topic_source_uses_only_current_users_matching_topic(
             word=word,
             topic="Work & Business",
         )
-        for word in ["revenue", "profit"]
+        for word in ["revenue", "profit", "invoice", "supplier", "contract"]
     ]
     create_item(
         client,

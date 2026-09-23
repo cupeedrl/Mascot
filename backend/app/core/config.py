@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     groq_model: str = Field(
         default="openai/gpt-oss-20b", min_length=1, max_length=100
     )
+    # Exercise generation needs stricter format following than chat: the 20b
+    # model drops or repeats the numbered blanks, the 120b one does not.
+    groq_exercise_model: str = Field(
+        default="openai/gpt-oss-120b", min_length=1, max_length=100
+    )
     groq_base_url: str = Field(
         default="https://api.groq.com/openai/v1", min_length=1, max_length=500
     )
@@ -30,7 +35,15 @@ class Settings(BaseSettings):
     openai_model: str = Field(default="gpt-5.4-nano", min_length=1, max_length=100)
     ai_request_timeout_seconds: float = Field(default=20.0, ge=1.0, le=120.0)
     ai_max_output_tokens: int = Field(default=800, ge=200, le=4000)
-    ai_exercise_max_output_tokens: int = Field(default=4000, ge=800, le=8000)
+    # gpt-oss style models spend most of this budget on reasoning tokens: a
+    # five-blank passage needs ~3k completion tokens, and 4k was truncating
+    # the answer to nothing. The ceiling is the provider tier's tokens per
+    # minute (Groq free tier is 8k for prompt + completion together).
+    ai_exercise_max_output_tokens: int = Field(default=5000, ge=800, le=16000)
+    # Reasoning models burn the output budget before emitting JSON. "low" keeps
+    # one passage inside a small tokens-per-minute allowance; set to None for
+    # providers or models that reject the hint.
+    ai_exercise_reasoning_effort: Literal["low", "medium", "high"] | None = "medium"
     # "legacy" selects the original custom agent loop; kept for rollback.
     ai_agent_engine: Literal["langgraph", "legacy"] = "langgraph"
     ai_max_tool_rounds: int = Field(default=5, ge=1, le=10)

@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.models.exercise import Exercise
 from app.models.exercise_attempt import ExerciseAttempt
+from app.schemas.exercise import CLOZE_BLANK_COUNTS
 
 
 class ExerciseNotFoundError(Exception):
@@ -146,7 +147,7 @@ def _is_passage_cloze(exercise: Exercise) -> bool:
     return (
         exercise.exercise_type == "fill_in_blank"
         and isinstance(exercise.options, list)
-        and len(exercise.options) == 4
+        and len(exercise.options) in CLOZE_BLANK_COUNTS
         and all(
             isinstance(blank, dict)
             and isinstance(blank.get("number"), int)
@@ -156,12 +157,19 @@ def _is_passage_cloze(exercise: Exercise) -> bool:
     )
 
 
+def _passage_blank_count(exercise: Exercise) -> int:
+    return len(exercise.options or [])
+
+
 def _passage_answer_key(exercise: Exercise) -> dict[str, str]:
     try:
         raw = json.loads(exercise.correct_answer)
     except (TypeError, json.JSONDecodeError) as exc:
         raise InvalidStoredExerciseError from exc
-    if not isinstance(raw, dict) or set(raw) != {"1", "2", "3", "4"}:
+    expected_keys = {
+        str(number) for number in range(1, _passage_blank_count(exercise) + 1)
+    }
+    if not isinstance(raw, dict) or set(raw) != expected_keys:
         raise InvalidStoredExerciseError
     answer_key = {
         str(key): _normalize_option_id(str(value)) for key, value in raw.items()
@@ -186,8 +194,9 @@ def _passage_answer_key(exercise: Exercise) -> dict[str, str]:
 
 
 def _passage_explanations(exercise: Exercise) -> dict[str, str | None]:
+    numbers = range(1, _passage_blank_count(exercise) + 1)
     if not exercise.explanation:
-        return {str(number): None for number in range(1, 5)}
+        return {str(number): None for number in numbers}
     try:
         raw = json.loads(exercise.explanation)
     except (TypeError, json.JSONDecodeError) as exc:
@@ -198,7 +207,7 @@ def _passage_explanations(exercise: Exercise) -> dict[str, str | None]:
         str(number): (
             str(raw[str(number)]).strip() if raw.get(str(number)) else None
         )
-        for number in range(1, 5)
+        for number in numbers
     }
 
 
@@ -207,6 +216,9 @@ def _grade_passage_cloze(
 ) -> tuple[list[BlankGrade], int]:
     answer_key = _passage_answer_key(exercise)
     explanations = _passage_explanations(exercise)
+    blank_numbers = range(1, _passage_blank_count(exercise) + 1)
+    if set(answers) != {str(number) for number in blank_numbers}:
+        raise InvalidAttemptFormatError
     results = [
         BlankGrade(
             number=number,
@@ -215,7 +227,7 @@ def _grade_passage_cloze(
             correct_answer=answer_key[str(number)],
             explanation=explanations[str(number)],
         )
-        for number in range(1, 5)
+        for number in blank_numbers
     ]
     return results, sum(result.is_correct for result in results)
 
@@ -241,11 +253,14 @@ def submit_attempt(
             if answers is None or answer is not None:
                 raise InvalidAttemptFormatError
             results, correct_count = _grade_passage_cloze(exercise, answers)
-            total = 4
+            total = _passage_blank_count(exercise)
             score_percent = round(correct_count / total * 100)
             is_correct = correct_count == total
             stored_user_answer = json.dumps(
-                {str(number): _normalize_option_id(answers[str(number)]) for number in range(1, 5)},
+                {
+                    str(number): _normalize_option_id(answers[str(number)])
+                    for number in range(1, total + 1)
+                },
                 sort_keys=True,
             )
             response_explanation = None

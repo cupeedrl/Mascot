@@ -184,10 +184,16 @@ def test_complete_v1_learner_journey(
     assert generated.status_code == 200, generated.text
     generated_item = generated.json()["items"][0]
     assert "correct_answer" not in generated_item
+    # The backend deals the options out again, so locate the answer by its text.
+    answer_id = next(
+        option["id"]
+        for option in generated_item["options"]
+        if option["text"] == "solely"
+    )
     attempt = client.post(
         f"/api/v1/exercises/{generated_item['id']}/attempts",
         headers=headers,
-        json={"answer": "A"},
+        json={"answer": answer_id},
     )
     assert attempt.status_code == 200
     assert attempt.json()["is_correct"] is True

@@ -59,6 +59,40 @@ class AIExerciseGenerationRequest(BaseModel):
         return self
 
 
+CLOZE_BLANK_COUNT = 5
+CLOZE_PLACEHOLDER = "______"
+
+
+def canonical_cloze_passage(passage: str) -> str:
+    """Rewrite the numbered blanks a provider emits into one canonical form.
+
+    Providers drift between "(1) ____", "(1)______" and "1) _____" even when the
+    passage itself is fine, so normalise before validating instead of rejecting
+    the whole batch.
+    """
+
+    normalized = re.sub(
+        r"[\(\[]?(\d{1,2})[\)\].:]?\s*_{2,}",
+        lambda match: f"({match.group(1)}) {CLOZE_PLACEHOLDER}",
+        passage,
+    )
+    # Drop decorative underscores the model sometimes leaves beside the real
+    # placeholder, e.g. "my ______ (1) ______". The numbered blanks are parked
+    # behind a token first so only the extra runs disappear.
+    token = "[[mascot-blank-{}]]"
+    numbered = re.findall(r"\((\d{1,2})\) " + CLOZE_PLACEHOLDER, normalized)
+    for number in numbered:
+        normalized = normalized.replace(
+            f"({number}) {CLOZE_PLACEHOLDER}", token.format(number), 1
+        )
+    normalized = re.sub(r"_{2,}", "", normalized)
+    for number in numbered:
+        normalized = normalized.replace(
+            token.format(number), f"({number}) {CLOZE_PLACEHOLDER}", 1
+        )
+    return re.sub(r"[ 	]{2,}", " ", normalized).strip()
+
+
 class AIExerciseOption(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -135,7 +169,7 @@ class AIMultipleChoiceCandidate(BaseModel):
 class AIFillInBlankItem(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    number: int = Field(ge=1, le=4)
+    number: int = Field(ge=1, le=CLOZE_BLANK_COUNT)
     options: list[AIExerciseOption] = Field(min_length=4, max_length=4)
     correct_answer: str = Field(min_length=1, max_length=8)
     target_vocabulary_id: uuid.UUID
@@ -170,24 +204,37 @@ class AIFillInBlankCandidate(BaseModel):
     exercise_type: Literal["fill_in_blank"]
     title: str = Field(min_length=1, max_length=200)
     passage: str = Field(min_length=1, max_length=4000)
-    blanks: list[AIFillInBlankItem] = Field(min_length=4, max_length=4)
+    blanks: list[AIFillInBlankItem] = Field(
+        min_length=CLOZE_BLANK_COUNT, max_length=CLOZE_BLANK_COUNT
+    )
 
-    @field_validator("title", "passage")
+    @field_validator("title")
     @classmethod
     def clean_text(cls, value: str) -> str:
         return _clean_required(value)
 
+    @field_validator("passage")
+    @classmethod
+    def clean_passage(cls, value: str) -> str:
+        return canonical_cloze_passage(_clean_required(value))
+
     @model_validator(mode="after")
     def validate_passage_and_blanks(self) -> "AIFillInBlankCandidate":
-        if [blank.number for blank in self.blanks] != [1, 2, 3, 4]:
-            raise ValueError("blank numbers must be exactly 1, 2, 3, and 4")
-        for number in range(1, 5):
-            placeholder = f"({number}) ______"
+        expected_numbers = list(range(1, CLOZE_BLANK_COUNT + 1))
+        if [blank.number for blank in self.blanks] != expected_numbers:
+            raise ValueError(
+                "blank numbers must be exactly "
+                + ", ".join(str(number) for number in expected_numbers)
+            )
+        for number in expected_numbers:
+            placeholder = f"({number}) {CLOZE_PLACEHOLDER}"
             if self.passage.count(placeholder) != 1:
                 raise ValueError(f"passage must contain {placeholder} exactly once")
         without_expected = self.passage
-        for number in range(1, 5):
-            without_expected = without_expected.replace(f"({number}) ______", "", 1)
+        for number in expected_numbers:
+            without_expected = without_expected.replace(
+                f"({number}) {CLOZE_PLACEHOLDER}", "", 1
+            )
         if re.search(r"\(\d+\)\s*_{3,}|_{3,}", without_expected):
             raise ValueError("passage contains an unexpected blank")
         return self

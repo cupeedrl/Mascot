@@ -6917,3 +6917,28 @@ textarea:focus {
 
 /* Vocabulary header badge: blue, the colour used for vocabulary across the app. */
 .vocabulary-page-header .page-header-icon { color: var(--info); background: var(--info-soft); }
+
+/* Review card meta chips: bigger and readable at a glance. */
+.review-card-meta,
+.practice-card-meta { gap: 10px; font-size: 13.5px; }
+
+.review-card-meta > span:not(.level-badge),
+.practice-card-meta > span:not(.level-badge) {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  color: var(--ink-soft);
+  background: var(--surface);
+  font-weight: 700;
+}
+
+.review-card-meta > .level-badge,
+.practice-card-meta > .level-badge {
+  padding: 6px 13px;
+  color: #fff;
+  background: var(--primary);
+  font-size: 13.5px;
+}
+
+/* Only contextual multiple choice is generated now, so the setup has one card. */
+.practice-setup-grid.single-step { grid-template-columns: minmax(0, 1fr); }

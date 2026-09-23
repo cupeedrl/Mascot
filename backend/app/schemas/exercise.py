@@ -28,10 +28,16 @@ class ExerciseOption(BaseModel):
         return _trim_required(value)
 
 
+# Passages generated before the five-blank format stay gradable, so both
+# lengths are accepted wherever a cloze is read back.
+CLOZE_BLANK_COUNTS = (4, 5)
+CLOZE_MAX_BLANKS = max(CLOZE_BLANK_COUNTS)
+
+
 class ExerciseClozeBlank(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    number: int = Field(ge=1, le=4)
+    number: int = Field(ge=1, le=CLOZE_MAX_BLANKS)
     options: list[ExerciseOption] = Field(min_length=4, max_length=4)
 
 
@@ -73,8 +79,14 @@ class ExerciseAttemptCreate(BaseModel):
     def validate_answers(cls, value: dict[str, str] | None) -> dict[str, str] | None:
         if value is None:
             return None
-        if set(value) != {"1", "2", "3", "4"}:
-            raise ValueError("answers must contain exactly keys 1, 2, 3, and 4")
+        if len(value) not in CLOZE_BLANK_COUNTS or set(value) != {
+            str(number) for number in range(1, len(value) + 1)
+        }:
+            raise ValueError(
+                "answers must be numbered from 1 with "
+                + " or ".join(str(count) for count in CLOZE_BLANK_COUNTS)
+                + " entries"
+            )
         return {key: _trim_required(answer).upper() for key, answer in value.items()}
 
     @field_validator("answers", mode="after")

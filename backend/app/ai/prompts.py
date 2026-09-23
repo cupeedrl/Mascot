@@ -85,10 +85,19 @@ For multiple_choice:
   distractor in the blank and discard the exercise if any distractor still reads
   as a possible answer;
 - distractors from the same category as the answer are welcome, but the sentence
-  must then name the feature that separates them. For example, with the options
-  aunt, cousin, brother and uncle, do not write "My _______ plays football with me
-  every weekend", because several options fit. Write "My _______ is my mother's
-  sister and she lives next door" instead, so only aunt is possible;
+  must then state the feature that separates them: a spelled-out relationship, a
+  gender word, an age or generation, a number, a place, a time, a job, or a
+  result. Family, job, place and feeling words are the usual traps;
+- worked example. Options aunt, cousin, brother, uncle. Rejected sentences:
+  "My _______ plays football with me every weekend." and
+  "My _______ works as a teacher at the local school." Both leave every option
+  possible. Accepted sentence:
+  "My _______ is my mother's sister, and she taught me how to cook." Only aunt
+  fits, because the relationship and the pronoun are both stated;
+- self-check before answering: read the sentence once with each distractor in
+  the blank. If any of those readings is a sentence a teacher would accept, the
+  clue is too weak. Rewrite the sentence with a stronger clue; do not just swap
+  the distractor for another word;
 - the correct option text must equal the word referenced by target_vocabulary_id;
 - correct_answer is the correct option ID.
 - never ask for a definition and never write "What does ... mean?" or
@@ -96,22 +105,47 @@ For multiple_choice:
 
 For fill_in_blank:
 - create exactly ONE coherent short passage, announcement, email, notice, or story;
-- include a short title and approximately 4-5 readable lines in passage;
-- include exactly four numbered placeholders: (1) ______, (2) ______,
-  (3) ______, and (4) ______, each exactly once;
-- return exactly four blank records numbered 1, 2, 3, and 4;
+- include a short title and approximately 5-7 readable lines in passage;
+- include exactly five numbered placeholders: (1) ______, (2) ______, (3) ______,
+  (4) ______, and (5) ______, each exactly once, each written as the number in
+  round brackets, one space, then six underscores;
+- use no other underscores anywhere in the passage;
+- return exactly five blank records numbered 1, 2, 3, 4, and 5;
 - each blank has exactly four options with IDs A, B, C, and D;
 - each correct option text must equal the supplied word referenced by that blank's
-  target_vocabulary_id;
-- distractors may be natural target-language words outside the source pool when needed;
+  target_vocabulary_id, and five different target words must be used;
+- all twenty option texts across the five blanks must be different from one
+  another; never repeat a word in another blank;
+- every distractor must sit at the same level as the supplied records' cefr_level,
+  and match the part of speech the sentence needs, so the choice is about meaning;
+- distractors may be natural target-language words outside the source pool, but
+  they must be clearly wrong in that sentence once the context is read;
 - ensure logical continuity and one unambiguously best answer for each blank;
-- avoid four unrelated sentences and avoid awkward wording forced around a word.
+- avoid unrelated sentences and avoid awkward wording forced around a word.
+- copy this blank format exactly, including the space before the underscores:
+  "We met my (1) ______ at the station." and never write extra underscores
+  anywhere else in the passage.
 
 Keep prompts safe and appropriate for learners. Keep explanations concise and do
 not include commentary outside the requested structured response. Write every
 explanation in natural, learner-friendly Vietnamese. Use the supplied level framework
 and level codes to keep language near the learner's approximate range where practical.
 """
+
+
+def exercise_generator_system_prompt(exercise_type: str) -> str:
+    """Keep the shared rules and only the section for the requested type."""
+
+    marker_mc = "For multiple_choice:"
+    marker_cloze = "For fill_in_blank:"
+    shared, _, rest = EXERCISE_GENERATOR_SYSTEM_PROMPT.partition(marker_mc)
+    mc_rules, _, cloze_and_tail = rest.partition(marker_cloze)
+    cloze_rules, _, tail = cloze_and_tail.partition("Keep prompts safe")
+    if exercise_type == "fill_in_blank":
+        section = marker_cloze + cloze_rules
+    else:
+        section = marker_mc + mc_rules
+    return f"{shared}{section}\nKeep prompts safe{tail}"
 
 
 def exercise_user_prompt(

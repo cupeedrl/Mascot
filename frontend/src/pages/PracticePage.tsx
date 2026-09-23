@@ -22,7 +22,6 @@ import {
   ExerciseAttemptResult,
   ExerciseClozeBlank,
   ExerciseOption,
-  ExerciseType,
   Vocabulary,
   generateAIExercises,
   getActiveAIExercises,
@@ -54,11 +53,14 @@ function errorMessage(error: unknown): string {
     : "Không thể hoàn thành yêu cầu. Vui lòng thử lại.";
 }
 
+// Passages created before the five-blank format are still playable.
+const CLOZE_BLANK_COUNTS = [4, 5];
+
 function clozeBlanks(exercise: Exercise | undefined): ExerciseClozeBlank[] | null {
   if (
     exercise?.exercise_type !== "fill_in_blank" ||
     !Array.isArray(exercise.options) ||
-    exercise.options.length !== 4 ||
+    !CLOZE_BLANK_COUNTS.includes(exercise.options.length) ||
     !exercise.options.every((item) => "number" in item && "options" in item)
   ) {
     return null;
@@ -99,8 +101,6 @@ export function PracticePage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sourceMode, setSourceMode] = useState<PracticeSourceMode>("recent");
   const [selectedTopic, setSelectedTopic] = useState("");
-  const [generationType, setGenerationType] =
-    useState<ExerciseType>("multiple_choice");
   const [questionCountInput, setQuestionCountInput] = useState(
     String(DEFAULT_QUESTION_COUNT),
   );
@@ -246,7 +246,7 @@ export function PracticePage() {
     if (sourceVocabularies.length === 0) {
       return "Không có từ vựng phù hợp trong nguồn bạn đã chọn.";
     }
-    if (generationType === "multiple_choice" && distinctSourceWords < 4) {
+    if (distinctSourceWords < 4) {
       return "Bạn cần ít nhất 4 từ khác nhau để tạo bài tập trắc nghiệm.";
     }
     return null;
@@ -254,15 +254,9 @@ export function PracticePage() {
 
   async function handleGenerate() {
     if (isGenerating) return;
-    const countError = generationType === "multiple_choice"
-      ? questionCountError(questionCountInput)
-      : null;
+    const countError = questionCountError(questionCountInput);
     const sourceError = sourceValidationError();
-    if (
-      countError ||
-      sourceError ||
-      (generationType === "multiple_choice" && parsedQuestionCount === null)
-    ) {
+    if (countError || sourceError || parsedQuestionCount === null) {
       setGenerationError(countError ?? sourceError);
       return;
     }
@@ -274,9 +268,9 @@ export function PracticePage() {
         source_mode: sourceMode,
         ...(sourceMode === "topic" ? { topic: selectedTopic.trim() } : {}),
         ...(sourceMode === "custom" ? { vocabulary_ids: selectedIds } : {}),
-        exercise_type: generationType,
+        exercise_type: "multiple_choice",
         count: generationCount(
-          generationType,
+          "multiple_choice",
           parsedQuestionCount ?? DEFAULT_QUESTION_COUNT,
         ),
         learning_track_id: activeTrack?.id,
@@ -289,9 +283,7 @@ export function PracticePage() {
         );
       } else {
         setGenerationSuccess(
-          generationType === "fill_in_blank"
-            ? "Đã tạo 1 đoạn văn với 4 chỗ trống. Bạn có thể luyện ngay bên dưới."
-            : `Đã tạo ${generated.created_count} câu hỏi. Bạn có thể luyện ngay bên dưới.`,
+          `Đã tạo ${generated.created_count} câu hỏi. Bạn có thể luyện ngay bên dưới.`,
         );
       }
     } catch (generateError) {
@@ -468,31 +460,24 @@ export function PracticePage() {
                 <div className="setup-step-heading"><span>2</span><div><strong>Loại bài tập</strong><small>Chọn cách bạn muốn luyện.</small></div></div>
                 <label className="setup-field">
                   <span>Loại bài</span>
-                  <select value={generationType} disabled={isGenerating} onChange={(event) => { setGenerationType(event.target.value as ExerciseType); setGenerationError(null); }}>
+                  <select value="multiple_choice" disabled={isGenerating} onChange={() => setGenerationError(null)}>
                     <option value="multiple_choice">Trắc nghiệm theo ngữ cảnh</option>
-                    <option value="fill_in_blank">Điền từ vào đoạn văn</option>
                   </select>
                 </label>
               </div>
               <div className="practice-setup-step compact-step">
-                <div className="setup-step-heading"><span>3</span><div><strong>{generationType === "multiple_choice" ? "Số câu hỏi" : "Cấu trúc bài"}</strong><small>{generationType === "multiple_choice" ? "Đây là số câu được tạo, không phải số từ nguồn." : "Một đoạn văn được chấm theo bốn chỗ trống."}</small></div></div>
-                {generationType === "multiple_choice" ? (
-                  <>
-                    <div className="question-count-control">
-                      <button type="button" aria-label="Giảm số câu" disabled={isGenerating || parsedQuestionCount === MIN_QUESTION_COUNT} onClick={() => adjustQuestionCount(-1)}><Minus size={17} /></button>
-                      <input aria-label="Số câu hỏi" inputMode="numeric" value={questionCountInput} disabled={isGenerating} onChange={(event) => { if (isQuestionCountDraft(event.target.value)) { setQuestionCountInput(event.target.value); setGenerationError(null); } }} onBlur={() => { const message = questionCountError(questionCountInput); if (message) setGenerationError(message); }} />
-                      <button type="button" aria-label="Tăng số câu" disabled={isGenerating || parsedQuestionCount === MAX_QUESTION_COUNT} onClick={() => adjustQuestionCount(1)}><Plus size={17} /></button>
-                    </div>
-                    <small className="question-count-range">1–15 câu hỏi</small>
-                  </>
-                ) : (
-                  <div className="cloze-count-summary"><strong>1 đoạn văn</strong><span>4 chỗ trống</span></div>
-                )}
+                <div className="setup-step-heading"><span>3</span><div><strong>Số câu hỏi</strong><small>Đây là số câu được tạo, không phải số từ nguồn.</small></div></div>
+                <div className="question-count-control">
+                  <button type="button" aria-label="Giảm số câu" disabled={isGenerating || parsedQuestionCount === MIN_QUESTION_COUNT} onClick={() => adjustQuestionCount(-1)}><Minus size={17} /></button>
+                  <input aria-label="Số câu hỏi" inputMode="numeric" value={questionCountInput} disabled={isGenerating} onChange={(event) => { if (isQuestionCountDraft(event.target.value)) { setQuestionCountInput(event.target.value); setGenerationError(null); } }} onBlur={() => { const message = questionCountError(questionCountInput); if (message) setGenerationError(message); }} />
+                  <button type="button" aria-label="Tăng số câu" disabled={isGenerating || parsedQuestionCount === MAX_QUESTION_COUNT} onClick={() => adjustQuestionCount(1)}><Plus size={17} /></button>
+                </div>
+                <small className="question-count-range">1–15 câu hỏi</small>
               </div>
             </div>
 
             <div className="generation-output-summary">
-              <strong>{generationType === "fill_in_blank" ? "1 đoạn văn · 4 chỗ trống" : `${parsedQuestionCount ?? "—"} câu hỏi`}</strong>
+              <strong>{parsedQuestionCount ?? "—"} câu hỏi</strong>
               <span>sẽ được tạo từ nguồn gồm {sourceVocabularies.length} từ</span>
             </div>
             {generationError && <div className="inline-error">{generationError}</div>}
@@ -554,7 +539,7 @@ export function PracticePage() {
               <div className="cloze-passage">
                 {currentPassage.title && <p className="cloze-title">{currentPassage.title}</p>}
                 <p>{currentPassage.passage}</p>
-                <span>4 chỗ trống</span>
+                <span>5 chỗ trống</span>
               </div>
             ) : (
               <h2>{currentExercise.prompt}</h2>

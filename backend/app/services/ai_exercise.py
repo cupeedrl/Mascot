@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import random
 import logging
 import unicodedata
 import uuid
@@ -11,7 +12,11 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, selectinload
 
-from app.ai.provider import ExerciseAIProvider
+from app.ai.provider import (
+    AIProviderRequestError,
+    AIProviderResponseError,
+    ExerciseAIProvider,
+)
 from app.models.exercise import Exercise
 from app.models.learning_track import LearningTrack
 from app.models.vocabulary import Vocabulary
@@ -19,12 +24,16 @@ from app.schemas.ai_exercise import (
     AIExerciseGenerationRequest,
     AIFillInBlankBatch,
     AIMultipleChoiceBatch,
+    CLOZE_BLANK_COUNT,
 )
 from app.services.ai_guard import ai_guard, AICooldownError, AIDuplicateRequestError
 from app.services.normalization import normalize_topic
 
 
 logger = logging.getLogger(__name__)
+
+# One retry: enough for a resampled draft, still a bounded number of AI calls.
+GENERATION_ATTEMPTS = 2
 
 
 class VocabularySelectionNotFoundError(Exception):
@@ -56,6 +65,10 @@ AI_CONTEXT_EXAMPLE_MAX_CHARS = 300
 AI_CONTEXT_EXAMPLE_LIMIT = 1
 RECENT_SOURCE_LIMIT = 20
 AI_SOURCE_CONTEXT_LIMIT = 20
+# One passage only needs a handful of candidate words, and a short prompt keeps
+# the whole request inside a small provider tokens-per-minute allowance.
+AI_CLOZE_SOURCE_CONTEXT_LIMIT = 10
+AI_CLOZE_MEANING_MAX_CHARS = 160
 
 
 def _normalized(value: str) -> str:
@@ -168,6 +181,7 @@ def _resolve_vocabulary_source(
 
 def _select_provider_vocabularies(
     vocabularies: list[Vocabulary],
+    limit: int = AI_SOURCE_CONTEXT_LIMIT,
 ) -> list[Vocabulary]:
     selected: list[Vocabulary] = []
     seen_words: set[str] = set()
@@ -179,9 +193,9 @@ def _select_provider_vocabularies(
             continue
         selected.append(item)
         seen_words.add(normalized_word)
-        if len(selected) == AI_SOURCE_CONTEXT_LIMIT:
+        if len(selected) == limit:
             return selected
-    return (selected + deferred)[:AI_SOURCE_CONTEXT_LIMIT]
+    return (selected + deferred)[:limit]
 
 
 def _validate_selection(
@@ -191,30 +205,40 @@ def _validate_selection(
     if len(track_ids) != 1:
         raise VocabularyTrackMismatchError
 
+    distinct_words = {_normalized(item.word) for item in vocabularies}
     if exercise_type == "multiple_choice":
-        distinct_words = {_normalized(item.word) for item in vocabularies}
         if len(distinct_words) < 4:
             raise InsufficientVocabularyError
+    elif len(distinct_words) < CLOZE_BLANK_COUNT:
+        # One passage needs a different target word for each blank.
+        raise InsufficientVocabularyError
     return next(iter(track_ids))
 
 
 def _provider_context(
-    vocabularies: list[Vocabulary], track: LearningTrack | None = None
+    vocabularies: list[Vocabulary],
+    track: LearningTrack | None = None,
+    *,
+    compact: bool = False,
 ) -> list[dict[str, object]]:
     context = []
+    meaning_limit = (
+        AI_CLOZE_MEANING_MAX_CHARS if compact else AI_CONTEXT_MEANING_MAX_CHARS
+    )
+    example_limit = 0 if compact else AI_CONTEXT_EXAMPLE_LIMIT
     for item in vocabularies:
         record: dict[str, object] = {
             "id": str(item.id),
             "word": item.word,
             "part_of_speech": item.part_of_speech,
-            "meaning": item.meaning[:AI_CONTEXT_MEANING_MAX_CHARS],
+            "meaning": item.meaning[:meaning_limit],
             "cefr_level": item.level_code,
             "example_sentences": [
                 example[:AI_CONTEXT_EXAMPLE_MAX_CHARS]
-                for example in item.example_sentences[:AI_CONTEXT_EXAMPLE_LIMIT]
+                for example in item.example_sentences[:example_limit]
             ],
         }
-        if track is not None and track.language.code != "en":
+        if track is not None:
             record.update(
                 {
                     "level_code": item.level_code,
@@ -263,6 +287,18 @@ def _validate_candidate_semantics(
     if len(set(prompts)) != len(prompts):
         raise InvalidAIExerciseResponseError("duplicate generated prompt")
 
+    if exercise_type == "fill_in_blank":
+        for candidate in batch.exercises:
+            option_texts = [
+                _normalized(option.text)
+                for blank in candidate.blanks
+                for option in blank.options
+            ]
+            if len(set(option_texts)) != len(option_texts):
+                raise InvalidAIExerciseResponseError(
+                    "cloze options repeat across blanks"
+                )
+
     selected_ids = set(selected_by_id)
     for candidate in batch.exercises:
         if exercise_type == "multiple_choice":
@@ -304,6 +340,80 @@ def _validate_candidate_semantics(
                     )
                 ):
                     raise InvalidAIExerciseResponseError("cloze target does not match correct option")
+
+
+def _repair_cloze_option_duplicates(
+    candidate,
+    vocabularies: list[Vocabulary],
+) -> None:
+    """Make every option in a passage unique, in place.
+
+    A learner sees all CLOZE_BLANK_COUNT x 4 choices at once, so a word must not
+    appear twice. Providers slip on this, and swapping the repeat for an unused
+    word from the learner's own pool is cheaper - and keeps the level right -
+    than asking for a whole new passage. Correct answers are reserved first so a
+    distractor never squats on another blank's answer.
+    """
+
+    answers: dict[int, str] = {}
+    for blank in candidate.blanks:
+        correct = next(
+            (option for option in blank.options if option.id == blank.correct_answer),
+            None,
+        )
+        if correct is None:
+            raise InvalidAIExerciseResponseError("cloze blank has no correct option")
+        answers[blank.number] = _normalized(correct.text)
+
+    if len(set(answers.values())) != len(answers):
+        raise InvalidAIExerciseResponseError("cloze answers repeat a word")
+
+    used = set(answers.values())
+    spare = [item for item in vocabularies if _normalized(item.word) not in used]
+
+    for blank in candidate.blanks:
+        for option in blank.options:
+            if option.id == blank.correct_answer:
+                continue
+            normalized = _normalized(option.text)
+            if normalized not in used:
+                used.add(normalized)
+                continue
+            replacement = next(
+                (item for item in spare if _normalized(item.word) not in used),
+                None,
+            )
+            if replacement is None:
+                raise InvalidAIExerciseResponseError(
+                    "not enough distinct words for one passage"
+                )
+            option.text = replacement.word
+            used.add(_normalized(replacement.word))
+
+
+def _shuffled_options(candidate) -> tuple[list[dict[str, object]], str]:
+    """Spread the answer over A-D.
+
+    Providers park the correct option at A almost every time, which turns the
+    exercise into a guessing game, so the texts are dealt out again here and the
+    answer id follows the text it belongs to.
+    """
+
+    ids = [option.id for option in candidate.options]
+    texts = [option.text for option in candidate.options]
+    correct_text = next(
+        option.text
+        for option in candidate.options
+        if option.id == candidate.correct_answer
+    )
+    random.shuffle(texts)
+    options = [
+        {"id": option_id, "text": text} for option_id, text in zip(ids, texts)
+    ]
+    correct_answer = next(
+        option["id"] for option in options if option["text"] == correct_text
+    )
+    return options, str(correct_answer)
 
 
 def generate_and_store_exercises(
@@ -356,35 +466,77 @@ def generate_and_store_exercises(
         )
         if track is None:
             raise VocabularyTrackMismatchError
-        provider_vocabularies = _select_provider_vocabularies(source_vocabularies)
+        is_cloze = payload.exercise_type == "fill_in_blank"
+        provider_vocabularies = _select_provider_vocabularies(
+            source_vocabularies,
+            AI_CLOZE_SOURCE_CONTEXT_LIMIT if is_cloze else AI_SOURCE_CONTEXT_LIMIT,
+        )
         provider_vocabulary_ids = [item.id for item in provider_vocabularies]
-        context = _provider_context(provider_vocabularies, track)
+        context = _provider_context(provider_vocabularies, track, compact=is_cloze)
 
         # End the read transaction before waiting on the external provider.
         db.rollback()
         requested_count = 1 if payload.exercise_type == "fill_in_blank" else payload.count
-        raw = provider.generate_exercises(context, payload.exercise_type, requested_count)
-        batch = _parse_batch(raw, payload.exercise_type)
+        last_error: Exception | None = None
+        batch = None
+        vocabularies: list[Vocabulary] = []
+        selected_by_id: dict[uuid.UUID, Vocabulary] = {}
+        for attempt in range(1, GENERATION_ATTEMPTS + 1):
+            try:
+                raw = provider.generate_exercises(
+                    context, payload.exercise_type, requested_count
+                )
+                candidate_batch = _parse_batch(raw, payload.exercise_type)
 
-        # Re-check ownership after the provider call so stale/deleted records cannot be used.
-        vocabularies = _load_owned_vocabularies(db, user_id, provider_vocabulary_ids)
-        if _validate_selection(vocabularies, payload.exercise_type) != learning_track_id:
-            raise VocabularyTrackMismatchError
-        selected_by_id = {item.id: item for item in vocabularies}
-        _validate_candidate_semantics(
-            batch,
-            exercise_type=payload.exercise_type,
-            requested_count=requested_count,
-            selected_by_id=selected_by_id,
-        )
+                # Re-check ownership after the provider call so stale or deleted
+                # records cannot be used.
+                vocabularies = _load_owned_vocabularies(
+                    db, user_id, provider_vocabulary_ids
+                )
+                if (
+                    _validate_selection(vocabularies, payload.exercise_type)
+                    != learning_track_id
+                ):
+                    raise VocabularyTrackMismatchError
+                selected_by_id = {item.id: item for item in vocabularies}
+                if payload.exercise_type == "fill_in_blank":
+                    for candidate in candidate_batch.exercises:
+                        _repair_cloze_option_duplicates(candidate, vocabularies)
+                _validate_candidate_semantics(
+                    candidate_batch,
+                    exercise_type=payload.exercise_type,
+                    requested_count=requested_count,
+                    selected_by_id=selected_by_id,
+                )
+            except (
+                AIProviderResponseError,
+                AIProviderRequestError,
+                InvalidAIExerciseResponseError,
+            ) as exc:
+                last_error = exc
+                logger.warning(
+                    "AI exercise draft rejected (type=%s, attempt=%s/%s, reason=%s)",
+                    payload.exercise_type,
+                    attempt,
+                    GENERATION_ATTEMPTS,
+                    type(exc).__name__,
+                )
+                db.rollback()
+                continue
+            batch = candidate_batch
+            break
+
+        if batch is None:
+            assert last_error is not None
+            raise last_error
 
         now = datetime.now(timezone.utc)
         exercises: list[Exercise] = []
         for candidate in batch.exercises:
             if payload.exercise_type == "multiple_choice":
-                options = [option.model_dump() for option in candidate.options]
+                options, candidate_correct = _shuffled_options(candidate)
                 accepted_answers: list[object] = []
-                correct_answer = candidate.correct_answer
+                correct_answer = candidate_correct
                 explanation = candidate.explanation
                 word_to_vocabulary = {
                     _normalized(item.word): item for item in vocabularies
@@ -456,6 +608,12 @@ def generate_and_store_exercises(
             db.commit()
         except SQLAlchemyError as exc:
             db.rollback()
+            logger.exception(
+                "Storing generated exercises failed (user_id=%s, type=%s, count=%s)",
+                user_id,
+                payload.exercise_type,
+                len(exercises),
+            )
             raise AIExercisePersistenceError from exc
 
         ai_guard.release(user_id, "exercise_generation", fingerprint, mark_success=True)

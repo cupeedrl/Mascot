@@ -24,6 +24,8 @@ def get_vocabulary_ai_provider() -> VocabularyAIProvider:
             timeout_seconds=settings.ai_request_timeout_seconds,
             max_output_tokens=settings.ai_max_output_tokens,
             exercise_max_output_tokens=settings.ai_exercise_max_output_tokens,
+            exercise_reasoning_effort=settings.ai_exercise_reasoning_effort,
+            exercise_model=settings.groq_exercise_model,
         )
 
     api_key = settings.openai_api_key.get_secret_value() if settings.openai_api_key else ""

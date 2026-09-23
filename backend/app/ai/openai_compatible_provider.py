@@ -9,7 +9,7 @@ from pydantic import ValidationError
 
 from app.ai.chat_schema import Message, ProviderResult, ProviderToolCall
 from app.ai.prompts import (
-    EXERCISE_GENERATOR_SYSTEM_PROMPT,
+    exercise_generator_system_prompt,
     VOCABULARY_ASSISTANT_SYSTEM_PROMPT,
     exercise_user_prompt,
     vocabulary_assistant_system_prompt,
@@ -51,12 +51,16 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
         max_output_tokens: int,
         exercise_max_output_tokens: int = 4000,
         base_url: str | None = None,
+        exercise_reasoning_effort: str | None = None,
+        exercise_model: str | None = None,
     ) -> None:
         self._api_key = api_key.strip()
         self._model = model
         self._timeout_seconds = timeout_seconds
         self._max_output_tokens = max_output_tokens
         self._exercise_max_output_tokens = exercise_max_output_tokens
+        self._exercise_reasoning_effort = exercise_reasoning_effort
+        self._exercise_model = exercise_model or model
         self._base_url = base_url.rstrip("/") if base_url else None
 
     def _parse_structured(
@@ -68,6 +72,8 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
         | type[AIMultipleChoiceBatch]
         | type[AIFillInBlankBatch],
         max_output_tokens: int,
+        reasoning_effort: str | None = None,
+        model: str | None = None,
     ) -> object:
         if not self._api_key:
             raise AIProviderNotConfiguredError
@@ -101,11 +107,15 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
         while True:
             attempts += 1
             try:
+                extra_options: dict[str, Any] = {}
+                if reasoning_effort is not None:
+                    extra_options["reasoning"] = {"effort": reasoning_effort}
                 response = client.responses.parse(
-                    model=self._model,
+                    model=model or self._model,
                     input=messages,
                     text_format=text_format,
                     max_output_tokens=max_output_tokens,
+                    **extra_options,
                 )
                 duration_ms = round((time.perf_counter() - start_time) * 1000)
 
@@ -339,9 +349,14 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
             separators=(",", ":"),
         )
         batch = self._parse_structured(
+            model=self._exercise_model,
+            reasoning_effort=self._exercise_reasoning_effort,
             feature=f"exercise_{exercise_type}",
             messages=[
-                {"role": "system", "content": EXERCISE_GENERATOR_SYSTEM_PROMPT},
+                {
+                    "role": "system",
+                    "content": exercise_generator_system_prompt(exercise_type),
+                },
                 {
                     "role": "user",
                     "content": exercise_user_prompt(

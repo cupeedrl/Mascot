@@ -15,12 +15,14 @@ def provider_settings(provider: str) -> SimpleNamespace:
         ai_provider=provider,
         groq_api_key=SecretStr("groq-test-key"),
         groq_model="openai/gpt-oss-20b",
+        groq_exercise_model="openai/gpt-oss-120b",
         groq_base_url="https://api.groq.com/openai/v1",
         openai_api_key=SecretStr("openai-test-key"),
         openai_model="gpt-5.4-nano",
         ai_request_timeout_seconds=20.0,
         ai_max_output_tokens=800,
-        ai_exercise_max_output_tokens=4000,
+        ai_exercise_max_output_tokens=5000,
+        ai_exercise_reasoning_effort="low",
     )
 
 

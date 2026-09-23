@@ -612,7 +612,7 @@ export function ReviewPage() {
             </div>
             <div className="review-prompt">
               <h2>{currentItem.word}</h2>
-              {currentItem.ipa && <p className="review-ipa">{currentItem.learning_track.language.code === "zh" ? "Pinyin" : "IPA"}: {currentItem.ipa}</p>}
+              {currentItem.ipa && <p className="review-ipa">{currentItem.ipa}</p>}
               {currentItem.part_of_speech && <p className="review-pos">{currentItem.part_of_speech}</p>}
             </div>
 
@@ -657,7 +657,7 @@ export function ReviewPage() {
           </article>
 
           <aside className="review-rule-note">
-            <strong>Lịch V1</strong>
+            <strong>Quy tắc:</strong>
             <span>Đúng: Mới → 1 ngày → Đang học → 3 ngày → Cần ôn → Đã thuộc.</span>
             <span>Sai: quay về Đang học và ôn lại sau 1 giờ.</span>
           </aside>
