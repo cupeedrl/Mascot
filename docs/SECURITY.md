@@ -8,7 +8,7 @@ This document details the security design, cryptographic standards, authorizatio
 
 ### Password Storage: Argon2id
 - User passwords are never stored in plaintext.
-- Hashing is performed using **Argon2id** (OWASP recommended standard) via Python's `pwdlib`/`passlib`.
+- Hashing is performed using **Argon2id** (OWASP recommended standard) via `argon2-cffi`.
 - Constant-time verification is performed using a dummy hash during invalid email lookups to protect against timing-based user enumeration.
 
 ### JWT Access Tokens

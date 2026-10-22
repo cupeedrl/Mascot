@@ -1,5 +1,7 @@
 # Mascot
 
+> **Lưu ý:** đây là nhật ký phát triển của bản V1 (đến Phase G, migration `20260820_0010`), giữ lại làm tư liệu. Tính năng và số liệu hiện tại (AI Learning Assistant, HSK, 14 migration, số lượng test) xem ở [README](../README.md) và [AI architecture](ai/ARCHITECTURE.md).
+
 Mascot là hệ thống quản lý học ngôn ngữ. Dự án hiện đã hoàn thành **Phase 8 — Dashboard** cho General English:
 
 - React, TypeScript và Vite.

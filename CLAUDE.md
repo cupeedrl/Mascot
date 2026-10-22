@@ -9,7 +9,7 @@ Mascot is an AI-assisted language learning platform: personal vocabulary, CEFR E
 | `backend/` | Python 3.11–3.14, FastAPI, SQLAlchemy 2, Alembic, PostgreSQL (psycopg), PyJWT, pydantic-settings, `openai` SDK |
 | `frontend/` | React 19, TypeScript, Vite, react-router |
 | AI provider | Groq (default) or OpenAI, both via the OpenAI-compatible Chat Completions API |
-| Local infra | `docker-compose.yml`: `db` (Postgres 16), `backend`, `frontend` |
+| Local infra | `docker-compose.yml`: `backend`, `frontend`; PostgreSQL 16 runs separately on `localhost:5432` |
 | Docs | `docs/` (general), `docs/ai/` (AI architecture, learning plan, decisions) |
 
 ## AI chatbot (CURRENT)

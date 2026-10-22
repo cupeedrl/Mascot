@@ -12,7 +12,7 @@ This document provides complete instructions for deploying Mascot to production 
 | **Backend API** | [Render](https://render.com) | FastAPI REST API Web Service |
 | **Database** | [Neon](https://neon.tech) | Serverless PostgreSQL 16 |
 | **AI Provider** | [Groq](https://console.groq.com) | LLM inference API |
-| **Email Delivery** | [Gmail SMTP](https://myaccount.google.com/apppasswords) / [Resend](https://resend.com) | Password recovery emails |
+| **Email Delivery** | [Gmail SMTP](https://myaccount.google.com/apppasswords) / [Resend](https://resend.com) / [Brevo](https://www.brevo.com) | Password recovery emails |
 
 ---
 
@@ -26,7 +26,7 @@ This document provides complete instructions for deploying Mascot to production 
    ```
 
 ### Step 2: Execute Database Migrations
-Run Alembic against Neon to apply all migrations up to the current head (`20260820_0010`):
+Run Alembic against Neon to apply all migrations up to the current head (`20260908_0014`):
 
 ```bash
 cd backend
@@ -74,15 +74,18 @@ python -m alembic upgrade head
 | `JWT_ACCESS_TOKEN_EXPIRE_MINUTES` | No | `30` | Access token lifespan in minutes |
 | `AI_PROVIDER` | Yes | `groq` | Active AI provider (`groq` or `openai`) |
 | `GROQ_API_KEY` | Yes (if Groq) | `gsk_...` | API key from Groq Console |
-| `GROQ_MODEL` | No | `llama-3.3-70b-versatile` | Groq model identifier |
+| `GROQ_MODEL` | No | `openai/gpt-oss-20b` | Groq model for the chat assistant |
+| `GROQ_EXERCISE_MODEL` | No | `openai/gpt-oss-120b` | Groq model for exercise generation |
+| `AI_PROVIDER` | No | `groq` or `openai` | Active AI provider (`OPENAI_API_KEY` / `OPENAI_MODEL` for `openai`) |
 | `GROQ_BASE_URL` | No | `https://api.groq.com/openai/v1` | Groq API endpoint |
 | `AI_REQUEST_TIMEOUT_SECONDS` | No | `20` | HTTP timeout for external AI calls |
-| `EMAIL_PROVIDER` | Yes | `gmail_smtp` or `resend` | Active email provider for password resets |
+| `EMAIL_PROVIDER` | Yes | `gmail_smtp`, `resend` or `brevo` | Active email provider for password resets |
 | `SMTP_HOST` | Conditional | `smtp.gmail.com` | SMTP server host (for `gmail_smtp`) |
 | `SMTP_PORT` | Conditional | `587` | SMTP port |
 | `SMTP_USERNAME` | Conditional | `your-email@gmail.com` | SMTP account email |
 | `SMTP_APP_PASSWORD` | Conditional | `16-char app password` | Google App Password |
 | `RESEND_API_KEY` | Conditional | `re_...` | API key from Resend (for `resend`) |
+| `BREVO_API_KEY` | Conditional | `xkeysib-...` | API key from Brevo (for `brevo`) |
 | `EMAIL_FROM` | Yes | `Mascot <support@mascot.io>` | Sender email address |
 | `FRONTEND_BASE_URL` | Yes | `https://mascot.vercel.app` | Base URL used to construct password reset links |
 | `PASSWORD_RESET_TOKEN_EXPIRE_MINUTES` | No | `20` | Reset token lifetime in minutes |
@@ -99,8 +102,10 @@ python -m alembic upgrade head
 
 To run the complete system locally with Docker Compose:
 
+The compose file runs the backend and frontend only. Start PostgreSQL 16 on `localhost:5432` first (see the [Development Guide](DEVELOPMENT.md)); the backend container reaches it through `host.docker.internal`.
+
 ```bash
-# Start PostgreSQL, Backend, and Frontend
+# Start Backend and Frontend
 docker compose up -d --build
 
 # Run database migrations in container
@@ -114,4 +119,4 @@ Local service ports:
 - **Frontend SPA**: `http://localhost:5173`
 - **FastAPI Backend**: `http://localhost:8000`
 - **API Health Check**: `http://localhost:8000/api/v1/health`
-- **PostgreSQL**: `localhost:5432`
+- **PostgreSQL** (started separately): `localhost:5432`

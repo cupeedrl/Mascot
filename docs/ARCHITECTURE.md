@@ -1,6 +1,6 @@
 ﻿# Mascot — System Architecture
 
-Mascot is an AI-assisted language learning platform engineered around structured CEFR English vocabulary acquisition, spaced-repetition retrieval, and deterministic exercise grading.
+Mascot is an AI-assisted language learning platform engineered around structured CEFR English (and HSK Chinese) vocabulary acquisition, spaced-repetition retrieval, and deterministic exercise grading.
 
 ---
 
@@ -26,7 +26,7 @@ Mascot is an AI-assisted language learning platform engineered around structured
            v                 v                   v                 v
   +----------------+ +---------------+ +---------------+ +-----------------+
   | Neon Postgres  | | Groq AI API   | | Resend / SMTP | | Operational     |
-  | Serverless DB  | | (Llama 3.3)   | | (Email Auth)  | | AI Usage Logs   |
+  | Serverless DB  | | (gpt-oss)     | | (Email Auth)  | | AI Usage Logs   |
   +----------------+ +---------------+ +---------------+ +-----------------+
 ```
 
@@ -49,7 +49,7 @@ Mascot is an AI-assisted language learning platform engineered around structured
 
 ## 3. Backend Layer
 
-- **Framework**: FastAPI (Python 3.12/3.14).
+- **Framework**: FastAPI (Python 3.11–3.14).
 - **Design Pattern**: Layered clean architecture with clear separation of concerns:
   - **API Routes (`app/api/v1/routes/`)**: HTTP endpoints, input deserialization, status codes, query parameter parsing.
   - **Dependencies (`app/api/dependencies.py`)**: Request-scoped database sessions (`get_db`), JWT user authentication (`get_current_user`), and admin role enforcement (`require_admin`).
@@ -109,7 +109,8 @@ Mascot is an AI-assisted language learning platform engineered around structured
 ## 5. External Integrations
 
 ### 1. Groq Cloud AI API
-- **Model**: `llama-3.3-70b-versatile` / `openai/gpt-oss-20b`.
+- **Models**: `openai/gpt-oss-20b` (chat assistant) and `openai/gpt-oss-120b` (exercise generation) on Groq; OpenAI as an optional fallback provider.
+- **AI Learning Assistant**: a LangGraph tool-calling agent with read tools, confirmed write actions and guardrails. See the [AI assistant architecture](ai/ARCHITECTURE.md).
 - **Interface**: OpenAI-compatible REST SDK with fallback configuration.
 - **Safety**:
   - `AIGuard` in-memory thread-safe rate-limiting (30s cooldown for exercises, 5s for vocabulary).
@@ -117,7 +118,7 @@ Mascot is an AI-assisted language learning platform engineered around structured
   - Zero AI calls during grading: grading is 100% deterministic on the backend.
 
 ### 2. Email Delivery (Password Reset)
-- **Providers**: Resend API (HTTP REST) / Gmail SMTP (`smtplib` standard library) / Console logger.
+- **Providers**: Resend API / Brevo API (HTTP REST) / Gmail SMTP (`smtplib` standard library) / Console logger.
 - **Security**: Raw tokens are hashed with SHA-256 before database storage; tokens expire in 20 minutes and are strictly single-use.
 
 ---
