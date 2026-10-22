@@ -1,0 +1,28 @@
+# Caddy obtains and renews the HTTPS certificate for {$DOMAIN} automatically
+# (Let's Encrypt, HTTP challenge on port 80).
+{$DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# FastAPI. The frontend calls the same origin (/api/v1), so no CORS round trip.
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+
+	# Vite puts content-hashed files under /assets, so they can be cached forever.
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	# React SPA: unknown paths fall back to index.html so /app, /login, /admin open directly.
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

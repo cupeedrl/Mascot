@@ -1,0 +1,10 @@
+# The web image only needs the frontend source and the Caddyfile.
+*
+!frontend/
+!deploy/Caddyfile
+frontend/node_modules
+frontend/dist
+frontend/dist-*
+# A local frontend/.env would bake http://localhost:8000 into the production build.
+frontend/.env
+frontend/.env.*
