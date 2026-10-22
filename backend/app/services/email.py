@@ -141,6 +141,20 @@ class ResendEmailProvider(EmailProvider):
             return False
 
 
+def _read_error_detail(exc: urllib.error.HTTPError) -> str:
+    try:
+        body = exc.read().decode("utf-8", errors="replace")[:300]
+    except Exception:
+        return "unavailable"
+    try:
+        parsed = json.loads(body)
+    except json.JSONDecodeError:
+        return body.strip() or "unavailable"
+    if isinstance(parsed, dict):
+        return f"{parsed.get('code', '')} {parsed.get('message', '')}".strip() or body
+    return body
+
+
 class BrevoEmailProvider(EmailProvider):
     """Brevo transactional email over HTTPS.
 
@@ -201,9 +215,13 @@ class BrevoEmailProvider(EmailProvider):
                 logger.warning("password_reset_email_send_failed: provider=brevo status_code=%s", status_code)
                 return False
         except urllib.error.HTTPError as exc:
+            # Brevo explains 4xx in the body ("Key not found", "sender not
+            # valid"...). It never echoes the key, so logging it is safe and
+            # saves a guessing round.
             logger.error(
-                "password_reset_email_send_failed: provider=brevo status_code=%s error_type=HTTPError",
+                "password_reset_email_send_failed: provider=brevo status_code=%s error_type=HTTPError detail=%s",
                 exc.code,
+                _read_error_detail(exc),
             )
             return False
         except (urllib.error.URLError, TimeoutError) as exc:
