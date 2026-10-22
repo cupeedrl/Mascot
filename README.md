@@ -131,7 +131,7 @@ npm run dev
 
 The app runs at `http://localhost:5173` and the API docs at `http://localhost:8000/docs`. To open the admin portal, register an account and run `python scripts/set_admin.py <email>` from `backend/`.
 
-Full guide: [Development](docs/DEVELOPMENT.md) · [Deployment](docs/DEPLOYMENT.md) · [Backend on Hugging Face Spaces](docs/DEPLOY_HUGGINGFACE.md) · [Self-hosting on an Oracle Cloud Always Free VM](docs/DEPLOY_ORACLE_CLOUD.md) · [Security](docs/SECURITY.md)
+Full guide: [Development](docs/DEVELOPMENT.md) · [Deployment](docs/DEPLOYMENT.md) · [Self-hosting on an Oracle Cloud Always Free VM](docs/DEPLOY_ORACLE_CLOUD.md) · [Security](docs/SECURITY.md)
 
 ---
 

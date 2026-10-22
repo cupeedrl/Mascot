@@ -55,8 +55,17 @@ python -m alembic upgrade head
 4. *Note*: `frontend/vercel.json` provides rewrite rules for client-side routing.
 
 ### Step 5: Configure CORS & Run Smoke Test
-1. Set `CORS_ORIGINS` on Render to your Vercel domain (e.g. `["https://mascot-ai-learning.vercel.app"]`).
+1. Set `CORS_ORIGINS` on Render to your Vercel domain (e.g. `["https://mascot-ai-learn.vercel.app"]`).
 2. Run the production smoke-test checklist.
+
+### Step 6: Keep the Render Backend Awake (Free Tier)
+Render spins down a free web service after **15 minutes without inbound traffic**, and the next request waits about a minute while it starts again ([Render docs](https://render.com/docs/free)). To avoid that cold start:
+
+1. Create a free job on [cron-job.org](https://console.cron-job.org/signup) that requests `https://<render-service>.onrender.com/api/v1/health` **every 10 minutes**. Ten minutes leaves room for one missed or delayed ping before the 15-minute limit.
+2. Ping `/api/v1/health`, not `/api/v1/health/database`, so the job does not keep Neon compute awake.
+3. Free instance hours are **750 per workspace per month**. One service awake all month uses at most 744, so keep only **one** free service pinged around the clock; if the hours run out, Render suspends every free service until the next month.
+
+Free web services cannot send traffic on ports 25, 465 or 587, so SMTP email (`EMAIL_PROVIDER=gmail_smtp`) fails on Render free. Use `brevo` or `resend`, which send over HTTPS.
 
 ---
 
