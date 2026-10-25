@@ -37,15 +37,56 @@ The interface is in Vietnamese; the content being learned is English (and Chines
 - **AI practice**: sentence-cloze questions and 4-blank reading passages generated from the learner's own words. Answers are graded by deterministic backend rules, not by the model.
 
 **AI Learning Assistant**
-- **Agentic tool calling**: the model decides which read tools to call (`get_learning_stats`, `get_due_vocabulary`, `get_learning_profile`), then answers from the results.
-- **Human-in-the-loop writes**: `add_vocabulary` only returns a proposal. The backend issues a signed, expiring, single-use action token, and the database changes only after the user clicks **Confirm**.
-- **Guardrails**: tool whitelist, Pydantic validation of every argument, user identity taken from the JWT (never from the model), per-round and total tool-call limits, payload and time limits, prompt-injection rules, and sanitized errors.
-- **Memory and language**: conversations are saved per user, and replies follow the user's language.
-- **Evaluation and observability**: a 43-case offline eval suite (normal chat, tool routing, injection, guardrails, confirmation security) and per-request logs of latency, tool rounds and token usage. No secrets are logged.
+- Answers questions about the learner's own progress by calling read tools on their data, and streams the answer as it is written.
+- Can propose adding a word to the notebook; nothing is saved until the learner clicks **Confirm**.
+- Conversations are saved per user, and replies follow the user's language.
+
+How it is built is described in [AI Engineering](#ai-engineering).
 
 **Platform**
 - JWT authentication with Argon2id password hashing, and password reset through hashed, single-use, 20-minute links.
 - Admin portal (RBAC) for users, the shared catalog, and AI usage monitoring.
+
+---
+
+## AI Engineering
+
+Design detail: [AI assistant architecture](docs/ai/ARCHITECTURE.md) · [AI design decisions](docs/ai/DECISIONS.md)
+
+**Agent and tool calling**
+- A bounded, single-agent loop in **LangGraph** (`START → model ⇄ tools → END`). LangChain provides the chat-model interface through `ProviderChatModel`, an adapter over Mascot's own provider layer ([`agent_graph.py`](backend/app/ai/agent_graph.py), [`langchain_chat_model.py`](backend/app/ai/langchain_chat_model.py)).
+- The model chooses among whitelisted read tools (`get_learning_stats`, `get_due_vocabulary`, `get_learning_profile`). Each tool declares Pydantic argument and result schemas, a read/write class, and runs under a Postgres statement timeout and a payload size limit ([`ai/tools/`](backend/app/ai/tools)).
+- The original hand-written loop is kept behind `AI_AGENT_ENGINE=legacy` as a rollback path. Parity tests run the same scenarios through both engines and require identical provider-visible messages, results and error stages.
+
+**Human-in-the-loop writes**
+- A write tool (`add_vocabulary`) never runs inside the loop: the run ends with a proposal. The backend signs an expiring, single-use action token, and the database changes only through `POST /ai/actions/confirm`, which checks the signature, owner and replay guard ([`action_tokens.py`](backend/app/ai/action_tokens.py)).
+
+**Guardrails**
+- Provider output is untrusted: it is validated before it enters the conversation. Tool-round and tool-call budgets, argument size limits and tool timeouts are enforced in code, and the user's identity always comes from the JWT, never from model arguments ([`agent_guardrails.py`](backend/app/ai/agent_guardrails.py)).
+- The system prompt is backend-owned and treats learner data as data, not instructions. Logs use sanitized identifiers, and no secrets are logged.
+
+**Structured generation**
+- Exercises and vocabulary entries use structured outputs parsed into Pydantic models. The backend then checks them semantically (targets come from the learner's word pool, the correct option matches the word, no duplicate prompts), repairs duplicate cloze options, shuffles answer positions, and grades answers with deterministic rules ([`ai_exercise.py`](backend/app/services/ai_exercise.py)).
+
+**Streaming**
+- `POST /ai/chat/stream` sends the answer as Server-Sent Events: `delta` events carry a display-only draft, `discard` drops it (on a retry, a provider fallback, or a reply that turns into tool calls), and `done` carries the validated, persisted response, the same body `POST /ai/chat` returns. Tool rounds run before the answer streams ([`ai_chat.py`](backend/app/api/v1/routes/ai_chat.py), [`chatStream.ts`](frontend/src/ai/chatStream.ts)).
+
+**Reliability**
+- Provider calls retry with exponential backoff on rate limits, timeouts and 5xx/network errors.
+- An optional second provider (`AI_FALLBACK_PROVIDER`) takes over only for those transient failures. Auth, configuration and invalid-response errors are never hidden behind a fallback ([`fallback_provider.py`](backend/app/ai/fallback_provider.py)).
+- A per-user cooldown and in-flight fingerprinting reject duplicate AI requests.
+
+**Observability**
+- Every AI request writes an `ai_usage_logs` row: the provider and model that actually answered, input/output/total tokens summed across tool rounds, latency, status and error type. The admin portal's AI usage page shows them ([`token_usage.py`](backend/app/ai/token_usage.py)).
+- Each chat turn also logs a request summary: provider calls, tool rounds, tool names and per-tool latency.
+
+**Evaluation**
+- 43 offline eval cases in 7 categories (normal learning, tool routing, ambiguous requests, write actions, prompt injection, guardrails, confirmation security) run against a scripted provider, so they cost no tokens. CI fails unless every case passes ([`backend/evals/`](backend/evals)).
+- These are behavior and safety evals. They do not measure the answer quality of a live model.
+
+**Known limitations**
+- Rate-limit, dedup and replay-guard state lives in process memory, so the backend runs as a single worker.
+- When a fallback happens mid-turn, later tool rounds still try the primary provider first.
 
 ---
 
@@ -55,7 +96,7 @@ The interface is in Vietnamese; the content being learned is English (and Chines
 |---|---|
 | **Frontend** | React 19, TypeScript, Vite, React Router |
 | **Backend** | Python 3.11–3.14, FastAPI, Pydantic v2, SQLAlchemy 2, Alembic |
-| **AI** | LangGraph, LangChain Core, OpenAI-compatible Chat Completions API (Groq by default: `openai/gpt-oss-20b` for chat, `openai/gpt-oss-120b` for exercises; OpenAI as fallback) |
+| **AI** | LangGraph, LangChain Core, OpenAI-compatible Chat Completions and Responses APIs (Groq by default: `openai/gpt-oss-20b` for chat, `openai/gpt-oss-120b` for exercises; OpenAI as an optional fallback provider), Server-Sent Events |
 | **Database** | PostgreSQL 16 |
 | **Security** | JWT (HS256), Argon2id, RBAC |
 | **Email** | Gmail SMTP, Resend, Brevo |
@@ -67,16 +108,18 @@ The interface is in Vietnamese; the content being learned is English (and Chines
 
 ```text
  React SPA (Vercel)
-        │  HTTPS / REST, JWT bearer
+        │  HTTPS / REST and SSE, JWT bearer
         ▼
  FastAPI backend (Render / Docker)
    ├── Auth, vocabulary, review, exercises, admin  ──►  PostgreSQL (Neon)
-   ├── AI Learning Assistant
+   ├── AI Learning Assistant  (POST /ai/chat, or /ai/chat/stream for SSE)
    │     LangGraph:  START → model ⇄ tools → END
    │       read tools  ──► run inside the loop
    │       write tools ──► stop the loop, return a pending action
    │                         └─► POST /ai/actions/confirm (signed token) ──► database
-   ├── AI exercise and vocabulary generation  ──►  Groq / OpenAI
+   ├── AI exercise and vocabulary generation (structured outputs)
+   │     provider: Groq, falling back to OpenAI on transient failures if configured
+   ├── ai_usage_logs: provider, model, tokens, latency, status  ──►  admin dashboard
    └── Password reset email  ──►  Gmail SMTP / Resend / Brevo
 ```
 
@@ -86,8 +129,8 @@ More detail: [System architecture](docs/ARCHITECTURE.md) · [AI assistant archit
 
 ## Quality
 
-- **Backend:** 459 pytest test cases (auth, data isolation, spaced repetition, grading, admin RBAC, AI guardrails, agent and tool execution, token usage accounting).
-- **Frontend:** 76 tests with the Node.js test runner, plus a type-checked production build.
+- **Backend:** 524 pytest test cases (auth, data isolation, spaced repetition, grading, admin RBAC, AI guardrails, agent and tool execution, token usage accounting, provider fallback, SSE streaming).
+- **Frontend:** 84 tests with the Node.js test runner, plus a type-checked production build.
 - **AI evals:** 43 offline cases with a scripted provider, so they run without network access or token cost.
 - **Migrations:** 14 linear Alembic revisions, head `20260908_0014`.
 - **CI:** GitHub Actions ([`ci.yml`](.github/workflows/ci.yml)) runs ruff, the backend tests and evals on Python 3.12 and 3.14, `pip-audit`, and the frontend tests and build on every push and pull request. The evals step fails unless every case passes.
