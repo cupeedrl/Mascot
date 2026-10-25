@@ -29,6 +29,7 @@ from app.ai.provider import (
     ExerciseAIProvider,
     VocabularyAIProvider,
 )
+from app.ai.token_usage import record_provider_usage
 from app.schemas.ai_exercise import AIFillInBlankBatch, AIMultipleChoiceBatch
 from app.schemas.ai_vocabulary import VocabularyCandidate
 
@@ -119,15 +120,8 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
                 )
                 duration_ms = round((time.perf_counter() - start_time) * 1000)
 
-                # Extract token usage if present
-                usage: dict[str, Any] = {}
-                raw_usage = getattr(response, "usage", None)
-                if raw_usage:
-                    usage = {
-                        "prompt_tokens": getattr(raw_usage, "prompt_tokens", None),
-                        "completion_tokens": getattr(raw_usage, "completion_tokens", None),
-                        "total_tokens": getattr(raw_usage, "total_tokens", None),
-                    }
+                # Count tokens even when the parsed output is unusable: they were billed.
+                usage = record_provider_usage(response, model or self._model)
 
                 parsed = response.output_parsed
                 if parsed is None:
@@ -414,14 +408,7 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
                 )
                 duration_ms = round((time.perf_counter() - start_time) * 1000)
 
-                usage: dict[str, Any] = {}
-                raw_usage = getattr(response, "usage", None)
-                if raw_usage:
-                    usage = {
-                        "prompt_tokens": getattr(raw_usage, "prompt_tokens", None),
-                        "completion_tokens": getattr(raw_usage, "completion_tokens", None),
-                        "total_tokens": getattr(raw_usage, "total_tokens", None),
-                    }
+                usage = record_provider_usage(response, self._model)
 
                 content = response.choices[0].message.content
                 if content is None:
@@ -621,14 +608,7 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
                 response = client.chat.completions.create(**kwargs)
                 duration_ms = round((time.perf_counter() - start_time) * 1000)
 
-                usage: dict[str, Any] = {}
-                raw_usage = getattr(response, "usage", None)
-                if raw_usage:
-                    usage = {
-                        "prompt_tokens": getattr(raw_usage, "prompt_tokens", None),
-                        "completion_tokens": getattr(raw_usage, "completion_tokens", None),
-                        "total_tokens": getattr(raw_usage, "total_tokens", None),
-                    }
+                usage = record_provider_usage(response, self._model)
 
                 if not response.choices:
                     raise AIProviderResponseError(

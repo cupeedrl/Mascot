@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
 from app.ai.dependencies import get_exercise_ai_provider
+from app.ai.token_usage import tracks_token_usage
 from app.ai.provider import (
     AIProviderConfigurationError,
     AIProviderError,
@@ -63,6 +64,7 @@ def get_active_session(
 
 
 @router.post("/generate", response_model=AIExerciseGenerationResponse)
+@tracks_token_usage
 def generate_exercises(
     payload: AIExerciseGenerationRequest,
     current_user: Annotated[User, Depends(get_current_user)],

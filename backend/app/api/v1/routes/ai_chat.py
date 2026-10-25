@@ -13,6 +13,7 @@ from sqlalchemy.orm import joinedload
 from app.ai.action_tokens import issue_action_token
 from app.ai.chat_agent import run_chat_agent
 from app.ai.chat_schema import AgentTrace
+from app.ai.token_usage import tracks_token_usage
 from app.ai.dependencies import get_chat_ai_provider
 from app.ai.prompts import CHAT_ASSISTANT_SYSTEM_PROMPT
 from app.ai.provider import (
@@ -61,6 +62,7 @@ router = APIRouter(prefix="/ai", tags=["ai"])
 
 
 @router.post("/chat", response_model=AIChatResponse)
+@tracks_token_usage
 def chat_with_assistant(
     payload: AIChatRequest,
     current_user: Annotated[User, Depends(get_current_user)],
