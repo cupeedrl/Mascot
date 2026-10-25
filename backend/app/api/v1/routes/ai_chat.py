@@ -13,7 +13,7 @@ from sqlalchemy.orm import joinedload
 from app.ai.action_tokens import issue_action_token
 from app.ai.chat_agent import run_chat_agent
 from app.ai.chat_schema import AgentTrace
-from app.ai.token_usage import tracks_token_usage
+from app.ai.token_usage import current_token_usage, tracks_token_usage
 from app.ai.dependencies import get_chat_ai_provider
 from app.ai.prompts import CHAT_ASSISTANT_SYSTEM_PROMPT
 from app.ai.provider import (
@@ -82,12 +82,16 @@ def chat_with_assistant(
 
     def observe(status_value: str, status_code: int, error_type: str | None = None) -> None:
         latency_ms = round((time.perf_counter() - start_time) * 1000)
+        # Prefer what actually answered: a fallback provider may have served the request.
+        usage = current_token_usage()
+        used_provider = (usage.provider if usage else None) or provider_name
+        used_model = (usage.model if usage else None) or model_name
         record_ai_usage(
             db,
             user_id=current_user.id,
             feature="ai_chat",
-            provider=provider_name,
-            model=model_name,
+            provider=used_provider,
+            model=used_model,
             status=status_value,
             status_code=status_code,
             latency_ms=latency_ms,
@@ -96,8 +100,8 @@ def chat_with_assistant(
         logger.info(
             "AI chat completed (request_id=%s, provider=%s, model=%s, latency_ms=%d, provider_calls=%d, tool_rounds=%d, total_tool_calls=%d, tools=%s, tool_latencies_ms=%s, final_status=%s, error_type=%s)",
             request_id,
-            provider_name,
-            model_name,
+            used_provider,
+            used_model,
             latency_ms,
             trace.provider_calls,
             trace.tool_rounds,

@@ -29,8 +29,10 @@ class TokenUsage:
     output_tokens: int = 0
     total_tokens: int = 0
     provider_calls: int = 0
-    # Model of the most recent call that reported usage.
+    # Provider and model of the most recent call that reported usage. With a
+    # fallback provider configured this is the one that actually answered.
     model: str | None = None
+    provider: str | None = None
 
     def add(
         self,
@@ -39,8 +41,11 @@ class TokenUsage:
         input_tokens: int | None,
         output_tokens: int | None,
         total_tokens: int | None,
+        provider: str | None = None,
     ) -> None:
         self.provider_calls += 1
+        if provider:
+            self.provider = provider
         self.input_tokens += input_tokens or 0
         self.output_tokens += output_tokens or 0
         if total_tokens is None:
@@ -82,7 +87,9 @@ def _token_count(raw_usage: Any, *names: str) -> int | None:
     return None
 
 
-def record_provider_usage(response: Any, model: str | None) -> dict[str, int | None]:
+def record_provider_usage(
+    response: Any, model: str | None, provider: str | None = None
+) -> dict[str, int | None]:
     """Add one SDK response's usage to the active tracker and return it for logging.
 
     Chat Completions reports ``prompt_tokens``/``completion_tokens``; the
@@ -108,5 +115,6 @@ def record_provider_usage(response: Any, model: str | None) -> dict[str, int | N
             input_tokens=usage["prompt_tokens"],
             output_tokens=usage["completion_tokens"],
             total_tokens=usage["total_tokens"],
+            provider=provider,
         )
     return usage

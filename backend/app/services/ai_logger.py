@@ -45,7 +45,7 @@ def record_ai_usage(
             input_tokens = usage.input_tokens
             output_tokens = usage.output_tokens
             total_tokens = usage.total_tokens
-        provider = provider or settings.ai_provider
+        provider = provider or (usage.provider if usage is not None else None) or settings.ai_provider
         if not model:
             if usage is not None and usage.model:
                 model = usage.model

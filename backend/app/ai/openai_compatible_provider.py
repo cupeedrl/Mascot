@@ -43,6 +43,9 @@ INITIAL_BACKOFF_SECONDS = 0.5
 class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvider, ChatAIProvider):
     """Base vocabulary provider using the OpenAI-compatible chat completions API."""
 
+    # Stored in ai_usage_logs.provider for the calls this provider serves.
+    provider_name = "openai_compatible"
+
     def __init__(
         self,
         *,
@@ -63,6 +66,10 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
         self._exercise_reasoning_effort = exercise_reasoning_effort
         self._exercise_model = exercise_model or model
         self._base_url = base_url.rstrip("/") if base_url else None
+
+    @property
+    def has_api_key(self) -> bool:
+        return bool(self._api_key)
 
     def _parse_structured(
         self,
@@ -121,7 +128,7 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
                 duration_ms = round((time.perf_counter() - start_time) * 1000)
 
                 # Count tokens even when the parsed output is unusable: they were billed.
-                usage = record_provider_usage(response, model or self._model)
+                usage = record_provider_usage(response, model or self._model, self.provider_name)
 
                 parsed = response.output_parsed
                 if parsed is None:
@@ -408,7 +415,7 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
                 )
                 duration_ms = round((time.perf_counter() - start_time) * 1000)
 
-                usage = record_provider_usage(response, self._model)
+                usage = record_provider_usage(response, self._model, self.provider_name)
 
                 content = response.choices[0].message.content
                 if content is None:
@@ -608,7 +615,7 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
                 response = client.chat.completions.create(**kwargs)
                 duration_ms = round((time.perf_counter() - start_time) * 1000)
 
-                usage = record_provider_usage(response, self._model)
+                usage = record_provider_usage(response, self._model, self.provider_name)
 
                 if not response.choices:
                     raise AIProviderResponseError(
