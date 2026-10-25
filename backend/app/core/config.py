@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     jwt_issuer: str = Field(default="mascot-api", min_length=1)
     jwt_audience: str = Field(default="mascot-frontend", min_length=1)
     ai_provider: Literal["groq", "openai"] = "groq"
+    # Optional second provider, used only when ai_provider is rate limited,
+    # out of quota, timing out or failing with 5xx/network errors. Off by default.
+    ai_fallback_provider: Literal["groq", "openai"] | None = None
     groq_api_key: SecretStr | None = None
     groq_model: str = Field(
         default="openai/gpt-oss-20b", min_length=1, max_length=100
@@ -88,6 +91,14 @@ class Settings(BaseSettings):
                 except Exception:
                     pass
             return [part.strip() for part in stripped.split(",") if part.strip()]
+        return value
+
+    @field_validator("ai_fallback_provider", mode="before")
+    @classmethod
+    def empty_fallback_provider_is_none(cls, value: object) -> object:
+        # `AI_FALLBACK_PROVIDER=` in an env file means "disabled".
+        if isinstance(value, str) and not value.strip():
+            return None
         return value
 
     @field_validator("cors_origins")

@@ -1,0 +1,26 @@
+# Lint configuration for the backend. Run from backend/: `ruff check .`
+# Kept outside pyproject.toml so linting does not change packaging config.
+
+target-version = "py311"
+extend-exclude = ["mascot_backend.egg-info"]
+
+[lint]
+# Correctness-focused baseline: syntax/IO errors (E9), statement and
+# comparison mistakes (E4, E7) and Pyflakes (F: undefined names, unused
+# variables, shadowed definitions, ...). Widen it gradually.
+select = ["E4", "E7", "E9", "F"]
+
+# F401 (unused import) is off for now: 71 pre-existing hits across app/,
+# scripts/ and alembic/ are cleaned up in a separate change, then re-enabled.
+ignore = ["F401"]
+
+[lint.per-file-ignores]
+# Tests import pytest fixtures by name and receive them as parameters, which
+# pyflakes reports as redefinitions (F811).
+"tests/**" = ["F811", "E701", "E702"]
+# Environment variables or sys.path must be set before importing app modules.
+"tests/conftest.py" = ["E402"]
+"evals/run_chatbot_evals.py" = ["E402"]
+"app/catalog/generators/*.py" = ["E402"]
+"app/catalog/validate_full_catalog.py" = ["E402"]
+"scripts/**" = ["E402", "E701", "E702"]

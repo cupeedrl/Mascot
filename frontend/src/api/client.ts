@@ -1,3 +1,9 @@
+import {
+  ChatStreamError,
+  readChatStream,
+  STREAM_INTERRUPTED_MESSAGE,
+  type ChatStreamHandlers,
+} from "../ai/chatStream.ts";
 import { persistAccessToken, readAccessToken } from "../auth/sessionStorage.ts";
 import {
   BackendWarmupTimeoutError,
@@ -82,6 +88,31 @@ interface RequestOptions {
   timeoutMs?: number;
 }
 
+async function readApiError(response: Response): Promise<ApiError> {
+  let body: ApiErrorBody = {};
+  try {
+    body = (await response.json()) as ApiErrorBody;
+  } catch {
+    // Keep the generic fallback when the response is not JSON.
+  }
+
+  if (response.status === 401 && accessToken) {
+    unauthorizedHandler?.();
+  }
+
+  const detail = body.detail;
+  const structuredDetail =
+    detail && typeof detail === "object" && !Array.isArray(detail)
+      ? detail
+      : undefined;
+  const message = Array.isArray(detail)
+    ? detail[0]?.msg ?? "Dữ liệu không hợp lệ."
+    : typeof detail === "string"
+      ? detail
+      : structuredDetail?.message ?? "Yêu cầu không thành công.";
+  return new ApiError(response.status, message, structuredDetail);
+}
+
 async function request<T>(
   path: string,
   init: RequestInit = {},
@@ -132,28 +163,7 @@ async function request<T>(
   }
 
   if (!response.ok) {
-    let body: ApiErrorBody = {};
-    try {
-      body = (await response.json()) as ApiErrorBody;
-    } catch {
-      // Keep the generic fallback when the response is not JSON.
-    }
-
-    if (response.status === 401 && accessToken) {
-      unauthorizedHandler?.();
-    }
-
-    const detail = body.detail;
-    const structuredDetail =
-      detail && typeof detail === "object" && !Array.isArray(detail)
-        ? detail
-        : undefined;
-    const message = Array.isArray(detail)
-      ? detail[0]?.msg ?? "Dữ liệu không hợp lệ."
-      : typeof detail === "string"
-        ? detail
-        : structuredDetail?.message ?? "Yêu cầu không thành công.";
-    throw new ApiError(response.status, message, structuredDetail);
+    throw await readApiError(response);
   }
 
   if (response.status === 204) {
@@ -1212,22 +1222,95 @@ export function deleteAIConversation(conversationId: string): Promise<void> {
   return request<void>(`/ai/conversations/${conversationId}`, { method: "DELETE" });
 }
 
-export function postAIChat(
+function buildAIChatRequest(
   messageOrMessages: string | ChatMessage[],
   learningTrackId?: string,
   conversationId?: string,
-): Promise<AIChatResponse> {
-  const payload: AIChatRequest = Array.isArray(messageOrMessages)
+): AIChatRequest {
+  return Array.isArray(messageOrMessages)
     ? { messages: messageOrMessages, learning_track_id: learningTrackId }
     : {
         message: messageOrMessages,
         conversation_id: conversationId,
         learning_track_id: learningTrackId,
       };
+}
+
+export function postAIChat(
+  messageOrMessages: string | ChatMessage[],
+  learningTrackId?: string,
+  conversationId?: string,
+): Promise<AIChatResponse> {
   return request<AIChatResponse>("/ai/chat", {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: JSON.stringify(
+      buildAIChatRequest(messageOrMessages, learningTrackId, conversationId),
+    ),
   });
+}
+
+// A 404 with FastAPI's default detail (or 405) means the backend has no
+// stream route yet, as opposed to e.g. "AI conversation not found.".
+export function isMissingStreamRoute(error: ApiError): boolean {
+  return error.status === 405 || (error.status === 404 && error.message === "Not Found");
+}
+
+// Same turn as postAIChat, with the answer streamed into `handlers` as a
+// draft. Resolves with the authoritative AIChatResponse from the `done` event.
+// Falls back to postAIChat only when the stream route does not exist: once a
+// stream has started the backend has already saved the user's message, so
+// retrying on /ai/chat would send it twice.
+export async function postAIChatStream(
+  messageOrMessages: string | ChatMessage[],
+  learningTrackId?: string,
+  conversationId?: string,
+  handlers: ChatStreamHandlers = {},
+): Promise<AIChatResponse> {
+  const headers = new Headers({
+    Accept: "text/event-stream",
+    "Content-Type": "application/json",
+  });
+  if (accessToken) {
+    headers.set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl}/ai/chat/stream`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(
+        buildAIChatRequest(messageOrMessages, learningTrackId, conversationId),
+      ),
+    });
+  } catch {
+    throw new ApiError(0, "Không thể kết nối tới máy chủ.", undefined, "network");
+  }
+
+  if (!response.ok) {
+    const error = await readApiError(response);
+    if (isMissingStreamRoute(error)) {
+      return postAIChat(messageOrMessages, learningTrackId, conversationId);
+    }
+    throw error;
+  }
+  if (!response.body) {
+    throw new ApiError(0, STREAM_INTERRUPTED_MESSAGE, undefined, "network");
+  }
+
+  try {
+    return (await readChatStream(response.body, handlers)) as AIChatResponse;
+  } catch (error) {
+    if (error instanceof ChatStreamError) {
+      throw new ApiError(
+        error.status,
+        error.message,
+        undefined,
+        error.status === 0 ? "network" : "http",
+      );
+    }
+    throw new ApiError(0, STREAM_INTERRUPTED_MESSAGE, undefined, "network");
+  }
 }
 
 export function confirmAIAction(

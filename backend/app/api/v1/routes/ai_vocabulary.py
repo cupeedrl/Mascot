@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
 from app.ai.dependencies import get_vocabulary_ai_provider
+from app.ai.token_usage import tracks_token_usage
 from app.ai.provider import (
     AIProviderConfigurationError,
     AIProviderError,
@@ -32,6 +33,7 @@ router = APIRouter(prefix="/ai")
 
 
 @router.post("/vocabulary", response_model=VocabularyCandidate)
+@tracks_token_usage
 def generate_vocabulary(
     payload: VocabularyGenerationRequest,
     current_user: Annotated[User, Depends(get_current_user)],

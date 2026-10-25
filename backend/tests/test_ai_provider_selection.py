@@ -13,6 +13,7 @@ from app.schemas.ai_vocabulary import VocabularyCandidate
 def provider_settings(provider: str) -> SimpleNamespace:
     return SimpleNamespace(
         ai_provider=provider,
+        ai_fallback_provider=None,
         groq_api_key=SecretStr("groq-test-key"),
         groq_model="openai/gpt-oss-20b",
         groq_exercise_model="openai/gpt-oss-120b",

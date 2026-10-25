@@ -8,7 +8,7 @@ Mascot is an AI-assisted language learning platform: personal vocabulary, CEFR E
 |---|---|
 | `backend/` | Python 3.11–3.14, FastAPI, SQLAlchemy 2, Alembic, PostgreSQL (psycopg), PyJWT, pydantic-settings, `openai` SDK |
 | `frontend/` | React 19, TypeScript, Vite, react-router |
-| AI provider | Groq (default) or OpenAI, both via the OpenAI-compatible Chat Completions API |
+| AI provider | Groq (default) or OpenAI, both via the OpenAI-compatible API; optional fallback provider via `AI_FALLBACK_PROVIDER` |
 | Local infra | `docker-compose.yml`: `backend`, `frontend`; PostgreSQL 16 runs separately on `localhost:5432` |
 | Docs | `docs/` (general), `docs/ai/` (AI architecture, learning plan, decisions) |
 
@@ -17,6 +17,10 @@ Mascot is an AI-assisted language learning platform: personal vocabulary, CEFR E
 A bounded, single-agent tool-calling workflow. LangGraph orchestrates the loop; LangChain provides the chat-model abstraction and messages; Mascot owns every rule (decision D-006). Full detail: `docs/ai/ARCHITECTURE.md`.
 
 - `POST /api/v1/ai/chat` → `backend/app/api/v1/routes/ai_chat.py` → `run_chat_agent()` in `backend/app/ai/chat_agent.py` → `run_agent_graph()` in `ai/agent_graph.py` (`START → model ⇄ tools → END`)
+- `POST /api/v1/ai/chat/stream`: the same turn as Server-Sent Events. Both routes share `_prepare_chat_turn()` (validation, persistence of user input, guard) and `_run_chat_turn()` (agent, error mapping, reply persistence). The stream route runs the turn in a worker thread with its own DB session. Events: `delta` (display-only draft), `discard`, `done` (the `AIChatResponse`), `error` (`status`, `detail`)
+- Streaming seam: `ai/chat_stream.py` holds the request's callback in a ContextVar; `ProviderChatModel` passes it as `on_event` to providers with `supports_streaming`. The legacy engine never streams (it sends `done` only)
+- Usage accounting: `ai/token_usage.py` (`@tracks_token_usage`, `token_usage_scope()`) sums tokens and records the provider/model that answered; `services/ai_logger.record_ai_usage` reads it
+- Provider fallback: `ai/fallback_provider.py` (`FallbackAIProvider`), built in `ai/dependencies.py` only when `AI_FALLBACK_PROVIDER` differs from `AI_PROVIDER` and has a key
 - Engine flag: `settings.ai_agent_engine` — `langgraph` (default) or `legacy` (original loop `_run_legacy_chat_agent`, kept for rollback)
 - LangChain adapter: `ProviderChatModel` in `ai/langchain_chat_model.py` wraps any `ChatAIProvider`
 - Shared guardrails for both engines: `ai/agent_guardrails.py`
@@ -35,9 +39,11 @@ A bounded, single-agent tool-calling workflow. LangGraph orchestrates the loop; 
 5. Tool arguments and results are validated against Pydantic schemas and bounded by size and time.
 6. Agent budgets (rounds, calls per round, total calls) are enforced; values come from settings.
 7. The system prompt is backend-owned and first; the response-language hint is deterministic (no model call).
-8. Error types map to stable HTTP status codes, and the frontend depends on the `AIChatResponse` shape (including `confirmation_required`).
+8. Error types map to stable HTTP status codes, and the frontend depends on the `AIChatResponse` shape (including `confirmation_required`). `/ai/chat/stream` must keep the same contract: its `done` event is exactly that `AIChatResponse`, and its `error` event carries the status and detail `/ai/chat` would return.
 9. `ChatAIProvider` is the seam that tests and evals mock — keep it working.
 10. LangChain/LangGraph orchestrate; they never own these rules. Do not execute Mascot tools through the prebuilt `ToolNode` or `create_agent`, and keep both engines passing `tests/test_agent_graph_migration.py` until the legacy engine is removed.
+11. Streamed `delta` text is a display-only draft: it never enters the conversation or the database. Only the validated result (the `done` event) is persisted.
+12. Provider fallback covers transient failures only (rate limit, quota, timeout, 5xx/network). Configuration, auth, request and response errors must surface unchanged.
 
 ## Working rules
 
@@ -53,6 +59,7 @@ A bounded, single-agent tool-calling workflow. LangGraph orchestrates the loop; 
 Backend (from `backend/`, venv active; on Windows without activation use `.\.venv\Scripts\python.exe -m ...`):
 
 ```bash
+ruff check .                               # lint (config in backend/ruff.toml; CI runs ruff 0.17.2)
 pytest -q                                  # all backend tests (in-memory SQLite, no Postgres needed)
 pytest tests/test_ai_chat_phase3.py -q     # single file
 python -m evals.run_chatbot_evals          # chatbot contract/safety evals, no network

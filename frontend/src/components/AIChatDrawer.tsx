@@ -6,7 +6,7 @@ import {
   createAIConversation,
   getAIConversation,
   listAIConversations,
-  postAIChat,
+  postAIChatStream,
   type AIActionConfirmation,
   type AIConversationSummary,
   type ChatMessage,
@@ -42,6 +42,8 @@ export function AIChatDrawer() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [progressLabel, setProgressLabel] = useState("AI đang suy nghĩ…");
+  // Streamed draft of the answer in progress; replaced by the final message.
+  const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -209,7 +211,7 @@ export function AIChatDrawer() {
     if (isOpen) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, isOpen]);
+  }, [messages, draft, isOpen]);
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
@@ -231,11 +233,16 @@ export function AIChatDrawer() {
     setIsLoading(true);
 
     try {
-      const response = await postAIChat(
+      const response = await postAIChatStream(
         trimmed,
         activeTrack?.id,
         activeConversationId ?? undefined,
+        {
+          onDelta: (text) => setDraft((current) => current + text),
+          onDiscard: () => setDraft(""),
+        },
       );
+      setDraft("");
       setActiveConversationId(response.conversation_id);
       if (user) {
         localStorage.setItem(
@@ -256,6 +263,7 @@ export function AIChatDrawer() {
     } catch (err) {
       setError(getChatErrorMessage(err));
     } finally {
+      setDraft("");
       setIsLoading(false);
     }
   }
@@ -423,7 +431,19 @@ export function AIChatDrawer() {
                 </div>
               ))
             )}
-            {isLoading && (
+            {isLoading && draft && (
+              <div className="ai-chat-message-bubble assistant-bubble" aria-busy="true">
+                <div className="avatar-icon">
+                  <PenguinMark size={24} />
+                </div>
+                <div className="message-content">
+                  <div className="ai-chat-markdown">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{draft}</ReactMarkdown>
+                  </div>
+                </div>
+              </div>
+            )}
+            {isLoading && !draft && (
               <div className="ai-chat-message-bubble assistant-bubble loading-bubble">
                 <div className="avatar-icon">
                   <PenguinMark size={24} />
