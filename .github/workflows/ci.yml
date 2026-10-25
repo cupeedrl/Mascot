@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-lint:
+    name: Backend lint (ruff)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install "ruff==0.17.2"
+      - run: ruff check --output-format=github .
+
+  backend-test:
+    name: Backend tests + evals (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.12 matches backend/Dockerfile; 3.14 is the newest version allowed
+        # by requires-python and the one used for local development.
+        python-version: ["3.12", "3.14"]
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      # Tests use in-memory SQLite and fake AI providers: no Postgres, no API keys.
+      - name: Run tests
+        run: python -m pytest
+      # Exits non-zero unless every offline contract/safety eval case passes.
+      - name: Run chatbot evals
+        run: python -m evals.run_chatbot_evals
+      - name: Audit dependencies
+        if: matrix.python-version == '3.12'
+        run: python -m pip_audit --skip-editable
+
+  frontend:
+    name: Frontend tests + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Matches frontend/Dockerfile.
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build

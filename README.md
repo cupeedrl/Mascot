@@ -1,5 +1,7 @@
 ﻿# Mascot
 
+[![CI](https://github.com/cupeedrl/Mascot/actions/workflows/ci.yml/badge.svg)](https://github.com/cupeedrl/Mascot/actions/workflows/ci.yml)
+
 Mascot is an AI-assisted language learning app. Learners build a personal vocabulary notebook from a curated CEFR A1–C2 English catalog (plus an HSK Chinese starter track), review words with spaced repetition, practice with AI-generated exercises, and ask an **AI Learning Assistant** about their own progress.
 
 The assistant is a bounded **LangGraph tool-calling agent**: it can read the learner's real data through whitelisted tools, but it can only *propose* changes. Nothing is written to the database until the learner confirms.
@@ -84,13 +86,14 @@ More detail: [System architecture](docs/ARCHITECTURE.md) · [AI assistant archit
 
 ## Quality
 
-- **Backend:** 361 pytest tests (auth, data isolation, spaced repetition, grading, admin RBAC, AI guardrails, agent and tool execution).
+- **Backend:** 459 pytest test cases (auth, data isolation, spaced repetition, grading, admin RBAC, AI guardrails, agent and tool execution, token usage accounting).
 - **Frontend:** 76 tests with the Node.js test runner, plus a type-checked production build.
 - **AI evals:** 43 offline cases with a scripted provider, so they run without network access or token cost.
 - **Migrations:** 14 linear Alembic revisions, head `20260908_0014`.
+- **CI:** GitHub Actions ([`ci.yml`](.github/workflows/ci.yml)) runs ruff, the backend tests and evals on Python 3.12 and 3.14, `pip-audit`, and the frontend tests and build on every push and pull request. The evals step fails unless every case passes.
 
 ```bash
-cd backend && pytest -q && python -m evals.run_chatbot_evals
+cd backend && ruff check . && pytest -q && python -m evals.run_chatbot_evals
 cd frontend && npm test && npm run build
 ```
 
