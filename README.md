@@ -73,7 +73,7 @@ Design detail: [AI assistant architecture](docs/ai/ARCHITECTURE.md) · [AI desig
 
 **Reliability**
 - Provider calls retry with exponential backoff on rate limits, timeouts and 5xx/network errors.
-- An optional second provider (`AI_FALLBACK_PROVIDER`) takes over only for those transient failures. Auth, configuration and invalid-response errors are never hidden behind a fallback ([`fallback_provider.py`](backend/app/ai/fallback_provider.py)).
+- An optional second provider (`AI_FALLBACK_PROVIDER`) takes over only for those transient failures. Auth, configuration, rejected-request (4xx) and invalid-response errors are never hidden behind a fallback ([`fallback_provider.py`](backend/app/ai/fallback_provider.py)).
 - A per-user cooldown and in-flight fingerprinting reject duplicate AI requests.
 
 **Observability**
@@ -129,7 +129,7 @@ More detail: [System architecture](docs/ARCHITECTURE.md) · [AI assistant archit
 
 ## Quality
 
-- **Backend:** 574 pytest test cases (auth, data isolation, spaced repetition, grading, admin RBAC, AI guardrails, agent and tool execution, provider retry and error mapping, token usage accounting, provider fallback, SSE streaming).
+- **Backend:** 581 pytest test cases (auth, data isolation, spaced repetition, grading, admin RBAC, AI guardrails, agent and tool execution, provider retry and error mapping, token usage accounting, provider fallback, SSE streaming).
 - **Frontend:** 84 tests with the Node.js test runner, plus a type-checked production build.
 - **AI evals:** 43 offline cases with a scripted provider, so they run without network access or token cost.
 - **Migrations:** 14 linear Alembic revisions, head `20260908_0014`.

@@ -200,7 +200,7 @@ Both engines share `agent_guardrails.py` and the executor. `backend/tests/test_a
 | `AIProviderRateLimitError`, `AIProviderQuotaError`, `AIProviderTimeoutError`, bare `AIProviderError` (5xx/network) | Yes, the same call once on the secondary; logged as `AI provider fallback` |
 | `AIProviderConfigurationError`, `AIProviderNotConfiguredError`, `AIProviderAuthenticationError`, `AIProviderRequestError`, `AIProviderResponseError` | No: raised unchanged, so a bad key, model or request is never hidden |
 
-All four provider methods (vocabulary, exercises, chat, chat with tools) go through the wrapper. When streaming, it sends `discard` before the secondary starts.
+All four provider methods (vocabulary, exercises, chat, chat with tools) go through the wrapper. Retries and SDK error mapping are shared by all of them in `_call_with_retries` (`openai_compatible_provider.py`): any other 4xx response (not 401/403/404/429) is a rejected request and becomes `AIProviderRequestError` with sanitized details, so it is neither retried nor sent to the secondary. `tests/test_ai_provider_retry_contract.py` pins the mapping for every method. When streaming, it sends `discard` before the secondary starts.
 
 **Usage accounting.** Providers are process-wide singletons, so per-request usage lives in a ContextVar (`token_usage.py`). Each AI route opens a `TokenUsage` with `@tracks_token_usage` (the stream worker uses `token_usage_scope()`); every provider response adds its usage, including responses whose output is later rejected, since those tokens are billed. Chat Completions (`prompt_tokens`/`completion_tokens`), the Responses API (`input_tokens`/`output_tokens`), OpenAI stream usage chunks and Groq's `x_groq.usage` are all read. `record_ai_usage` fills tokens, provider and model from the tracker unless they are passed explicitly.
 
@@ -209,7 +209,6 @@ All four provider methods (vocabulary, exercises, chat, chat with tools) go thro
 - `ai_guard` and `action_replay_guard` are process-local memory (not shared across workers/instances).
 - Tool-call turns are not persisted, so history replays only visible text.
 - `DEFAULT_MAX_TOOL_ROUNDS = 3` in `chat_agent.py`, but the route passes `settings.ai_max_tool_rounds` (default 5).
-- Retry and error mapping live in one helper, `_call_with_retries`, but the structured and chat paths still map a non-auth, non-429 4xx response differently: structured calls raise `AIProviderRequestError`, chat calls raise a bare `AIProviderError`, which `FallbackAIProvider` treats as transient. `tests/test_ai_provider_retry_contract.py` pins this down.
 - Each open stream holds one threadpool slot while it waits for events, plus the worker thread.
 - A network drop in the middle of a provider stream surfaces as an `error` event (502); the turn is not retried after text has been streamed, except through the provider's own retry loop, which sends `discard` first.
 - The fallback is per provider call: in a multi-round turn, each round tries the primary again. `ai_usage_logs.model` records the model of the last call.

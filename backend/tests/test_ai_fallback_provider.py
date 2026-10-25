@@ -294,6 +294,29 @@ def test_chat_route_falls_back_to_openai_and_logs_what_answered(
     assert (row.input_tokens, row.output_tokens, row.total_tokens) == (70, 10, 80)
 
 
+def test_chat_route_does_not_fall_back_on_a_rejected_request(
+    monkeypatch: pytest.MonkeyPatch, client: TestClient, session_factory: Any
+) -> None:
+    bad_request = _status_error(
+        openai.BadRequestError, 400, "https://api.groq.com/openai/v1/chat/completions"
+    )
+    calls = _install_fake_openai(monkeypatch, bad_request)
+
+    response = _post_chat(client, "fallback-bad-request@example.com")
+
+    # Sending the same rejected request to another provider would not help.
+    assert response.status_code == 502
+    assert calls == {"groq": 1, "openai": 0}
+    with session_factory() as db:
+        row = db.scalar(
+            select(AIUsageLog)
+            .where(AIUsageLog.feature == "ai_chat")
+            .order_by(AIUsageLog.created_at.desc())
+        )
+    assert row is not None
+    assert row.error_type == "AIProviderRequestError"
+
+
 def test_chat_route_does_not_hide_a_primary_auth_error(
     monkeypatch: pytest.MonkeyPatch, client: TestClient
 ) -> None:

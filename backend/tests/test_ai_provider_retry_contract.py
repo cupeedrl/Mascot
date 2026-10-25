@@ -1,12 +1,10 @@
 """Characterization tests for the provider's retry and error mapping.
 
-They pin down what each provider method does for every SDK error today,
-including where the methods differ, so the shared retry helper must keep
-exactly this behavior:
-
-- structured calls (vocabulary, exercises) map other 4xx responses to
-  AIProviderRequestError and log each retry;
-- chat calls map them to a bare AIProviderError and do not log retries.
+They pin down what each provider method does for every SDK error, so the
+shared retry helper keeps exactly this behavior. All methods map a rejected
+request (other 4xx) to AIProviderRequestError, which is neither retried nor
+handed to a fallback provider. The one difference left: only structured
+calls (vocabulary, exercises) log each retry.
 """
 
 from __future__ import annotations
@@ -227,29 +225,36 @@ def test_terminal_errors_are_mapped_without_retry(
 
 
 @pytest.mark.parametrize(("name", "invoke", "ok", "expected", "feature"), METHODS, ids=METHOD_IDS)
-def test_other_client_errors_differ_between_structured_and_chat_calls(
-    monkeypatch: pytest.MonkeyPatch, name: str, invoke: Callable, ok: Any, expected: Any, feature: str, caplog: Any,
+@pytest.mark.parametrize(
+    ("error_class", "status_code"),
+    [
+        (openai.BadRequestError, 400),
+        (openai.ConflictError, 409),
+        (openai.UnprocessableEntityError, 422),
+    ],
+    ids=["400", "409", "422"],
+)
+def test_rejected_requests_are_request_errors_without_retry(
+    monkeypatch: pytest.MonkeyPatch, name: str, invoke: Callable, ok: Any, expected: Any, feature: str,
+    error_class: type, status_code: int, caplog: Any,
 ) -> None:
     body = {"error": {"type": "invalid_request_error", "message": "bad schema", "param": "x", "code": "bad"}}
-    harness = Harness(monkeypatch, [status_error(openai.BadRequestError, 400, body)])
+    harness = Harness(monkeypatch, [status_error(error_class, status_code, body)])
 
-    with caplog.at_level(logging.WARNING, logger="ai_usage"), pytest.raises(AIProviderError) as raised:
+    with caplog.at_level(logging.WARNING, logger="ai_usage"), pytest.raises(AIProviderRequestError) as raised:
         invoke(provider())
 
     assert harness.calls == 1
-    if name == "structured":
-        assert type(raised.value) is AIProviderRequestError
-        assert raised.value.status_code == 400
-        assert raised.value.details == {
-            "type": "invalid_request_error",
-            "message": "bad schema",
-            "param": "x",
-            "code": "bad",
-        }
-        assert f"AI call error: provider_request, feature={feature}" in caplog.text
-    else:
-        assert type(raised.value) is AIProviderError
-        assert f"AI call error: provider_network_or_5xx, feature={feature}" in caplog.text
+    assert harness.sleeps == []
+    assert raised.value.status_code == status_code
+    assert raised.value.details == {
+        "type": "invalid_request_error",
+        "message": "bad schema",
+        "param": "x",
+        "code": "bad",
+    }
+    assert f"AI call error: provider_request, feature={feature}" in caplog.text
+    assert "provider_network_or_5xx" not in caplog.text
 
 
 def test_structured_schema_mismatch_is_a_response_error_without_retry(

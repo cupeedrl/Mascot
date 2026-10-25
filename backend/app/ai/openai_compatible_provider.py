@@ -180,7 +180,6 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
         *,
         start_time: float,
         log_retries: bool = False,
-        map_client_errors: bool = False,
     ) -> _T:
         """Run ``attempt(attempt_number)`` with Mascot's retry and error mapping.
 
@@ -189,10 +188,10 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
         AIProvider*Error at once. Exceptions raised by ``attempt`` that are not
         SDK errors (e.g. AIProviderResponseError) propagate unchanged.
 
-        ``log_retries`` logs each retry. ``map_client_errors`` turns other 4xx
-        responses into AIProviderRequestError with sanitized details; without
-        it they become a bare AIProviderError, like 5xx after the last retry.
-        Structured calls set both; chat calls set neither.
+        Other 4xx responses (not 401/403/404/429) become AIProviderRequestError
+        with sanitized details: the request itself was rejected, so it is
+        neither retried nor handed to a fallback provider. ``log_retries`` logs
+        each retry; structured calls set it, chat calls do not.
         """
         from openai import (
             APIConnectionError,
@@ -283,7 +282,7 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
 
             except (APIConnectionError, APIStatusError) as exc:
                 duration_ms = round((time.perf_counter() - start_time) * 1000)
-                if map_client_errors and isinstance(exc, APIStatusError) and exc.status_code < 500:
+                if isinstance(exc, APIStatusError) and exc.status_code < 500:
                     body = getattr(exc, "body", None)
                     safe_details: dict[str, object] = {}
                     if isinstance(body, dict):
@@ -405,7 +404,6 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
                 attempt,
                 start_time=start_time,
                 log_retries=True,
-                map_client_errors=True,
             )
         except ValidationError as exc:
             duration_ms = round((time.perf_counter() - start_time) * 1000)
