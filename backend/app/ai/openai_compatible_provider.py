@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 import logging
 import time
-from typing import Any, List
+from types import SimpleNamespace
+from typing import Any, Callable, List
 
 from pydantic import ValidationError
 
@@ -39,12 +40,90 @@ usage_logger = logging.getLogger("ai_usage")
 MAX_RETRIES = 2
 INITIAL_BACKOFF_SECONDS = 0.5
 
+# Receives ("delta", text) and ("discard", "") while a chat reply streams.
+StreamEventCallback = Callable[[str, str], None]
+
+
+def _parse_chat_completion(response: Any) -> tuple[str | None, list[ProviderToolCall]]:
+    if not response.choices:
+        raise AIProviderResponseError(
+            "empty_choices",
+            "Provider returned empty choices array",
+        )
+
+    choice_msg = response.choices[0].message
+    parsed_tool_calls: list[ProviderToolCall] = []
+    if choice_msg.tool_calls:
+        for tc in choice_msg.tool_calls:
+            f_name = tc.function.name if tc.function else ""
+            f_args = tc.function.arguments if tc.function else "{}"
+            if not isinstance(f_args, str):
+                f_args = json.dumps(f_args)
+            parsed_tool_calls.append({
+                "id": tc.id,
+                "name": f_name,
+                "arguments": f_args,
+            })
+    return choice_msg.content, parsed_tool_calls
+
+
+def _consume_chat_stream(
+    stream: Any, on_event: StreamEventCallback
+) -> tuple[str | None, list[ProviderToolCall], Any]:
+    """Read a streamed chat completion into the same shape as a non-streamed one.
+
+    Text deltas are forwarded as they arrive. Tool calls arrive as fragments
+    keyed by index (id and name first, arguments split across chunks) and are
+    joined here. Returns (content, tool_calls, object with ``.usage`` or None).
+    """
+    content_parts: list[str] = []
+    calls: dict[int, dict[str, str]] = {}
+    usage_source: Any = None
+
+    for chunk in stream:
+        if getattr(chunk, "usage", None) is not None:
+            usage_source = chunk
+        # Groq reports usage on the final chunk under x_groq.usage instead.
+        x_groq = getattr(chunk, "x_groq", None)
+        groq_usage = (
+            x_groq.get("usage") if isinstance(x_groq, dict) else getattr(x_groq, "usage", None)
+        )
+        if groq_usage is not None and usage_source is None:
+            if isinstance(groq_usage, dict):
+                groq_usage = SimpleNamespace(**groq_usage)
+            usage_source = SimpleNamespace(usage=groq_usage)
+
+        for choice in getattr(chunk, "choices", None) or []:
+            delta = choice.delta
+            if delta is None:
+                continue
+            if delta.content:
+                content_parts.append(delta.content)
+                on_event("delta", delta.content)
+            for fragment in delta.tool_calls or []:
+                slot = calls.setdefault(fragment.index, {"id": "", "name": "", "arguments": ""})
+                if fragment.id:
+                    slot["id"] = fragment.id
+                if fragment.function is not None:
+                    slot["name"] += fragment.function.name or ""
+                    slot["arguments"] += fragment.function.arguments or ""
+
+    tool_calls: list[ProviderToolCall] = [
+        {"id": slot["id"], "name": slot["name"], "arguments": slot["arguments"]}
+        for _, slot in sorted(calls.items())
+    ]
+    return ("".join(content_parts) or None), tool_calls, usage_source
+
 
 class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvider, ChatAIProvider):
     """Base vocabulary provider using the OpenAI-compatible chat completions API."""
 
     # Stored in ai_usage_logs.provider for the calls this provider serves.
     provider_name = "openai_compatible"
+    # generate_chat_response_with_tools accepts on_event (see ProviderChatModel).
+    supports_streaming = True
+    # Ask for a final usage chunk when streaming (stream_options.include_usage).
+    stream_include_usage = True
 
     def __init__(
         self,
@@ -520,7 +599,15 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
         self,
         messages: List[Message],
         tool_definitions: List[dict],
+        on_event: StreamEventCallback | None = None,
     ) -> ProviderResult:
+        """One provider turn. With ``on_event`` the reply is streamed.
+
+        Streamed text is reported as ``("delta", text)`` while it arrives and
+        ``("discard", "")`` when a retry restarts the answer. Deltas are a
+        display-only draft: the returned ProviderResult is still the complete,
+        not yet validated result, exactly as without streaming.
+        """
         if not self._api_key:
             raise AIProviderNotConfiguredError
 
@@ -609,36 +696,28 @@ class OpenAICompatibleVocabularyProvider(VocabularyAIProvider, ExerciseAIProvide
         attempts = 0
         backoff = INITIAL_BACKOFF_SECONDS
 
+        if on_event is not None:
+            kwargs["stream"] = True
+            if self.stream_include_usage:
+                kwargs["stream_options"] = {"include_usage": True}
+
         while True:
             attempts += 1
             try:
+                if on_event is not None and attempts > 1:
+                    # A retry restarts the answer: drop any partial draft already shown.
+                    on_event("discard", "")
                 response = client.chat.completions.create(**kwargs)
-                duration_ms = round((time.perf_counter() - start_time) * 1000)
-
-                usage = record_provider_usage(response, self._model, self.provider_name)
-
-                if not response.choices:
-                    raise AIProviderResponseError(
-                        "empty_choices",
-                        "Provider returned empty choices array",
+                if on_event is None:
+                    duration_ms = round((time.perf_counter() - start_time) * 1000)
+                    usage = record_provider_usage(response, self._model, self.provider_name)
+                    content, parsed_tool_calls = _parse_chat_completion(response)
+                else:
+                    content, parsed_tool_calls, usage_source = _consume_chat_stream(
+                        response, on_event
                     )
-
-                choice = response.choices[0]
-                choice_msg = choice.message
-                content = choice_msg.content
-
-                parsed_tool_calls: list[ProviderToolCall] = []
-                if choice_msg.tool_calls:
-                    for tc in choice_msg.tool_calls:
-                        f_name = tc.function.name if tc.function else ""
-                        f_args = tc.function.arguments if tc.function else "{}"
-                        if not isinstance(f_args, str):
-                            f_args = json.dumps(f_args)
-                        parsed_tool_calls.append({
-                            "id": tc.id,
-                            "name": f_name,
-                            "arguments": f_args,
-                        })
+                    duration_ms = round((time.perf_counter() - start_time) * 1000)
+                    usage = record_provider_usage(usage_source, self._model, self.provider_name)
 
                 if not content and not parsed_tool_calls:
                     raise AIProviderResponseError(

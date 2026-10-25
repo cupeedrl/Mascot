@@ -14,6 +14,8 @@ object, so mutations made by provider calls are visible to the route.
 from __future__ import annotations
 
 import functools
+from collections.abc import Iterator
+from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from typing import Any, Callable, TypeVar
@@ -64,16 +66,24 @@ def current_token_usage() -> TokenUsage | None:
     return _current_usage.get()
 
 
+@contextmanager
+def token_usage_scope() -> Iterator[TokenUsage]:
+    """Track provider usage inside the block, e.g. in a worker thread."""
+    usage = TokenUsage()
+    token = _current_usage.set(usage)
+    try:
+        yield usage
+    finally:
+        _current_usage.reset(token)
+
+
 def tracks_token_usage(endpoint: F) -> F:
     """Open a fresh TokenUsage tracker for the duration of a sync endpoint."""
 
     @functools.wraps(endpoint)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        token = _current_usage.set(TokenUsage())
-        try:
+        with token_usage_scope():
             return endpoint(*args, **kwargs)
-        finally:
-            _current_usage.reset(token)
 
     return wrapper  # type: ignore[return-value]
 

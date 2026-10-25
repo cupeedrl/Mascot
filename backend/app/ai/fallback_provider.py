@@ -50,6 +50,13 @@ class FallbackAIProvider(VocabularyAIProvider, ExerciseAIProvider, ChatAIProvide
         self._primary_name = primary_name
         self._secondary_name = secondary_name
 
+    @property
+    def supports_streaming(self) -> bool:
+        return bool(
+            getattr(self._primary, "supports_streaming", False)
+            and getattr(self._secondary, "supports_streaming", False)
+        )
+
     def _call(self, method: str, *args: Any, **kwargs: Any) -> Any:
         try:
             return getattr(self._primary, method)(*args, **kwargs)
@@ -63,6 +70,10 @@ class FallbackAIProvider(VocabularyAIProvider, ExerciseAIProvider, ChatAIProvide
                 self._secondary_name,
                 type(exc).__name__,
             )
+        on_event = kwargs.get("on_event")
+        if on_event is not None:
+            # The secondary starts its answer from scratch.
+            on_event("discard", "")
         return getattr(self._secondary, method)(*args, **kwargs)
 
     def generate_vocabulary(
@@ -91,9 +102,9 @@ class FallbackAIProvider(VocabularyAIProvider, ExerciseAIProvider, ChatAIProvide
         self,
         messages: List[Message],
         tool_definitions: List[dict],
+        on_event: Any = None,
     ) -> ProviderResult:
-        return self._call(
-            "generate_chat_response_with_tools",
-            messages=messages,
-            tool_definitions=tool_definitions,
-        )
+        kwargs: dict[str, Any] = {"messages": messages, "tool_definitions": tool_definitions}
+        if on_event is not None:
+            kwargs["on_event"] = on_event
+        return self._call("generate_chat_response_with_tools", **kwargs)

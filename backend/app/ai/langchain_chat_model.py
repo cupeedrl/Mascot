@@ -29,6 +29,7 @@ from pydantic import Field
 
 from app.ai.agent_guardrails import validate_provider_result
 from app.ai.chat_schema import AssistantMessage, Message, ProviderToolCall
+from app.ai.chat_stream import current_stream_callback
 from app.ai.provider import AIProviderResponseError
 
 ASSISTANT_MESSAGE_KEY = "mascot_assistant_message"
@@ -55,12 +56,22 @@ class ProviderChatModel(BaseChatModel):
         run_manager: Any = None,
         **kwargs: Any,
     ) -> ChatResult:
-        result = self.provider.generate_chat_response_with_tools(
-            messages=to_provider_messages(messages),
-            tool_definitions=kwargs.get("tool_definitions", []),
-        )
-        # Validate before the result becomes part of the conversation.
+        call_options: dict[str, Any] = {
+            "messages": to_provider_messages(messages),
+            "tool_definitions": kwargs.get("tool_definitions", []),
+        }
+        # Set only while /ai/chat/stream runs a turn (see app.ai.chat_stream).
+        on_event = current_stream_callback()
+        streaming = on_event is not None and getattr(self.provider, "supports_streaming", False)
+        if streaming:
+            call_options["on_event"] = on_event
+        result = self.provider.generate_chat_response_with_tools(**call_options)
+        # Validate before the result becomes part of the conversation. Streamed
+        # deltas were only a draft: the validated result below is authoritative.
         content, tool_calls = validate_provider_result(result)
+        if streaming and tool_calls:
+            # The model moved on to tools: any text it streamed is not the answer.
+            on_event("discard", "")
         message = _to_ai_message(content, tool_calls)
         return ChatResult(generations=[ChatGeneration(message=message)])
 
