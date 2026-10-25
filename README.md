@@ -129,7 +129,7 @@ More detail: [System architecture](docs/ARCHITECTURE.md) · [AI assistant archit
 
 ## Quality
 
-- **Backend:** 524 pytest test cases (auth, data isolation, spaced repetition, grading, admin RBAC, AI guardrails, agent and tool execution, token usage accounting, provider fallback, SSE streaming).
+- **Backend:** 574 pytest test cases (auth, data isolation, spaced repetition, grading, admin RBAC, AI guardrails, agent and tool execution, provider retry and error mapping, token usage accounting, provider fallback, SSE streaming).
 - **Frontend:** 84 tests with the Node.js test runner, plus a type-checked production build.
 - **AI evals:** 43 offline cases with a scripted provider, so they run without network access or token cost.
 - **Migrations:** 14 linear Alembic revisions, head `20260908_0014`.

@@ -209,7 +209,7 @@ All four provider methods (vocabulary, exercises, chat, chat with tools) go thro
 - `ai_guard` and `action_replay_guard` are process-local memory (not shared across workers/instances).
 - Tool-call turns are not persisted, so history replays only visible text.
 - `DEFAULT_MAX_TOOL_ROUNDS = 3` in `chat_agent.py`, but the route passes `settings.ai_max_tool_rounds` (default 5).
-- The provider implementation duplicates retry/error mapping across three methods (the streaming path reuses the tool-calling method's).
+- Retry and error mapping live in one helper, `_call_with_retries`, but the structured and chat paths still map a non-auth, non-429 4xx response differently: structured calls raise `AIProviderRequestError`, chat calls raise a bare `AIProviderError`, which `FallbackAIProvider` treats as transient. `tests/test_ai_provider_retry_contract.py` pins this down.
 - Each open stream holds one threadpool slot while it waits for events, plus the worker thread.
 - A network drop in the middle of a provider stream surfaces as an `error` event (502); the turn is not retried after text has been streamed, except through the provider's own retry loop, which sends `discard` first.
 - The fallback is per provider call: in a multi-round turn, each round tries the primary again. `ai_usage_logs.model` records the model of the last call.
