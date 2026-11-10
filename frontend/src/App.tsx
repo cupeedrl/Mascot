@@ -17,6 +17,7 @@ import { AuthPage } from "./pages/AuthPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { LearnPage } from "./pages/LearnPage";
 import { HskCatalogPage } from "./pages/HskCatalogPage";
+import { HskTopicPage } from "./pages/HskTopicPage";
 import { PracticePage } from "./pages/PracticePage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { ReviewPage } from "./pages/ReviewPage";
@@ -61,6 +62,7 @@ function App() {
             <Route path="learn" element={<LearnPage />} />
             <Route path="learn/sets/:setId" element={<VocabularySetPage />} />
             <Route path="learn/hsk" element={<HskCatalogPage />} />
+            <Route path="learn/hsk/topics/:topicId" element={<HskTopicPage />} />
             <Route path="review" element={<ReviewPage />} />
             <Route path="practice" element={<PracticePage />} />
             <Route path="vocabulary" element={<VocabularyPage />} />

@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class HskReleaseSummary(BaseModel):
@@ -18,11 +18,37 @@ class HskReleaseSummary(BaseModel):
     published_at: datetime | None
 
 
+class HskTopicCard(BaseModel):
+    id: uuid.UUID
+    part: int | None = None
+    part_count: int = 1
+    name_zh: str
+    name_vi: str | None
+    subtopics: list[str]
+    entry_count: int
+    saved_count: int
+
+
+class HskTopicGroup(BaseModel):
+    id: uuid.UUID
+    name_zh: str
+    name_vi: str | None
+    topics: list[HskTopicCard]
+
+
+class HskTopicRef(BaseModel):
+    id: uuid.UUID
+    name_zh: str
+    name_vi: str | None
+    level_code: str
+
+
 class HskLevelSummary(BaseModel):
     level_code: str
     entry_count: int
     reviewed_count: int
     awaiting_review_count: int
+    topic_groups: list[HskTopicGroup] = []
 
 
 class HskLevelsResponse(BaseModel):
@@ -44,6 +70,7 @@ class HskEntryListItem(BaseModel):
 
 class HskEntryListResponse(BaseModel):
     release: HskReleaseSummary | None
+    topic: HskTopicRef | None = None
     items: list[HskEntryListItem]
     page: int
     page_size: int
@@ -125,6 +152,54 @@ class HskSaveRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     mapping_id: uuid.UUID
+
+
+class HskTopicEntry(BaseModel):
+    id: uuid.UUID
+    mapping_id: uuid.UUID | None
+    entry_id: uuid.UUID
+    word: str
+    pinyin: str
+    part_of_speech: str | None
+    meaning: str | None
+    translation: str | None
+    example_sentences: list[str]
+    order_index: int
+    is_added: bool
+    saveable: bool
+
+
+class HskTopicDetailResponse(BaseModel):
+    id: uuid.UUID
+    name_zh: str
+    name_vi: str | None
+    level_code: str
+    part: int | None = None
+    part_count: int = 1
+    description: str | None
+    learning_track_name: str
+    entry_count: int
+    added_count: int
+    import_status: Literal["none", "partial", "all"]
+    gloss_sources: list[str]
+    entries: list[HskTopicEntry]
+
+
+class HskSensesImportRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    mapping_ids: list[uuid.UUID] = Field(min_length=1, max_length=200)
+
+
+class HskSensesImportResponse(BaseModel):
+    created_count: int
+    skipped_count: int
+    imported_mapping_ids: list[uuid.UUID]
+
+
+class HskTopicSaveResponse(BaseModel):
+    created_count: int
+    skipped_count: int
 
 
 class HskSaveResponse(BaseModel):

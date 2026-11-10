@@ -3,6 +3,11 @@
   label: string;
 }
 
+/** Saved catalog words without an official POS store "unspecified". */
+export function displayPartOfSpeech(value: string): string {
+  return value === "unspecified" ? "Chưa có từ loại" : value;
+}
+
 export const PARTS_OF_SPEECH: PartOfSpeechOption[] = [
   { value: "noun", label: "Danh từ (noun)" },
   { value: "verb", label: "Động từ (verb)" },

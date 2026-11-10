@@ -11,6 +11,7 @@ import { PageSkeleton } from "../components/PageSkeleton";
 import { LearningIllustration } from "../components/LearningIllustration";
 import { PageHeader } from "../components/PageHeader";
 import { PenguinMark } from "../components/PenguinMark";
+import { HskLearnBrowser } from "../features/hsk/HskLearnBrowser";
 import { getTopicAccent, getTopicIcon } from "../features/learn/topicPresentation";
 import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 
@@ -85,13 +86,10 @@ export function LearnPage() {
         />
       </div>
 
-      {activeTrack?.level_framework === "HSK" && (
-        <div className="hsk-catalog-callout">
-          <p>Danh mục HSK 1–6 theo bản phát hành: xem cách đọc, nghĩa, từ loại và chọn đúng nghĩa để lưu.</p>
-          <Link className="primary-link" to="/app/learn/hsk">Mở danh mục HSK 1–6 <ArrowRight size={16} /></Link>
-        </div>
-      )}
-
+      {activeTrack?.level_framework === "HSK" ? (
+        <HskLearnBrowser trackId={activeTrack.id} />
+      ) : (
+      <>
       <section className="level-section" aria-labelledby="level-heading">
         <div className="section-heading-row">
           <div>
@@ -177,6 +175,8 @@ export function LearnPage() {
           </div>
         )}
       </section>
+      </>
+      )}
     </section>
   );
 }

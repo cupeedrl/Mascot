@@ -14,6 +14,7 @@ import {
   Tags,
   XCircle,
 } from "lucide-react";
+import { displayPartOfSpeech } from "../features/vocabulary/partsOfSpeech";
 import { Link } from "react-router-dom";
 
 import {
@@ -442,7 +443,7 @@ export function PracticePage() {
                     {availableVocabularies.map((vocabulary) => (
                       <label className={`generator-vocabulary${selectedIds.includes(vocabulary.id) ? " selected" : ""}`} key={vocabulary.id}>
                         <input type="checkbox" checked={selectedIds.includes(vocabulary.id)} disabled={isGenerating} onChange={() => toggleVocabulary(vocabulary.id)} />
-                        <span><strong>{vocabulary.word}</strong><small>{vocabulary.part_of_speech} · {vocabulary.level_code}{vocabulary.topic ? ` · ${vocabulary.topic}` : ""}</small></span>
+                        <span><strong>{vocabulary.word}</strong><small>{displayPartOfSpeech(vocabulary.part_of_speech)} · {vocabulary.level_code}{vocabulary.topic ? ` · ${vocabulary.topic}` : ""}</small></span>
                       </label>
                     ))}
                   </div>

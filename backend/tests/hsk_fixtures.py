@@ -237,6 +237,30 @@ REVIEW: dict[str, Any] = {
             ],
         },
     ],
+    "topics": [
+        {"level_code": "HSK1", "path": ["基本信息"], "name_vi": "Thông tin cơ bản"},
+        {"level_code": "HSK1", "path": ["基本信息", "个人信息"], "name_vi": "Thông tin cá nhân"},
+        {"level_code": "HSK1", "path": ["日常生活"], "name_vi": "Đời sống hằng ngày"},
+        {"level_code": "HSK1", "path": ["日常生活", "饮食"], "name_vi": "Ăn uống"},
+        {"level_code": "HSK1", "path": ["日常生活", "饮食", "食物饮品"], "name_vi": "Đồ ăn, thức uống"},
+        {"level_code": "HSK2", "path": ["日常生活"], "name_vi": "Đời sống hằng ngày"},
+        {"level_code": "HSK2", "path": ["日常生活", "交往"], "name_vi": "Giao tiếp"},
+        # Rejected: parent topic missing.
+        {"level_code": "HSK1", "path": ["不存在", "子话题"]},
+        # Rejected: level outside the release scope.
+        {"level_code": "HSK7-9", "path": ["个体与社会"]},
+    ],
+    "entry_topics": [
+        {"source_record_id": "101", "topic_path": ["基本信息", "个人信息"], "origin": "ai_suggested", "review_status": "approved"},
+        {"source_record_id": "102", "topic_path": ["日常生活", "饮食", "食物饮品"], "origin": "ai_suggested", "review_status": "approved"},
+        {"source_record_id": "103", "topic_path": ["日常生活", "交往"], "origin": "editorial", "review_status": "approved"},
+        # Rejected: the topic does not exist at 长's level (HSK2).
+        {"source_record_id": "103", "topic_path": ["日常生活", "饮食"]},
+        # Rejected: the record is not at the stated level.
+        {"source_record_id": "101", "topic_path": ["日常生活", "交往"], "level_code": "HSK2"},
+        # Duplicate.
+        {"source_record_id": "102", "topic_path": ["日常生活", "饮食", "食物饮品"]},
+    ],
     "mappings": [
         {"source_record_id": "101", "lexical_key": "zh:爱", "pronunciation": "ài", "sense_key": "s1", "review_status": "approved"},
         {"source_record_id": "102", "lexical_key": "zh:水", "pronunciation": "shuǐ", "sense_key": "s1", "review_status": "approved"},

@@ -5,10 +5,12 @@ from app.models.ai_conversation import AIConversation, AIMessage
 from app.models.exercise import Exercise, exercise_vocabularies
 from app.models.exercise_attempt import ExerciseAttempt
 from app.models.hsk_catalog import (
+    CatalogEntryTopic,
     CatalogRelease,
     CatalogSourceEntry,
     CatalogSourceEntryLevel,
     CatalogSourceMapping,
+    CatalogTopic,
     LexicalEntry,
     LexicalPronunciation,
     LexicalSense,
@@ -30,10 +32,12 @@ __all__ = [
     "AIUsageLog",
     "AIConversation",
     "AIMessage",
+    "CatalogEntryTopic",
     "CatalogRelease",
     "CatalogSourceEntry",
     "CatalogSourceEntryLevel",
     "CatalogSourceMapping",
+    "CatalogTopic",
     "Exercise",
     "ExerciseAttempt",
     "Language",

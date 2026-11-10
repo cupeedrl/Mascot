@@ -59,6 +59,18 @@ def test_counts_by_level_are_actual(tmp_path: Path) -> None:
     assert sum(level.get("publicly_eligible", 0) for level in levels.values()) == 10
     assert report["issue_counts"]["rejected:unknown_level"] == 1
     assert report["issue_counts"]["review_duplicate:duplicate_mapping"] == 1
+    assert report["review"]["topics_accepted"] == 7
+    assert report["review"]["entry_topics_accepted"] == 3
+    assert levels["HSK1"]["with_topic"] == 2
+    assert levels["HSK2"]["with_topic"] == 1
+    for reason in (
+        "review_rejected:topic_parent_missing",
+        "review_rejected:topic_level_out_of_scope",
+        "review_rejected:entry_topic_unknown_topic",
+        "review_rejected:entry_topic_not_primary_level",
+        "review_duplicate:duplicate_entry_topic",
+    ):
+        assert report["issue_counts"][reason] == 1, reason
 
 
 def test_api_id_and_serial_are_kept_independent(tmp_path: Path) -> None:

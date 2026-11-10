@@ -1,7 +1,13 @@
 // Display helpers for the normalized HSK catalog. They never invent values:
 // missing POS, unreviewed meanings and draft releases are labelled as such.
 
-export const HSK_BROWSE_LEVELS = ["HSK1", "HSK2", "HSK3", "HSK4", "HSK5", "HSK6"] as const;
+// HSK 3.0 publishes levels 7-9 as one combined band.
+export const HSK_BROWSE_LEVELS = ["HSK1", "HSK2", "HSK3", "HSK4", "HSK5", "HSK6", "HSK7-9"] as const;
+
+/** Vietnamese topic name with the official Chinese name, e.g. "Ăn uống (饮食)". */
+export function topicLabel(topic: { name_zh: string; name_vi: string | null }): string {
+  return topic.name_vi ? `${topic.name_vi} (${topic.name_zh})` : topic.name_zh;
+}
 
 const POS_LABELS: Record<string, string> = {
   noun: "Danh từ",
@@ -56,6 +62,25 @@ export function formatSavedPos(partOfSpeech: string): string {
     .split(",")
     .map((code) => posLabel(code.trim()))
     .join(" · ");
+}
+
+// Reuse the English level-tab colour ramp (A1 lightest -> C2 darkest).
+const LEVEL_TAB_TONES: Record<string, string> = {
+  HSK1: "a1", HSK2: "a2", HSK3: "b1", HSK4: "b2", HSK5: "c1", HSK6: "c2", "HSK7-9": "c2",
+};
+
+/** "Phần 3/21" for topics split into study-sized parts; empty otherwise. */
+export function partLabel(part: number | null | undefined, partCount: number): string {
+  return part && partCount > 1 ? `Phần ${part}/${partCount}` : "";
+}
+
+/** Link to a topic (part) page. */
+export function topicHref(topicId: string, part: number | null | undefined): string {
+  return `/app/learn/hsk/topics/${topicId}${part ? `?part=${part}` : ""}`;
+}
+
+export function levelTabTone(levelCode: string): string {
+  return LEVEL_TAB_TONES[levelCode] ?? "a1";
 }
 
 export function levelLabel(levelCode: string): string {

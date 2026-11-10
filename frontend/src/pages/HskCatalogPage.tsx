@@ -1,6 +1,6 @@
 import { type FormEvent, useEffect, useState } from "react";
-import { ArrowLeft, BookmarkCheck, BookmarkPlus, Search } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowLeft, BookmarkCheck, BookmarkPlus, Library, Search } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
 
 import {
   ApiError,
@@ -8,6 +8,7 @@ import {
   getHskLevels,
   listHskEntries,
   saveHskSense,
+  saveHskTopic,
   type HskEntryDetail,
   type HskEntryListResponse,
   type HskLevelsResponse,
@@ -21,6 +22,7 @@ import {
   levelLabel,
   releaseNotice,
   reviewStatusLabel,
+  topicLabel,
 } from "../features/hsk/hskPresentation";
 import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 
@@ -31,7 +33,10 @@ function errorMessage(error: unknown): string {
 export function HskCatalogPage() {
   const { activeTrack } = useActiveLearningTrack();
   const trackId = activeTrack?.level_framework === "HSK" ? activeTrack.id : null;
+  const { topicId } = useParams();
   const [levels, setLevels] = useState<HskLevelsResponse | null>(null);
+  const [isSavingTopic, setIsSavingTopic] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [level, setLevel] = useState<string>("HSK1");
   const [queryDraft, setQueryDraft] = useState("");
   const [query, setQuery] = useState("");
@@ -53,14 +58,17 @@ export function HskCatalogPage() {
     if (!trackId) return;
     let active = true;
     setIsLoading(true);
-    listHskEntries(trackId, { level: query ? undefined : level, q: query, page })
+    const params = topicId
+      ? { topicId, page, pageSize: 100 }
+      : { level: query ? undefined : level, q: query, page };
+    listHskEntries(trackId, params)
       .then((response) => active && setEntries(response))
       .catch((caught: unknown) => active && setError(errorMessage(caught)))
       .finally(() => active && setIsLoading(false));
     return () => {
       active = false;
     };
-  }, [trackId, level, query, page]);
+  }, [trackId, level, query, page, topicId, reloadKey]);
 
   async function loadDetail(entryId: string) {
     if (!trackId) return;
@@ -94,6 +102,25 @@ export function HskCatalogPage() {
     }
   }
 
+  async function saveWholeTopic() {
+    if (!trackId || !topicId) return;
+    setIsSavingTopic(true);
+    setError("");
+    try {
+      const result = await saveHskTopic(trackId, topicId);
+      setNotice(
+        `Bắt đầu học: đã lưu ${result.created_count} từ` +
+          (result.skipped_count ? `, bỏ qua ${result.skipped_count} từ (đã có hoặc chưa có nghĩa được duyệt).` : "."),
+      );
+      setReloadKey((key) => key + 1);
+      if (detail) await loadDetail(detail.source.id);
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setIsSavingTopic(false);
+    }
+  }
+
   function applySearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPage(1);
@@ -110,6 +137,7 @@ export function HskCatalogPage() {
   }
 
   const releaseWarning = releaseNotice(levels?.release ?? null);
+  const topic = entries?.topic ?? null;
   const levelCounts = new Map(levels?.levels.map((item) => [item.level_code, item]) ?? []);
 
   return (
@@ -118,13 +146,27 @@ export function HskCatalogPage() {
       <div className="set-detail-heading">
         <div>
           <p className="eyebrow">{activeTrack?.name} · {levels?.release?.title ?? "Chưa có bản phát hành"}</p>
-          <h1 id="hsk-heading">Danh mục từ vựng HSK 1–6</h1>
+          <h1 id="hsk-heading">
+            {topicId ? (topic ? topicLabel(topic) : "Chủ đề") : "Tra cứu từ vựng HSK 1–9"}
+          </h1>
+          {topic && <p>{levelLabel(topic.level_code)} · {entries?.total ?? 0} từ</p>}
           {releaseWarning && <p className="hsk-release-warning" role="note">{releaseWarning}</p>}
         </div>
+        {topicId && (
+          <button
+            className="primary-button compact-button"
+            type="button"
+            onClick={() => void saveWholeTopic()}
+            disabled={isSavingTopic || !entries?.items.length}
+          >
+            <Library size={17} /> {isSavingTopic ? "Đang lưu…" : "Học cả chủ đề"}
+          </button>
+        )}
       </div>
       {error && <div className="form-error" role="alert">{error}</div>}
       {notice && <div className="success-banner" role="status">{notice}</div>}
 
+      {!topicId && (<>
       <div className="level-tabs" role="tablist" aria-label="Cấp độ HSK">
         {HSK_BROWSE_LEVELS.map((code) => (
           <button
@@ -156,6 +198,7 @@ export function HskCatalogPage() {
         />
         <button className="secondary-button" type="submit">Tìm</button>
       </form>
+      </>)}
 
       <div className="hsk-layout">
         <div className="entry-list hsk-entry-list">
@@ -229,6 +272,7 @@ export function HskCatalogPage() {
                         </div>
                         {sense.gloss_vi && <p>{sense.gloss_vi}</p>}
                         {sense.gloss_en && <p className="hsk-gloss-en">{sense.gloss_en}</p>}
+                        <small className="hsk-gloss-source">Nguồn nghĩa: {sense.gloss_source}</small>
                         {sense.examples.map((example) => (
                           <small key={example.text_zh}>{example.text_zh}{example.translation_vi ? ` — ${example.translation_vi}` : ""}</small>
                         ))}

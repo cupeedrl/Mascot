@@ -29,10 +29,12 @@ from app.catalog import hsk_import
 from app.db.session import get_db
 from app.main import app
 from app.models import (
+    CatalogEntryTopic,
     CatalogRelease,
     CatalogSourceEntry,
     CatalogSourceEntryLevel,
     CatalogSourceMapping,
+    CatalogTopic,
     LearningTrack,
     LexicalEntry,
     LexicalPronunciation,
@@ -51,7 +53,8 @@ pytestmark = pytest.mark.skipif(
     reason="needs a disposable PostgreSQL 16 server (MASCOT_PG_TEST_ADMIN_URL)",
 )
 BACKEND_DIR = Path(__file__).resolve().parents[2]
-HEAD = "20261110_0015"
+HEAD = "20261111_0016"
+HSK_BASE = "20261110_0015"
 BEFORE = "20260908_0014"
 CATALOG_MODELS = (
     CatalogRelease,
@@ -64,6 +67,8 @@ CATALOG_MODELS = (
     LexicalSensePos,
     LexicalSensePronunciation,
     LexicalVariant,
+    CatalogTopic,
+    CatalogEntryTopic,
 )
 
 
@@ -141,7 +146,8 @@ def test_single_linear_head() -> None:
 
     script = ScriptDirectory.from_config(Config(str(BACKEND_DIR / "alembic.ini")))
     assert script.get_heads() == [HEAD]
-    assert script.get_revision(HEAD).down_revision == BEFORE
+    assert script.get_revision(HEAD).down_revision == HSK_BASE
+    assert script.get_revision(HSK_BASE).down_revision == BEFORE
 
 
 def _legacy_state(connection) -> dict[str, object]:
@@ -392,6 +398,21 @@ def test_postgres_constraints_reject_bad_associations(pg_sessions, tmp_path: Pat
         _expect_violation(db, "ck_catalog_releases_published_requires_import", text(
             "UPDATE catalog_releases SET status = 'retired' WHERE id = :id"), {"id": other_release_id})
 
+        # Topics: a word only joins topics of its own level, and a subtopic stays
+        # in its parent's level.
+        topics = {(t.level_code, t.topic_key): t.id for t in db.scalars(select(CatalogTopic))}
+        hsk2_topic = topics[("HSK2", "日常生活/交往")]
+        insert_entry_topic = (
+            "INSERT INTO catalog_entry_topics VALUES (:source, :topic, :release, :level, 'editorial', 'approved')"
+        )
+        _expect_violation(db, "fk_entry_topics_topic_release_level", insert_entry_topic, {
+            "source": entries["爱"].id, "topic": hsk2_topic, "release": release.id, "level": "HSK1"})
+        _expect_violation(db, "fk_entry_topics_level_membership", insert_entry_topic, {
+            "source": entries["爱"].id, "topic": hsk2_topic, "release": release.id, "level": "HSK2"})
+        _expect_violation(db, "fk_catalog_topics_parent_same_level", text(
+            "INSERT INTO catalog_topics VALUES (gen_random_uuid(), :release, 'HSK2', :parent, 2, 'x/y', 'y', NULL, "
+            "'mascot', 0)"), {"release": release.id, "parent": topics[("HSK1", "日常生活")]})
+
         # Personal snapshot guarantees.
         user_id = uuid.uuid4()
         db.execute(text("INSERT INTO users (id, email, normalized_email, password_hash) "
@@ -468,6 +489,8 @@ def test_importer_is_repeatable_and_does_not_publish(pg_sessions, tmp_path: Path
             "lexical_sense_pos": 8,
             "lexical_sense_pronunciations": 10,
             "lexical_variants": 1,
+            "catalog_topics": 7,
+            "catalog_entry_topics": 3,
         }
         entry = db.scalar(select(CatalogSourceEntry).where(CatalogSourceEntry.source_record_id_value == "101"))
         assert (entry.source_record_id_value, entry.official_serial, entry.raw_word) == ("101", 1, "爱")

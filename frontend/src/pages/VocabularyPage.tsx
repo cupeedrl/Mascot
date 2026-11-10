@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Library, Pencil, Plus, Search, Settings2, Trash2 } from "lucide-react";
+import { displayPartOfSpeech } from "../features/vocabulary/partsOfSpeech";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import {
@@ -230,7 +231,7 @@ export function VocabularyPage() {
                     <span className="level-badge">{item.level_code}</span>
                   </div>
                   {item.ipa && <p className="vocabulary-ipa">{item.learning_track.language.code === "zh" ? "Pinyin" : "IPA"}: {item.ipa}</p>}
-                  <p className="part-of-speech">{item.part_of_speech}</p>
+                  <p className="part-of-speech">{displayPartOfSpeech(item.part_of_speech)}</p>
                 </div>
                 <span className={`status-badge status-${item.learning_status}`}>
                   {STATUSES.find((status) => status.value === item.learning_status)?.label}

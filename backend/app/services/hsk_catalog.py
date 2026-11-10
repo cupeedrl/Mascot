@@ -19,10 +19,12 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.catalog.hsk_import import toneless_pinyin
 from app.models.hsk_catalog import (
+    CatalogEntryTopic,
     CatalogRelease,
     CatalogSourceEntry,
     CatalogSourceEntryLevel,
     CatalogSourceMapping,
+    CatalogTopic,
     LexicalEntry,
     LexicalPronunciation,
     LexicalSense,
@@ -34,7 +36,8 @@ from app.models.vocabulary import Vocabulary
 from app.services.normalization import normalize_word
 from app.services.vocabulary import vocabulary_senses_overlap
 
-BROWSE_LEVELS = ("HSK1", "HSK2", "HSK3", "HSK4", "HSK5", "HSK6")
+# HSK 3.0 publishes levels 7-9 as one combined band.
+BROWSE_LEVELS = ("HSK1", "HSK2", "HSK3", "HSK4", "HSK5", "HSK6", "HSK7-9")
 POS_UNSPECIFIED = "unspecified"
 
 
@@ -47,6 +50,10 @@ class HskReleaseNotFoundError(Exception):
 
 
 class HskEntryNotFoundError(Exception):
+    pass
+
+
+class HskTopicNotFoundError(Exception):
     pass
 
 
@@ -153,10 +160,138 @@ def list_levels(
             counts[level_code]["entry_count"] += count
             key = "reviewed_count" if review_status == "accepted" else "awaiting_review_count"
             counts[level_code][key] += count
+    topic_groups = _topic_groups(db, user, release) if release is not None else {}
     return {
         "release": release_summary(release),
-        "levels": [{"level_code": level, **counts[level]} for level in BROWSE_LEVELS],
+        "levels": [
+            {
+                "level_code": level,
+                **counts[level],
+                "topic_groups": topic_groups.get(level, []),
+            }
+            for level in BROWSE_LEVELS
+        ],
     }
+
+
+def _active_topic_link():
+    return and_(
+        CatalogEntryTopic.source_entry_id == CatalogSourceEntry.id,
+        CatalogEntryTopic.review_status != "rejected",
+        CatalogSourceEntry.review_status != "retired",
+    )
+
+
+# Topic cards with more words than this are split into study-sized parts,
+# like English vocabulary sets (about 50 words each).
+PART_SIZE = 50
+
+
+def split_parts(count: int, size: int | None = None) -> list[tuple[int, int]]:
+    """Split ``count`` ordered words into near-equal parts of at most ``size``."""
+    size = size or PART_SIZE
+    if count <= size:
+        return [(0, count)]
+    parts = ceil(count / size)
+    base, extra = divmod(count, parts)
+    bounds, start = [], 0
+    for index in range(parts):
+        length = base + (1 if index < extra else 0)
+        bounds.append((start, start + length))
+        start += length
+    return bounds
+
+
+def _entry_order_key(serial: int | None, entry_id: uuid.UUID) -> tuple:
+    # Same order as the topic page query: official serial (NULLs last), then id.
+    return (serial is None, serial or 0, entry_id.int)
+
+
+def _topic_groups(db: Session, user: User, release: CatalogRelease) -> dict[str, list[dict]]:
+    """Level -> top-level topic groups -> topic cards (large topics split into parts)."""
+    topics = list(
+        db.scalars(
+            select(CatalogTopic)
+            .where(CatalogTopic.catalog_release_id == release.id, CatalogTopic.depth <= 3)
+            .order_by(CatalogTopic.level_code, CatalogTopic.order_index)
+        )
+    )
+    links = db.execute(
+        select(CatalogEntryTopic.topic_id, CatalogSourceEntry.id, CatalogSourceEntry.official_serial)
+        .join(CatalogSourceEntry, _active_topic_link())
+        .where(CatalogEntryTopic.catalog_release_id == release.id)
+    ).all()
+    # A word counts as saved when the learner saved one of its meanings, from
+    # this or an earlier release (sense identity is release-independent).
+    saved_entries = set(
+        db.scalars(
+            select(CatalogSourceMapping.source_entry_id)
+            .join(Vocabulary, Vocabulary.catalog_sense_id == CatalogSourceMapping.sense_id)
+            .where(
+                CatalogSourceMapping.catalog_release_id == release.id,
+                CatalogSourceMapping.review_status == "approved",
+                Vocabulary.user_id == user.id,
+            )
+        )
+    )
+    by_parent: dict[uuid.UUID | None, list[CatalogTopic]] = {}
+    by_id = {topic.id: topic for topic in topics}
+    for topic in topics:
+        by_parent.setdefault(topic.parent_id, []).append(topic)
+    card_entries: dict[uuid.UUID, dict[uuid.UUID, int | None]] = {}
+    for topic_id, entry_id, serial in links:
+        topic = by_id.get(topic_id)
+        while topic is not None and topic.depth > 2:
+            topic = by_id.get(topic.parent_id)
+        if topic is not None:
+            card_entries.setdefault(topic.id, {})[entry_id] = serial
+    groups: dict[str, list[dict]] = {}
+    for root in by_parent.get(None, []):
+        cards = []
+        for card in by_parent.get(root.id, []):
+            subtopics = by_parent.get(card.id, [])
+            members = card_entries.get(card.id, {})
+            ordered = sorted(members, key=lambda entry_id: _entry_order_key(members[entry_id], entry_id))
+            bounds = split_parts(len(ordered))
+            for index, (start, stop) in enumerate(bounds):
+                part = ordered[start:stop]
+                cards.append(
+                    {
+                        "id": card.id,
+                        "part": index + 1 if len(bounds) > 1 else None,
+                        "part_count": len(bounds),
+                        "name_zh": card.name_zh,
+                        "name_vi": card.name_vi,
+                        "subtopics": [sub.name_vi or sub.name_zh for sub in subtopics],
+                        "entry_count": len(part),
+                        "saved_count": sum(1 for entry_id in part if entry_id in saved_entries),
+                    }
+                )
+        groups.setdefault(root.level_code, []).append(
+            {"id": root.id, "name_zh": root.name_zh, "name_vi": root.name_vi, "topics": cards}
+        )
+    return groups
+
+
+def _load_topic(db: Session, release: CatalogRelease, topic_id: uuid.UUID) -> CatalogTopic:
+    topic = db.scalar(
+        select(CatalogTopic).where(
+            CatalogTopic.id == topic_id, CatalogTopic.catalog_release_id == release.id
+        )
+    )
+    if topic is None:
+        raise HskTopicNotFoundError
+    return topic
+
+
+def _topic_and_children_ids(db: Session, topic: CatalogTopic) -> list[uuid.UUID]:
+    ids = [topic.id]
+    frontier = [topic.id]
+    while frontier:
+        children = list(db.scalars(select(CatalogTopic.id).where(CatalogTopic.parent_id.in_(frontier))))
+        ids.extend(children)
+        frontier = children
+    return ids
 
 
 def _approved_sense_counts(db: Session, entry_ids: list[uuid.UUID]) -> dict[uuid.UUID, int]:
@@ -204,10 +339,17 @@ def list_entries(
     page: int,
     page_size: int,
     release_id: uuid.UUID | None = None,
+    topic_id: uuid.UUID | None = None,
 ) -> dict[str, Any]:
     release = resolve_release(db, user, track_id, release_id)
+    topic = _load_topic(db, release, topic_id) if release is not None and topic_id else None
     empty = {
         "release": release_summary(release),
+        "topic": (
+            {"id": topic.id, "name_zh": topic.name_zh, "name_vi": topic.name_vi, "level_code": topic.level_code}
+            if topic
+            else None
+        ),
         "items": [],
         "page": page,
         "page_size": page_size,
@@ -224,6 +366,16 @@ def list_entries(
         conditions.append(CatalogSourceEntryLevel.level_code == level)
     else:
         conditions.append(CatalogSourceEntryLevel.level_code.in_(BROWSE_LEVELS))
+    if topic is not None:
+        conditions.append(
+            exists(
+                select(CatalogEntryTopic.topic_id).where(
+                    CatalogEntryTopic.source_entry_id == CatalogSourceEntry.id,
+                    CatalogEntryTopic.topic_id.in_(_topic_and_children_ids(db, topic)),
+                    CatalogEntryTopic.review_status != "rejected",
+                )
+            )
+        )
     if query and (term := query.strip()):
         like = f"%{term.lower()}%"
         pinyin_term = toneless_pinyin(term)
@@ -437,6 +589,25 @@ def get_entry(
     }
 
 
+def _entry_topic_name(db: Session, entry: CatalogSourceEntry) -> str | None:
+    """Name of the record's topic card (second level), for the personal topic field."""
+    topic = db.scalar(
+        select(CatalogTopic)
+        .join(CatalogEntryTopic, CatalogEntryTopic.topic_id == CatalogTopic.id)
+        .where(
+            CatalogEntryTopic.source_entry_id == entry.id,
+            CatalogEntryTopic.review_status != "rejected",
+        )
+        .order_by(CatalogTopic.depth, CatalogTopic.order_index)
+        .limit(1)
+    )
+    while topic is not None and topic.depth > 2:
+        topic = db.get(CatalogTopic, topic.parent_id)
+    if topic is None:
+        return None
+    return (topic.name_vi or topic.name_zh)[:120]
+
+
 def save_sense(
     db: Session,
     user: User,
@@ -598,7 +769,7 @@ def save_sense(
         translation_language_code="vi",
         example_sentences=examples[:1],
         level_code=primary_level,
-        topic=None,
+        topic=_entry_topic_name(db, entry),
         learning_status="new",
     )
     db.add(vocabulary)
@@ -610,3 +781,220 @@ def save_sense(
             return save_sense(db, user, track_id, entry_id, mapping_id, allow_retry=False)
         raise
     return SaveResult(True, vocabulary.id)
+
+
+@dataclass(frozen=True)
+class TopicSaveResult:
+    created_count: int
+    skipped_count: int
+
+
+@dataclass(frozen=True)
+class SensesSaveResult:
+    created_count: int
+    skipped_count: int
+    imported_mapping_ids: list[uuid.UUID]
+
+
+def get_topic_detail(
+    db: Session, user: User, track_id: uuid.UUID, topic_id: uuid.UUID, part: int | None = None
+) -> dict[str, Any]:
+    """A topic shaped like an English vocabulary set: one row per approved meaning.
+
+    Words whose meanings are still awaiting review get one non-selectable row so
+    the learner still sees the official word; nothing is invented for them.
+    """
+    track = _load_track(db, track_id)
+    release = resolve_release(db, user, track_id)
+    if release is None:
+        raise HskTopicNotFoundError
+    topic = _load_topic(db, release, topic_id)
+    topic_ids = _topic_and_children_ids(db, topic)
+    subtopics = list(
+        db.scalars(
+            select(CatalogTopic)
+            .where(CatalogTopic.parent_id == topic.id)
+            .order_by(CatalogTopic.order_index)
+        )
+    )
+    entries = list(
+        db.scalars(
+            select(CatalogSourceEntry)
+            .join(CatalogEntryTopic, CatalogEntryTopic.source_entry_id == CatalogSourceEntry.id)
+            .where(
+                CatalogEntryTopic.topic_id.in_(topic_ids),
+                CatalogEntryTopic.review_status != "rejected",
+                CatalogSourceEntry.review_status != "retired",
+            )
+            .distinct()
+            .order_by(CatalogSourceEntry.official_serial, CatalogSourceEntry.id)
+        )
+    )
+    entries.sort(key=lambda entry: _entry_order_key(entry.official_serial, entry.id))
+    bounds = split_parts(len(entries))
+    part_number = part or 1
+    if part_number > len(bounds):
+        raise HskTopicNotFoundError
+    start, stop = bounds[part_number - 1]
+    entries = entries[start:stop]
+    entry_ids = [entry.id for entry in entries]
+    mappings = list(
+        db.scalars(
+            select(CatalogSourceMapping)
+            .where(
+                CatalogSourceMapping.source_entry_id.in_(entry_ids),
+                CatalogSourceMapping.review_status == "approved",
+                CatalogSourceMapping.sense_id.is_not(None),
+            )
+            .order_by(CatalogSourceMapping.order_index)
+        )
+    ) if entry_ids else []
+    senses = {
+        sense.id: sense
+        for sense in db.scalars(
+            select(LexicalSense)
+            .options(
+                selectinload(LexicalSense.pos),
+                selectinload(LexicalSense.examples),
+                selectinload(LexicalSense.pronunciation_links),
+            )
+            .where(LexicalSense.id.in_([m.sense_id for m in mappings]))
+        )
+    } if mappings else {}
+    lexicals = {
+        lexical.id: lexical
+        for lexical in db.scalars(
+            select(LexicalEntry)
+            .options(selectinload(LexicalEntry.pronunciations))
+            .where(LexicalEntry.id.in_({m.lexical_entry_id for m in mappings}))
+        )
+    } if mappings else {}
+    saved_senses = set(
+        db.scalars(
+            select(Vocabulary.catalog_sense_id).where(
+                Vocabulary.user_id == user.id,
+                Vocabulary.catalog_sense_id.in_(list(senses)),
+            )
+        )
+    ) if senses else set()
+    by_entry: dict[uuid.UUID, list[CatalogSourceMapping]] = {}
+    for mapping in mappings:
+        if _sense_is_visible(senses.get(mapping.sense_id)):
+            by_entry.setdefault(mapping.source_entry_id, []).append(mapping)
+
+    rows: list[dict[str, Any]] = []
+    sources: list[str] = []
+    for entry in entries:
+        entry_mappings = by_entry.get(entry.id, [])
+        if not entry_mappings:
+            rows.append(
+                {
+                    "id": entry.id,
+                    "mapping_id": None,
+                    "entry_id": entry.id,
+                    "word": entry.raw_word,
+                    "pinyin": entry.raw_pinyin,
+                    "part_of_speech": None,
+                    "meaning": None,
+                    "translation": None,
+                    "example_sentences": [],
+                    "order_index": len(rows),
+                    "is_added": False,
+                    "saveable": False,
+                }
+            )
+            continue
+        for mapping in entry_mappings:
+            sense = senses[mapping.sense_id]
+            lexical = lexicals[mapping.lexical_entry_id]
+            readings = {p.id: p.pinyin for p in lexical.pronunciations}
+            if mapping.pronunciation_id:
+                pinyin = readings[mapping.pronunciation_id]
+            else:
+                pinyin = " / ".join(readings[link.pronunciation_id] for link in sense.pronunciation_links)
+            pos_codes = sorted(p.pos_code for p in sense.pos)
+            if sense.gloss_source not in sources:
+                sources.append(sense.gloss_source)
+            rows.append(
+                {
+                    "id": mapping.id,
+                    "mapping_id": mapping.id,
+                    "entry_id": entry.id,
+                    "word": lexical.headword,
+                    "pinyin": pinyin or entry.raw_pinyin,
+                    "part_of_speech": ", ".join(pos_codes) if pos_codes else POS_UNSPECIFIED,
+                    "meaning": sense.gloss_en,
+                    "translation": sense.gloss_vi,
+                    "example_sentences": [e.text_zh for e in sense.examples][:1],
+                    "order_index": len(rows),
+                    "is_added": sense.id in saved_senses,
+                    "saveable": bool(sense.gloss_en and sense.gloss_vi),
+                }
+            )
+    countable = [row for row in rows if row["saveable"] or row["is_added"]]
+    added = sum(1 for row in countable if row["is_added"])
+    if added == 0:
+        status = "none"
+    elif added >= len(countable):
+        status = "all"
+    else:
+        status = "partial"
+    return {
+        "id": topic.id,
+        "name_zh": topic.name_zh,
+        "name_vi": topic.name_vi,
+        "level_code": topic.level_code,
+        "part": part_number if len(bounds) > 1 else None,
+        "part_count": len(bounds),
+        "description": " · ".join(sub.name_vi or sub.name_zh for sub in subtopics) or None,
+        "learning_track_name": track.name,
+        "entry_count": len(countable),
+        "added_count": added,
+        "import_status": status,
+        "gloss_sources": sources,
+        "entries": rows,
+    }
+
+
+def save_senses(
+    db: Session, user: User, track_id: uuid.UUID, mapping_ids: list[uuid.UUID]
+) -> SensesSaveResult:
+    """Save selected meanings (like "Thêm từ đã chọn" in the English library)."""
+    release = resolve_release(db, user, track_id)
+    if release is None:
+        raise HskEntryNotFoundError
+    unique_ids = list(dict.fromkeys(mapping_ids))
+    mappings = {
+        mapping.id: mapping
+        for mapping in db.scalars(
+            select(CatalogSourceMapping).where(
+                CatalogSourceMapping.id.in_(unique_ids),
+                CatalogSourceMapping.catalog_release_id == release.id,
+            )
+        )
+    }
+    if len(mappings) != len(unique_ids):
+        raise HskEntryNotFoundError
+    created: list[uuid.UUID] = []
+    for mapping_id in unique_ids:
+        mapping = mappings[mapping_id]
+        try:
+            result = save_sense(db, user, track_id, mapping.source_entry_id, mapping_id)
+        except (HskSaveRejectedError, HskEntryNotFoundError):
+            continue
+        if result.created:
+            created.append(mapping_id)
+    return SensesSaveResult(len(created), len(unique_ids) - len(created), created)
+
+
+def save_topic(
+    db: Session, user: User, track_id: uuid.UUID, topic_id: uuid.UUID, part: int | None = None
+) -> TopicSaveResult:
+    """Save every selectable meaning of a topic part ("Bắt đầu học cả bộ")."""
+    detail = get_topic_detail(db, user, track_id, topic_id, part)
+    ids = [row["mapping_id"] for row in detail["entries"] if row["saveable"] and not row["is_added"]]
+    already = sum(1 for row in detail["entries"] if row["is_added"])
+    if not ids:
+        return TopicSaveResult(0, already)
+    result = save_senses(db, user, track_id, ids)
+    return TopicSaveResult(result.created_count, result.skipped_count + already)

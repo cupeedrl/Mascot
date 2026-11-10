@@ -549,3 +549,102 @@ class CatalogSourceMapping(Base):
     )
 
     lexical_entry: Mapped[LexicalEntry] = relationship(viewonly=True)
+
+
+TOPIC_SOURCES = ("official_syllabus", "mascot")
+ENTRY_TOPIC_ORIGINS = ("ai_suggested", "editorial")
+ENTRY_TOPIC_REVIEW_STATUSES = ("proposed", "approved", "rejected")
+
+
+class CatalogTopic(Base):
+    """A topic of one level in one release (official 2025 topic syllabus tree)."""
+
+    __tablename__ = "catalog_topics"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["catalog_release_id"],
+            ["catalog_releases.id"],
+            ondelete="CASCADE",
+            name="fk_catalog_topics_release",
+        ),
+        # A child topic must belong to the same release and the same level.
+        ForeignKeyConstraint(
+            ["parent_id", "catalog_release_id", "level_code"],
+            ["catalog_topics.id", "catalog_topics.catalog_release_id", "catalog_topics.level_code"],
+            ondelete="CASCADE",
+            name="fk_catalog_topics_parent_same_level",
+        ),
+        UniqueConstraint(
+            "id", "catalog_release_id", "level_code", name="uq_catalog_topics_id_release_level"
+        ),
+        UniqueConstraint(
+            "catalog_release_id",
+            "level_code",
+            "topic_key",
+            name="uq_catalog_topics_key",
+        ),
+        CheckConstraint(_in("level_code", CATALOG_LEVEL_CODES), name="ck_catalog_topics_level"),
+        CheckConstraint("depth IN (1, 2, 3)", name="ck_catalog_topics_depth"),
+        CheckConstraint("(depth = 1) = (parent_id IS NULL)", name="ck_catalog_topics_root"),
+        CheckConstraint("length(trim(topic_key)) > 0", name="ck_catalog_topics_key"),
+        CheckConstraint("length(trim(name_zh)) > 0", name="ck_catalog_topics_name_zh"),
+        CheckConstraint(
+            "name_vi IS NULL OR length(trim(name_vi)) > 0", name="ck_catalog_topics_name_vi"
+        ),
+        CheckConstraint(_in("source", TOPIC_SOURCES), name="ck_catalog_topics_source"),
+        CheckConstraint("order_index >= 0", name="ck_catalog_topics_order"),
+        Index("ix_catalog_topics_release_level", "catalog_release_id", "level_code", "depth"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    catalog_release_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    level_code: Mapped[str] = mapped_column(String(16), nullable=False)
+    parent_id: Mapped[uuid.UUID | None] = mapped_column()
+    depth: Mapped[int] = mapped_column(Integer, nullable=False)
+    topic_key: Mapped[str] = mapped_column(String(255), nullable=False)
+    name_zh: Mapped[str] = mapped_column(String(255), nullable=False)
+    name_vi: Mapped[str | None] = mapped_column(String(255))
+    source: Mapped[str] = mapped_column(String(32), nullable=False)
+    order_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+
+class CatalogEntryTopic(Base):
+    """Assigns a source record to a topic of a level the record belongs to."""
+
+    __tablename__ = "catalog_entry_topics"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["source_entry_id", "catalog_release_id"],
+            ["catalog_source_entries.id", "catalog_source_entries.catalog_release_id"],
+            ondelete="CASCADE",
+            name="fk_entry_topics_source_release",
+        ),
+        # The record must be a member of the topic's level...
+        ForeignKeyConstraint(
+            ["source_entry_id", "level_code"],
+            ["catalog_source_entry_levels.source_entry_id", "catalog_source_entry_levels.level_code"],
+            ondelete="CASCADE",
+            name="fk_entry_topics_level_membership",
+        ),
+        # ...and the topic must belong to that same release and level.
+        ForeignKeyConstraint(
+            ["topic_id", "catalog_release_id", "level_code"],
+            ["catalog_topics.id", "catalog_topics.catalog_release_id", "catalog_topics.level_code"],
+            ondelete="CASCADE",
+            name="fk_entry_topics_topic_release_level",
+        ),
+        CheckConstraint(_in("origin", ENTRY_TOPIC_ORIGINS), name="ck_entry_topics_origin"),
+        CheckConstraint(
+            _in("review_status", ENTRY_TOPIC_REVIEW_STATUSES), name="ck_entry_topics_review_status"
+        ),
+        Index("ix_entry_topics_topic", "topic_id", "review_status"),
+    )
+
+    source_entry_id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    topic_id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    catalog_release_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    level_code: Mapped[str] = mapped_column(String(16), nullable=False)
+    origin: Mapped[str] = mapped_column(String(20), nullable=False)
+    review_status: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="proposed", server_default="proposed"
+    )

@@ -235,6 +235,8 @@ class ValidationResult:
     lexical_entries: list[dict[str, Any]]
     mappings: list[dict[str, Any]]
     report: dict[str, Any]
+    topics: list[dict[str, Any]] = field(default_factory=list)
+    entry_topics: list[dict[str, Any]] = field(default_factory=list)
 
 
 def validate_dataset(dataset: Dataset) -> ValidationResult:
@@ -337,14 +339,93 @@ def validate_dataset(dataset: Dataset) -> ValidationResult:
         serial_gaps = [s for s in range(min(present), max(present) + 1) if s not in present]
 
     lexical_entries, mappings = _validate_review(dataset.review, rows, issues)
+    topics, entry_topics = _validate_topics(dataset.review, rows, issues, scope)
     report = _build_report(
         manifest, dataset.source_sha256, rows, issues, serial_gaps, level_of_serial,
-        excluded_by_level, mappings, scope, len(dataset.records),
+        excluded_by_level, mappings, scope, len(dataset.records), entry_topics,
     )
+    report["review"]["topics_accepted"] = len(topics)
+    report["review"]["entry_topics_accepted"] = len(entry_topics)
     return ValidationResult(
         manifest, dataset.source_sha256, rows, issues, serial_gaps,
-        lexical_entries, mappings, report,
+        lexical_entries, mappings, report, topics, entry_topics,
     )
+
+
+TOPIC_SOURCES = ("official_syllabus", "mascot")
+ENTRY_TOPIC_ORIGINS = ("ai_suggested", "editorial")
+ENTRY_TOPIC_STATUSES = ("proposed", "approved", "rejected")
+
+
+def topic_key(path: list[str]) -> str:
+    return "/".join(part.strip() for part in path)
+
+
+def _validate_topics(
+    review: dict[str, Any] | None,
+    rows: list[SourceRow],
+    issues: list[Issue],
+    scope: tuple[str, ...],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Validate the per-level topic tree and word-to-topic assignments.
+
+    A word is assigned only to topics of its primary level. Unknown topics,
+    out-of-scope levels and wrong levels are rejected for human review.
+    """
+    if not review:
+        return [], []
+    accepted: dict[tuple[str, str], dict[str, Any]] = {}
+    for item in review.get("topics", []):
+        level = item.get("level_code")
+        path = [str(part).strip() for part in item.get("path") or []]
+        key = topic_key(path)
+        reason = None
+        if level not in scope:
+            reason = "topic_level_out_of_scope"
+        elif not 1 <= len(path) <= 3 or not all(path):
+            reason = "topic_invalid_path"
+        elif len(path) > 1 and (level, topic_key(path[:-1])) not in accepted:
+            reason = "topic_parent_missing"
+        elif (level, key) in accepted:
+            reason = "duplicate_topic"
+        elif item.get("source", "official_syllabus") not in TOPIC_SOURCES:
+            reason = "topic_invalid_source"
+        if reason:
+            issues.append(
+                Issue("review_rejected", reason, level=level if level in scope else None, detail=key)
+            )
+            continue
+        accepted[(level, key)] = {**item, "path": path, "key": key}
+
+    rows_by_id = {row.record_id: row for row in rows}
+    seen: set[tuple[str, str]] = set()
+    assignments: list[dict[str, Any]] = []
+    for item in review.get("entry_topics", []):
+        record_id = str(item.get("source_record_id") or "").strip()
+        row = rows_by_id.get(record_id)
+        path = [str(part).strip() for part in item.get("topic_path") or []]
+        key = topic_key(path)
+        level = row.primary_level if row else None
+        reason = None
+        if row is None:
+            reason = "entry_topic_unknown_source"
+        elif item.get("level_code", level) != level:
+            reason = "entry_topic_not_primary_level"
+        elif (level, key) not in accepted:
+            reason = "entry_topic_unknown_topic"
+        elif item.get("origin", "ai_suggested") not in ENTRY_TOPIC_ORIGINS:
+            reason = "entry_topic_invalid_origin"
+        elif item.get("review_status", "proposed") not in ENTRY_TOPIC_STATUSES:
+            reason = "entry_topic_invalid_review_status"
+        if reason:
+            issues.append(Issue("review_rejected", reason, record_id or None, level=level, detail=key))
+            continue
+        if (record_id, key) in seen:
+            issues.append(Issue("review_duplicate", "duplicate_entry_topic", record_id, level=level))
+            continue
+        seen.add((record_id, key))
+        assignments.append({**item, "source_record_id": record_id, "level_code": level, "key": key})
+    return list(accepted.values()), assignments
 
 
 def _validate_review(
@@ -469,7 +550,7 @@ def _mapping_problem(item: dict[str, Any], lexical: dict[str, Any], row: SourceR
 
 def _build_report(
     manifest, source_sha256, rows, issues, serial_gaps, level_of_serial,
-    excluded_by_level, mappings, scope, records_in_file,
+    excluded_by_level, mappings, scope, records_in_file, entry_topics=(),
 ) -> dict[str, Any]:
     approved_records = {
         str(m["source_record_id"]) for m in mappings if m.get("review_status") == "approved"
@@ -477,10 +558,17 @@ def _build_report(
     gate_open = manifest["data_origin"] != "third_party" or all(
         manifest["permissions"][key]["status"] == "approved" for key in PERMISSION_KEYS
     )
+    with_topic = {
+        t["source_record_id"]
+        for t in entry_topics
+        if t.get("review_status", "proposed") != "rejected"
+    }
     per_level: dict[str, Counter[str]] = {level: Counter() for level in scope}
     for row in rows:
         counts = per_level[row.primary_level]
         counts["source_rows"] += 1
+        if row.record_id in with_topic:
+            counts["with_topic"] += 1
         counts["accepted"] += 1
         if "pos_absent" in row.flags or "pos_blank" in row.flags:
             counts["missing_pos"] += 1
@@ -559,7 +647,8 @@ def write_report(result: ValidationResult, report_dir: Path, *, include_rows: bo
 def render_markdown_report(report: dict[str, Any]) -> str:
     columns = (
         "source_rows", "accepted", "ambiguous", "awaiting_review", "rejected", "duplicate",
-        "missing_pos", "missing_serial_within_level", "mapped", "publicly_eligible",
+        "missing_pos", "missing_serial_within_level", "mapped", "with_topic",
+        "publicly_eligible",
     )
     lines = [
         f"# Import report — {report['release_code']}",
@@ -773,6 +862,8 @@ def apply_release(db, result: ValidationResult) -> ApplyResult:
             mapping.order_index = int(item.get("order", index))
             mapping.notes = item.get("notes")
 
+        _apply_topics(db, release.id, result, entries_by_record, counts)
+
         release.import_report = finalize_report(result)
         release.import_completed_at = datetime.now(UTC)
         db.flush()
@@ -781,6 +872,63 @@ def apply_release(db, result: ValidationResult) -> ApplyResult:
         db.rollback()
         raise
     return ApplyResult(release.id, dict(counts))
+
+
+def _apply_topics(db, release_id, result: ValidationResult, entries_by_record, counts) -> None:
+    from sqlalchemy import select
+
+    from app.models.hsk_catalog import CatalogEntryTopic, CatalogTopic
+
+    existing = {
+        (topic.level_code, topic.topic_key): topic
+        for topic in db.scalars(
+            select(CatalogTopic).where(CatalogTopic.catalog_release_id == release_id)
+        )
+    }
+    for index, item in enumerate(result.topics):
+        level, key, path = item["level_code"], item["key"], item["path"]
+        topic = existing.get((level, key))
+        if topic is None:
+            parent = existing[(level, topic_key(path[:-1]))] if len(path) > 1 else None
+            topic = CatalogTopic(
+                catalog_release_id=release_id,
+                level_code=level,
+                parent_id=parent.id if parent else None,
+                depth=len(path),
+                topic_key=key,
+            )
+            db.add(topic)
+            existing[(level, key)] = topic
+            counts["topics_inserted"] += 1
+        topic.name_zh = path[-1]
+        topic.name_vi = (item.get("name_vi") or "").strip() or None
+        topic.source = item.get("source", "official_syllabus")
+        topic.order_index = int(item.get("order", index))
+        db.flush()
+
+    current = {
+        (link.source_entry_id, link.topic_id): link
+        for link in db.scalars(
+            select(CatalogEntryTopic).where(CatalogEntryTopic.catalog_release_id == release_id)
+        )
+    }
+    for item in result.entry_topics:
+        entry = entries_by_record[item["source_record_id"]]
+        topic = existing[(item["level_code"], item["key"])]
+        link = current.get((entry.id, topic.id))
+        if link is None:
+            link = CatalogEntryTopic(
+                source_entry_id=entry.id,
+                topic_id=topic.id,
+                catalog_release_id=release_id,
+                level_code=item["level_code"],
+            )
+            db.add(link)
+            current[(entry.id, topic.id)] = link
+            counts["entry_topics_inserted"] += 1
+        link.origin = item.get("origin", "ai_suggested")
+        link.review_status = item.get("review_status", "proposed")
+    db.flush()
 
 
 def _apply_lexical(db, language_id, items, counts) -> dict[str, dict[str, Any]]:

@@ -1352,11 +1352,30 @@ export interface HskReleaseSummary {
   published_at: string | null;
 }
 
+export interface HskTopicCard {
+  id: string;
+  part: number | null;
+  part_count: number;
+  name_zh: string;
+  name_vi: string | null;
+  subtopics: string[];
+  entry_count: number;
+  saved_count: number;
+}
+
+export interface HskTopicGroup {
+  id: string;
+  name_zh: string;
+  name_vi: string | null;
+  topics: HskTopicCard[];
+}
+
 export interface HskLevelSummary {
   level_code: string;
   entry_count: number;
   reviewed_count: number;
   awaiting_review_count: number;
+  topic_groups: HskTopicGroup[];
 }
 
 export interface HskLevelsResponse {
@@ -1378,6 +1397,7 @@ export interface HskEntryListItem {
 
 export interface HskEntryListResponse {
   release: HskReleaseSummary | null;
+  topic: { id: string; name_zh: string; name_vi: string | null; level_code: string } | null;
   items: HskEntryListItem[];
   page: number;
   page_size: number;
@@ -1440,7 +1460,7 @@ export function getHskLevels(trackId: string): Promise<HskLevelsResponse> {
 
 export function listHskEntries(
   trackId: string,
-  params: { level?: string; q?: string; page?: number; pageSize?: number },
+  params: { level?: string; q?: string; topicId?: string; page?: number; pageSize?: number },
 ): Promise<HskEntryListResponse> {
   const query = new URLSearchParams({
     page: String(params.page ?? 1),
@@ -1448,11 +1468,69 @@ export function listHskEntries(
   });
   if (params.level) query.set("level", params.level);
   if (params.q?.trim()) query.set("q", params.q.trim());
+  if (params.topicId) query.set("topic_id", params.topicId);
   return request<HskEntryListResponse>(`/catalog/hsk/${trackId}/entries?${query.toString()}`);
 }
 
 export function getHskEntry(trackId: string, entryId: string): Promise<HskEntryDetail> {
   return request<HskEntryDetail>(`/catalog/hsk/${trackId}/entries/${entryId}`);
+}
+
+export interface HskTopicEntry {
+  id: string;
+  mapping_id: string | null;
+  entry_id: string;
+  word: string;
+  pinyin: string;
+  part_of_speech: string | null;
+  meaning: string | null;
+  translation: string | null;
+  example_sentences: string[];
+  order_index: number;
+  is_added: boolean;
+  saveable: boolean;
+}
+
+export interface HskTopicDetail {
+  id: string;
+  name_zh: string;
+  name_vi: string | null;
+  level_code: string;
+  part: number | null;
+  part_count: number;
+  description: string | null;
+  learning_track_name: string;
+  entry_count: number;
+  added_count: number;
+  import_status: ImportStatus;
+  gloss_sources: string[];
+  entries: HskTopicEntry[];
+}
+
+export function getHskTopic(trackId: string, topicId: string, part?: number): Promise<HskTopicDetail> {
+  const query = part ? `?part=${part}` : "";
+  return request<HskTopicDetail>(`/catalog/hsk/${trackId}/topics/${topicId}${query}`);
+}
+
+export function importHskSenses(
+  trackId: string,
+  mappingIds: string[],
+): Promise<{ created_count: number; skipped_count: number; imported_mapping_ids: string[] }> {
+  return request(`/catalog/hsk/${trackId}/senses/import`, {
+    method: "POST",
+    body: JSON.stringify({ mapping_ids: mappingIds }),
+  });
+}
+
+export function saveHskTopic(
+  trackId: string,
+  topicId: string,
+  part?: number,
+): Promise<{ created_count: number; skipped_count: number }> {
+  return request<{ created_count: number; skipped_count: number }>(
+    `/catalog/hsk/${trackId}/topics/${topicId}/save-all${part ? `?part=${part}` : ""}`,
+    { method: "POST" },
+  );
 }
 
 export function saveHskSense(

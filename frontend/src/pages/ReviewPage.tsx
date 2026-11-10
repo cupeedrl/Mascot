@@ -17,6 +17,7 @@ import {
   Tags,
   X,
 } from "lucide-react";
+import { displayPartOfSpeech } from "../features/vocabulary/partsOfSpeech";
 import { Link } from "react-router-dom";
 
 import {
@@ -493,7 +494,7 @@ export function ReviewPage() {
                             <strong>{item.word}</strong>
                             {item.ipa && <span className="custom-item-ipa">{item.learning_track.language.code === "zh" ? "Pinyin" : "IPA"}: {item.ipa}</span>}
                             <span className="level-badge">{item.level_code}</span>
-                            <span className="pos-badge">{item.part_of_speech}</span>
+                            <span className="pos-badge">{displayPartOfSpeech(item.part_of_speech)}</span>
                             {item.topic && <span className="topic-tag">#{item.topic}</span>}
                           </div>
                           <p className="custom-item-trans">{item.translation} — <small>{item.meaning}</small></p>
@@ -613,7 +614,7 @@ export function ReviewPage() {
             <div className="review-prompt">
               <h2>{currentItem.word}</h2>
               {currentItem.ipa && <p className="review-ipa">{currentItem.ipa}</p>}
-              {currentItem.part_of_speech && <p className="review-pos">{currentItem.part_of_speech}</p>}
+              {currentItem.part_of_speech && <p className="review-pos">{displayPartOfSpeech(currentItem.part_of_speech)}</p>}
             </div>
 
             {!revealed ? (

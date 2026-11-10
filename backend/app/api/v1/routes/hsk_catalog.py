@@ -21,16 +21,24 @@ from app.schemas.hsk_catalog import (
     HskLevelsResponse,
     HskSaveRequest,
     HskSaveResponse,
+    HskSensesImportRequest,
+    HskSensesImportResponse,
+    HskTopicDetailResponse,
+    HskTopicSaveResponse,
 )
 from app.services.hsk_catalog import (
     HskEntryNotFoundError,
     HskReleaseNotFoundError,
     HskSaveRejectedError,
+    HskTopicNotFoundError,
     HskTrackNotFoundError,
     get_entry,
+    get_topic_detail,
     list_entries,
     list_levels,
     save_sense,
+    save_senses,
+    save_topic,
 )
 
 router = APIRouter(prefix="/catalog/hsk/{learning_track_id}")
@@ -64,7 +72,8 @@ def hsk_entries(
     learning_track_id: uuid.UUID,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
-    level: Annotated[str | None, Query(pattern="^HSK[1-6]$")] = None,
+    level: Annotated[str | None, Query(pattern="^HSK([1-6]|7-9)$")] = None,
+    topic_id: uuid.UUID | None = None,
     q: Annotated[str | None, Query(max_length=64)] = None,
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 30,
@@ -81,12 +90,70 @@ def hsk_entries(
                 page=page,
                 page_size=page_size,
                 release_id=release_id,
+                topic_id=topic_id,
             )
         )
     except HskTrackNotFoundError as exc:
         raise _not_found(TRACK_NOT_FOUND) from exc
     except HskReleaseNotFoundError as exc:
         raise _not_found("Catalog release not found") from exc
+    except HskTopicNotFoundError as exc:
+        raise _not_found("Catalog topic not found") from exc
+
+
+@router.get("/topics/{topic_id}", response_model=HskTopicDetailResponse)
+def hsk_topic(
+    learning_track_id: uuid.UUID,
+    topic_id: uuid.UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+    part: Annotated[int | None, Query(ge=1)] = None,
+) -> HskTopicDetailResponse:
+    try:
+        return HskTopicDetailResponse.model_validate(
+            get_topic_detail(db, current_user, learning_track_id, topic_id, part)
+        )
+    except HskTrackNotFoundError as exc:
+        raise _not_found(TRACK_NOT_FOUND) from exc
+    except HskTopicNotFoundError as exc:
+        raise _not_found("Catalog topic not found") from exc
+
+
+@router.post("/senses/import", response_model=HskSensesImportResponse)
+def hsk_import_senses(
+    learning_track_id: uuid.UUID,
+    payload: HskSensesImportRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> HskSensesImportResponse:
+    try:
+        result = save_senses(db, current_user, learning_track_id, payload.mapping_ids)
+    except HskTrackNotFoundError as exc:
+        raise _not_found(TRACK_NOT_FOUND) from exc
+    except HskEntryNotFoundError as exc:
+        raise _not_found("Catalog entry not found") from exc
+    return HskSensesImportResponse(
+        created_count=result.created_count,
+        skipped_count=result.skipped_count,
+        imported_mapping_ids=result.imported_mapping_ids,
+    )
+
+
+@router.post("/topics/{topic_id}/save-all", response_model=HskTopicSaveResponse)
+def hsk_save_topic(
+    learning_track_id: uuid.UUID,
+    topic_id: uuid.UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+    part: Annotated[int | None, Query(ge=1)] = None,
+) -> HskTopicSaveResponse:
+    try:
+        result = save_topic(db, current_user, learning_track_id, topic_id, part)
+    except HskTrackNotFoundError as exc:
+        raise _not_found(TRACK_NOT_FOUND) from exc
+    except HskTopicNotFoundError as exc:
+        raise _not_found("Catalog topic not found") from exc
+    return HskTopicSaveResponse(created_count=result.created_count, skipped_count=result.skipped_count)
 
 
 @router.get("/entries/{entry_id}", response_model=HskEntryDetailResponse)

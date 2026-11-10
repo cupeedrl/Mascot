@@ -78,9 +78,16 @@ def run_learner_flow(client: TestClient, headers: dict[str, str], track_id: uuid
     assert levels.status_code == 200, levels.text
     body = levels.json()
     assert body["release"]["code"] == "synthetic-hsk-v1"
-    assert [level["level_code"] for level in body["levels"]] == [f"HSK{n}" for n in range(1, 7)]
+    assert [level["level_code"] for level in body["levels"]] == [
+        "HSK1", "HSK2", "HSK3", "HSK4", "HSK5", "HSK6", "HSK7-9"
+    ]
     by_level = {level["level_code"]: level["entry_count"] for level in body["levels"]}
-    assert by_level == {"HSK1": 2, "HSK2": 2, "HSK3": 2, "HSK4": 2, "HSK5": 2, "HSK6": 2}
+    assert by_level == {"HSK1": 2, "HSK2": 2, "HSK3": 2, "HSK4": 2, "HSK5": 2, "HSK6": 2, "HSK7-9": 0}
+    hsk1 = body["levels"][0]
+    assert [group["name_zh"] for group in hsk1["topic_groups"]] == ["基本信息", "日常生活"]
+    food = hsk1["topic_groups"][1]["topics"][0]
+    assert (food["name_zh"], food["name_vi"], food["entry_count"]) == ("饮食", "Ăn uống", 1)
+    assert food["subtopics"] == ["Đồ ăn, thức uống"]
 
     for number in range(1, 7):
         listing = client.get(
@@ -220,6 +227,36 @@ def run_learner_flow(client: TestClient, headers: dict[str, str], track_id: uuid
     )
     assert attempt.status_code == 200, attempt.text
     assert attempt.json()["is_correct"] is True
+
+    # A topic is shaped like an English vocabulary set: one row per meaning.
+    talk = body["levels"][1]["topic_groups"][0]["topics"][0]
+    talk_detail = client.get(f"/api/v1/catalog/hsk/{track_id}/topics/{talk['id']}", headers=headers).json()
+    assert [(row["word"], row["pinyin"], row["translation"]) for row in talk_detail["entries"]] == [
+        ("长", "cháng", "dài"),
+        ("长", "zhǎng", "lớn lên"),
+    ]
+    assert all(row["is_added"] for row in talk_detail["entries"])
+    assert talk_detail["import_status"] == "all"
+    food_detail = client.get(f"/api/v1/catalog/hsk/{track_id}/topics/{food['id']}", headers=headers).json()
+    assert food_detail["name_vi"] == "Ăn uống" and food_detail["description"] == "Đồ ăn, thức uống"
+    assert food_detail["import_status"] == "none"
+    assert food_detail["entries"][0]["part_of_speech"] == "noun"
+
+    # Learn a whole topic, like starting an English vocabulary set.
+    topic_entries = client.get(
+        f"/api/v1/catalog/hsk/{track_id}/entries", params={"topic_id": food["id"]}, headers=headers
+    ).json()
+    assert [item["raw_word"] for item in topic_entries["items"]] == ["水"]
+    assert topic_entries["topic"]["name_zh"] == "饮食"
+    whole = client.post(f"/api/v1/catalog/hsk/{track_id}/topics/{food['id']}/save-all", headers=headers)
+    assert whole.status_code == 200, whole.text
+    assert whole.json() == {"created_count": 1, "skipped_count": 0}
+    again_topic = client.post(
+        f"/api/v1/catalog/hsk/{track_id}/topics/{food['id']}/save-all", headers=headers
+    )
+    assert again_topic.json() == {"created_count": 0, "skipped_count": 1}
+    refreshed = client.get(f"/api/v1/catalog/hsk/{track_id}/levels", headers=headers).json()
+    assert refreshed["levels"][0]["topic_groups"][1]["topics"][0]["saved_count"] == 1
 
     return {
         "long_vocabulary_id": long_saved.json()["vocabulary_id"],

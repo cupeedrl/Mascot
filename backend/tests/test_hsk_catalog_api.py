@@ -116,6 +116,41 @@ def test_unspecialized_and_draft_senses_are_not_saveable(
         assert db.scalar(select(Vocabulary.id)) is None
 
 
+def test_selected_meanings_import_like_english_sets(
+    client: TestClient, session_factory, chinese_track, tmp_path: Path
+) -> None:
+    import_and_publish(session_factory, tmp_path)
+    headers = authenticate(client, "select-senses@example.com")
+    with session_factory() as db:
+        mapping_ids = [
+            str(mapping_id)
+            for mapping_id in db.scalars(
+                select(CatalogSourceMapping.id)
+                .join(CatalogSourceEntry, CatalogSourceEntry.id == CatalogSourceMapping.source_entry_id)
+                .where(CatalogSourceEntry.raw_word == "长")
+            )
+        ]
+    first = client.post(
+        f"/api/v1/catalog/hsk/{chinese_track}/senses/import",
+        headers=headers,
+        json={"mapping_ids": mapping_ids},
+    )
+    assert first.status_code == 200, first.text
+    assert first.json()["created_count"] == 2
+    again = client.post(
+        f"/api/v1/catalog/hsk/{chinese_track}/senses/import",
+        headers=headers,
+        json={"mapping_ids": mapping_ids},
+    )
+    assert again.json()["created_count"] == 0 and again.json()["skipped_count"] == 2
+    missing = client.post(
+        f"/api/v1/catalog/hsk/{chinese_track}/senses/import",
+        headers=headers,
+        json={"mapping_ids": [str(uuid.uuid4())]},
+    )
+    assert missing.status_code == 404
+
+
 def test_overlap_with_existing_personal_word_is_not_duplicated(
     client: TestClient, session_factory, chinese_track, tmp_path: Path
 ) -> None:
@@ -173,3 +208,39 @@ def test_catalog_edit_and_retirement_preserve_snapshot_and_progress(
     ).json()
     assert detail["source"]["review_status"] == "retired"
     assert all(not s["saveable"] for i in detail["interpretations"] for s in i["senses"])
+
+
+def test_large_topics_are_split_into_study_sized_parts(
+    client: TestClient, session_factory, chinese_track, tmp_path: Path, monkeypatch
+) -> None:
+    import copy
+
+    from app.services import hsk_catalog as service
+    from tests.hsk_fixtures import REVIEW
+
+    review = copy.deepcopy(REVIEW)
+    review["entry_topics"].append(
+        {"source_record_id": "101", "topic_path": ["日常生活", "饮食"], "origin": "editorial", "review_status": "approved"}
+    )
+    import_and_publish(session_factory, tmp_path, review=review)
+    monkeypatch.setattr(service, "PART_SIZE", 1)
+    headers = authenticate(client, "parts@example.com")
+    base = f"/api/v1/catalog/hsk/{chinese_track}"
+
+    def food_cards():
+        levels = client.get(f"{base}/levels", headers=headers).json()
+        return [card for card in levels["levels"][0]["topic_groups"][1]["topics"] if card["name_zh"] == "饮食"]
+
+    cards = food_cards()
+    assert [(c["part"], c["part_count"], c["entry_count"]) for c in cards] == [(1, 2, 1), (2, 2, 1)]
+    topic_id = cards[0]["id"]
+    first = client.get(f"{base}/topics/{topic_id}", params={"part": 1}, headers=headers).json()
+    second = client.get(f"{base}/topics/{topic_id}", params={"part": 2}, headers=headers).json()
+    assert [row["word"] for row in first["entries"]] == ["爱"]  # serial 1
+    assert [row["word"] for row in second["entries"]] == ["水"]  # serial 2
+    assert (second["part"], second["part_count"]) == (2, 2)
+    assert client.get(f"{base}/topics/{topic_id}", params={"part": 3}, headers=headers).status_code == 404
+
+    saved = client.post(f"{base}/topics/{topic_id}/save-all", params={"part": 2}, headers=headers)
+    assert saved.json() == {"created_count": 1, "skipped_count": 0}
+    assert [c["saved_count"] for c in food_cards()] == [0, 1]
