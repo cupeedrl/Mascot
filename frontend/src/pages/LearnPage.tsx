@@ -85,6 +85,13 @@ export function LearnPage() {
         />
       </div>
 
+      {activeTrack?.level_framework === "HSK" && (
+        <div className="hsk-catalog-callout">
+          <p>Danh mục HSK 1–6 theo bản phát hành: xem cách đọc, nghĩa, từ loại và chọn đúng nghĩa để lưu.</p>
+          <Link className="primary-link" to="/app/learn/hsk">Mở danh mục HSK 1–6 <ArrowRight size={16} /></Link>
+        </div>
+      )}
+
       <section className="level-section" aria-labelledby="level-heading">
         <div className="section-heading-row">
           <div>

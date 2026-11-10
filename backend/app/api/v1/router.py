@@ -12,6 +12,7 @@ from app.api.v1.routes import (
     dashboard,
     exercises,
     health,
+    hsk_catalog,
     learning_preferences,
     review,
     vocabularies,
@@ -32,6 +33,7 @@ api_router.include_router(ai_actions.router, tags=["AI actions"])
 api_router.include_router(ai_conversations.router, tags=["AI conversations"])
 api_router.include_router(catalog.router, tags=["catalog"])
 api_router.include_router(catalog.catalog_router, tags=["catalog"])
+api_router.include_router(hsk_catalog.router, tags=["HSK catalog"])
 api_router.include_router(dashboard.router, tags=["dashboard"])
 api_router.include_router(exercises.router, tags=["exercises"])
 api_router.include_router(exercises.attempts_router, tags=["exercise attempts"])

@@ -8,6 +8,7 @@ from sqlalchemy import (
     CheckConstraint,
     DateTime,
     ForeignKey,
+    ForeignKeyConstraint,
     Index,
     Integer,
     JSON,
@@ -92,6 +93,57 @@ class Vocabulary(Base):
             "next_review_at",
             postgresql_where=text("next_review_at IS NOT NULL"),
         ),
+        # Normalized HSK catalog provenance (migration 20261110_0015). All
+        # references RESTRICT deletion so provenance cannot silently vanish;
+        # catalog rows are retired instead. The copied snapshot columns above
+        # remain the learner's source of truth.
+        ForeignKeyConstraint(
+            ["catalog_mapping_id", "catalog_source_entry_id"],
+            ["catalog_source_mappings.id", "catalog_source_mappings.source_entry_id"],
+            ondelete="RESTRICT",
+            name="fk_vocab_catalog_mapping_source",
+        ),
+        ForeignKeyConstraint(
+            ["catalog_mapping_id", "catalog_sense_id"],
+            ["catalog_source_mappings.id", "catalog_source_mappings.sense_id"],
+            ondelete="RESTRICT",
+            name="fk_vocab_catalog_mapping_sense",
+        ),
+        ForeignKeyConstraint(
+            ["catalog_sense_id", "catalog_pronunciation_id"],
+            [
+                "lexical_sense_pronunciations.sense_id",
+                "lexical_sense_pronunciations.pronunciation_id",
+            ],
+            ondelete="RESTRICT",
+            name="fk_vocab_catalog_sense_pronunciation",
+        ),
+        CheckConstraint(
+            "catalog_source_entry_id IS NULL OR ("
+            "catalog_mapping_id IS NOT NULL AND catalog_sense_id IS NOT NULL "
+            "AND catalog_snapshot IS NOT NULL)",
+            name="ck_vocab_catalog_save_complete",
+        ),
+        CheckConstraint(
+            "catalog_source_entry_id IS NOT NULL OR ("
+            "catalog_mapping_id IS NULL AND catalog_sense_id IS NULL "
+            "AND catalog_pronunciation_id IS NULL)",
+            name="ck_vocab_catalog_refs_need_source",
+        ),
+        CheckConstraint(
+            "catalog_source_entry_id IS NULL OR source_vocabulary_entry_id IS NULL",
+            name="ck_vocab_single_catalog_origin",
+        ),
+        Index(
+            "uq_vocab_user_catalog_source_sense",
+            "user_id",
+            "catalog_source_entry_id",
+            "catalog_sense_id",
+            unique=True,
+            postgresql_where=text("catalog_source_entry_id IS NOT NULL"),
+            postgresql_nulls_not_distinct=True,
+            sqlite_where=text("catalog_source_entry_id IS NOT NULL"),
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -103,6 +155,19 @@ class Vocabulary(Base):
     )
     source_vocabulary_entry_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("vocabulary_entries.id", ondelete="SET NULL"), nullable=True
+    )
+    catalog_source_entry_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("catalog_source_entries.id", ondelete="RESTRICT"), nullable=True
+    )
+    catalog_mapping_id: Mapped[uuid.UUID | None] = mapped_column(nullable=True)
+    catalog_sense_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("lexical_senses.id", ondelete="RESTRICT"), nullable=True
+    )
+    catalog_pronunciation_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("lexical_pronunciations.id", ondelete="RESTRICT"), nullable=True
+    )
+    catalog_snapshot: Mapped[dict | None] = mapped_column(
+        JSON().with_variant(JSONB, "postgresql"), nullable=True
     )
     word: Mapped[str] = mapped_column(String(255), nullable=False)
     normalized_word: Mapped[str] = mapped_column(String(255), nullable=False)

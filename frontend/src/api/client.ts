@@ -1336,3 +1336,132 @@ export function cancelAIAction(
 
 
 
+
+// ---------------------------------------------------------------------------
+// Normalized HSK 1–6 catalog (release-aware). Only the published release is
+// visible to learners; missing POS/meanings are reported, never filled in.
+
+export interface HskReleaseSummary {
+  id: string;
+  code: string;
+  title: string;
+  status: string;
+  source_name: string;
+  source_version: string | null;
+  data_origin: string;
+  published_at: string | null;
+}
+
+export interface HskLevelSummary {
+  level_code: string;
+  entry_count: number;
+  reviewed_count: number;
+  awaiting_review_count: number;
+}
+
+export interface HskLevelsResponse {
+  release: HskReleaseSummary | null;
+  levels: HskLevelSummary[];
+}
+
+export interface HskEntryListItem {
+  id: string;
+  raw_word: string;
+  raw_pinyin: string;
+  raw_pos: string | null;
+  official_serial: number | null;
+  level_code: string;
+  review_status: string;
+  sense_count: number;
+  saved_count: number;
+}
+
+export interface HskEntryListResponse {
+  release: HskReleaseSummary | null;
+  items: HskEntryListItem[];
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+}
+
+export interface HskSense {
+  mapping_id: string;
+  sense_id: string;
+  sense_key: string;
+  gloss_en: string | null;
+  gloss_vi: string | null;
+  gloss_source: string;
+  pos: { code: string; origin: string; source_label: string | null }[];
+  pos_missing: boolean;
+  pronunciations: string[];
+  examples: { text_zh: string; pinyin: string | null; translation_vi: string | null; source: string }[];
+  saveable: boolean;
+  saved_vocabulary_id: string | null;
+}
+
+export interface HskInterpretation {
+  lexical_entry_id: string;
+  headword: string;
+  lexical_key: string;
+  pronunciations: string[];
+  variants: { form: string; type: string; pinyin: string | null; source: string }[];
+  senses: HskSense[];
+  awaiting_sense_review: boolean;
+}
+
+export interface HskEntryDetail {
+  release: HskReleaseSummary | null;
+  source: {
+    id: string;
+    record_id_type: string;
+    record_id: string;
+    official_serial: number | null;
+    raw_word: string;
+    raw_pinyin: string;
+    raw_pos: string | null;
+    raw_level_name: string;
+    levels: { level_code: string; role: "primary" | "annotation" }[];
+    review_status: string;
+    review_flags: string[];
+  };
+  interpretations: HskInterpretation[];
+}
+
+export interface HskSaveResponse {
+  created: boolean;
+  vocabulary_id: string;
+  reason: "already_saved" | "overlapping_personal_word" | null;
+}
+
+export function getHskLevels(trackId: string): Promise<HskLevelsResponse> {
+  return request<HskLevelsResponse>(`/catalog/hsk/${trackId}/levels`);
+}
+
+export function listHskEntries(
+  trackId: string,
+  params: { level?: string; q?: string; page?: number; pageSize?: number },
+): Promise<HskEntryListResponse> {
+  const query = new URLSearchParams({
+    page: String(params.page ?? 1),
+    page_size: String(params.pageSize ?? 30),
+  });
+  if (params.level) query.set("level", params.level);
+  if (params.q?.trim()) query.set("q", params.q.trim());
+  return request<HskEntryListResponse>(`/catalog/hsk/${trackId}/entries?${query.toString()}`);
+}
+
+export function getHskEntry(trackId: string, entryId: string): Promise<HskEntryDetail> {
+  return request<HskEntryDetail>(`/catalog/hsk/${trackId}/entries/${entryId}`);
+}
+
+export function saveHskSense(
+  trackId: string,
+  entryId: string,
+  mappingId: string,
+): Promise<HskSaveResponse> {
+  return request<HskSaveResponse>(`/catalog/hsk/${trackId}/entries/${entryId}/save`, {
+    method: "POST",
+    body: JSON.stringify({ mapping_id: mappingId }),
+  });
+}

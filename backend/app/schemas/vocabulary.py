@@ -222,6 +222,8 @@ class VocabularyResponse(BaseModel):
     learning_track: LearningTrackResponse
     source_vocabulary_entry_id: uuid.UUID | None
     source_vocabulary_entry: VocabularySourceEntryResponse | None
+    catalog_source_entry_id: uuid.UUID | None = None
+    catalog_snapshot: dict | None = None
     word: str
     normalized_word: str
     ipa: str | None = None

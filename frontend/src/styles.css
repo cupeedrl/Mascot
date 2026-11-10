@@ -6942,3 +6942,27 @@ textarea:focus {
 
 /* Only contextual multiple choice is generated now, so the setup has one card. */
 .practice-setup-grid.single-step { grid-template-columns: minmax(0, 1fr); }
+
+/* Normalized HSK 1–6 catalog */
+.hsk-catalog-callout { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; align-items: center; justify-content: space-between; margin: 1rem 0; padding: 1rem 1.25rem; border: 1px solid var(--border, #e5e7eb); border-radius: 14px; }
+.hsk-catalog-callout p { margin: 0; }
+.hsk-release-warning { display: inline-block; margin-top: 0.5rem; padding: 0.35rem 0.75rem; border-radius: 999px; background: #fff4e5; color: #8a4b00; font-size: 0.9rem; }
+.hsk-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 1.25rem; margin-top: 1rem; align-items: start; }
+.hsk-entry-row { width: 100%; text-align: left; font: inherit; cursor: pointer; }
+.hsk-entry-row.selected { outline: 2px solid var(--primary, #4f46e5); }
+.hsk-detail { position: sticky; top: 1rem; padding: 1.25rem; border: 1px solid var(--border, #e5e7eb); border-radius: 16px; background: var(--surface, #fff); }
+.hsk-headword { font-size: 2.25rem; margin: 0 0 0.75rem; }
+.hsk-source-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.5rem 1rem; margin: 0 0 1rem; }
+.hsk-source-fields dt { font-size: 0.78rem; opacity: 0.7; }
+.hsk-source-fields dd { margin: 0; }
+.hsk-interpretation { border-top: 1px solid var(--border, #e5e7eb); padding-top: 0.75rem; margin-top: 0.75rem; }
+.hsk-interpretation h3 { margin: 0 0 0.25rem; }
+.hsk-senses { display: grid; gap: 0.75rem; padding-left: 1.25rem; }
+.hsk-senses li { display: grid; gap: 0.3rem; justify-items: start; }
+.hsk-sense-head { display: flex; gap: 0.6rem; align-items: baseline; }
+.hsk-pos { font-size: 0.85rem; opacity: 0.8; }
+.hsk-pos.missing, .hsk-awaiting { font-style: italic; opacity: 0.75; }
+.hsk-gloss-en { font-size: 0.9rem; opacity: 0.75; margin: 0; }
+.hsk-variants { font-size: 0.9rem; margin: 0 0 0.5rem; }
+.hsk-detail-empty { opacity: 0.7; }
+@media (max-width: 900px) { .hsk-layout { grid-template-columns: 1fr; } .hsk-detail { position: static; } }
