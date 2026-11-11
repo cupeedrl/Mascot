@@ -43,8 +43,8 @@ python -m alembic upgrade head
    - **Start Command**: `python -m alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
      (migrations run before the API starts; if a migration fails the deploy fails and the previous version keeps serving)
    - **Docker runtime** (the service builds `backend/Dockerfile`): there is no Start Command; set **Settings → Deploy → Docker Command** to
-     `python -m alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000`
-     (no quotes and no `sh -c`: Render already runs this field through `sh`, and quotes turn the whole line into one program name).
+     `python -m app.serve`
+     (`app/serve.py` runs `alembic upgrade head` and then starts uvicorn on port 8000. Render passes this field without a shell, so `&&` or quotes do not work there.)
      (Render's Pre-Deploy Command would also work but needs a paid instance.)
 3. Add Backend Environment Variables (see table below).
 
