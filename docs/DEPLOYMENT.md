@@ -42,6 +42,9 @@ python -m alembic upgrade head
    - **Build Command**: `pip install -e .`
    - **Start Command**: `python -m alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
      (migrations run before the API starts; if a migration fails the deploy fails and the previous version keeps serving)
+   - **Docker runtime** (the service builds `backend/Dockerfile`): there is no Start Command; set **Settings → Deploy → Docker Command** to
+     `sh -c "python -m alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"`.
+     (Render's Pre-Deploy Command would also work but needs a paid instance.)
 3. Add Backend Environment Variables (see table below).
 
 ### Step 4: Deploy Frontend on Vercel
