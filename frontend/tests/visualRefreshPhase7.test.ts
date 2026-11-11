@@ -41,13 +41,12 @@ test("homepage hero uses the scholar penguin and useful summary cards", async ()
   assert.match(dashboard, /activeTrack\.name/);
   assert.match(dashboard, /dashboard\.words_due_for_review/);
   assert.match(dashboard, /dashboard\.total_vocabulary/);
-  assert.match(dashboard, /Công việc bây giờ/);
-  assert.match(dashboard, /<b>10<\/b> phút/);
+  // One "today" card: a real time estimate instead of a fixed "10 phút".
+  assert.match(dashboard, /Gợi ý từ Mascot/);
+  assert.match(dashboard, /Khoảng \{plan\.minutes\} phút/);
+  assert.doesNotMatch(dashboard, /<b>10<\/b> phút|Công việc bây giờ|Sẵn sàng/);
   assert.match(dashboard, /hasStudiedToday/);
-  assert.match(dashboard, /today-date-copy/);
-  assert.match(dashboard, /<span>Hôm nay<\/span>\s*<strong>\{today\.weekday\}<\/strong>\s*<time>\{today\.dayAndMonth\}<\/time>/);
-  assert.match(dashboard, /today-action-row/);
-  assert.match(dashboard, /Ôn ngay/);
+  assert.match(dashboard, /longToday\(\)/);
 });
 
 test("homepage uses a track-scoped navigable monthly study calendar", async () => {

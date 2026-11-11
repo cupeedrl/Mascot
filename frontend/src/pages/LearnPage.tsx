@@ -10,6 +10,7 @@ import {
 import { PageSkeleton } from "../components/PageSkeleton";
 import { LearningIllustration } from "../components/LearningIllustration";
 import { PageHeader } from "../components/PageHeader";
+import { MascotTip, PageDoodles } from "../components/PageDoodles";
 import { PenguinMark } from "../components/PenguinMark";
 import { HskLearnBrowser } from "../features/hsk/HskLearnBrowser";
 import { getTopicAccent, getTopicIcon } from "../features/learn/topicPresentation";
@@ -70,7 +71,8 @@ export function LearnPage() {
 
   return (
     <section className="learn-page" aria-labelledby="learn-heading">
-      <div className="learn-hero">
+      <div className="learn-hero has-doodles">
+        <PageDoodles variant="learn" languageCode={activeTrack?.language.code} />
         <PageHeader
           className="learn-page-header"
           icon={Compass}
@@ -78,6 +80,7 @@ export function LearnPage() {
           title={<>Khám phá {activeTrack?.language.name ?? "ngôn ngữ"} <em>theo cách của bạn.</em></>}
           description="Chọn trình độ, khám phá chủ đề phù hợp và bắt đầu xây dựng vốn từ của riêng bạn."
           titleId="learn-heading"
+          tip={<MascotTip tone="learn">Mỗi ngày chọn một chủ đề và lưu 5–10 từ là vừa sức, đừng ôm cả bộ một lúc nhé.</MascotTip>}
           aside={<div className="learn-hero-aside"><LearningIllustration variant="library" /><dl className="track-card">
             <div><dt>Ngôn ngữ</dt><dd>{activeTrack?.language.name}</dd></div>
             <div><dt>Lộ trình học</dt><dd>{activeTrack?.name}</dd></div>

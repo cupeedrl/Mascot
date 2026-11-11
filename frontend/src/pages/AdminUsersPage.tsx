@@ -20,6 +20,7 @@ import {
   updateAdminUserRole,
   updateAdminUserStatus,
 } from "../api/client";
+import { ConfirmDialog, type ConfirmRequest } from "../components/ConfirmDialog";
 
 export function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUserListItem[]>([]);
@@ -36,6 +37,8 @@ export function AdminUsersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<(ConfirmRequest & { run: () => Promise<void> }) | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   // Debounce search
@@ -76,57 +79,77 @@ export function AdminUsersPage() {
     fetchUsers();
   }, [fetchUsers]);
 
-  async function handleToggleRole(user: AdminUserListItem) {
+  async function confirmPendingAction() {
+    const action = pendingAction;
+    setPendingAction(null);
+    if (action) await action.run();
+  }
+
+  function handleToggleRole(user: AdminUserListItem) {
     const newRole = user.role === "admin" ? "user" : "admin";
     const confirmText =
       newRole === "admin"
         ? `Bạn có chắc muốn nâng cấp tài khoản ${user.email} thành Admin?`
         : `Bạn có chắc muốn hạ quyền tài khoản ${user.email} xuống User thông thường?`;
 
-    if (!window.confirm(confirmText)) return;
-
-    setActionLoadingId(user.id);
-    setActionMessage(null);
-    try {
-      await updateAdminUserRole(user.id, newRole);
-      setActionMessage(`Đã cập nhật quyền của ${user.email} thành ${newRole.toUpperCase()}.`);
-      fetchUsers();
-    } catch (caughtError) {
-      if (caughtError instanceof ApiError) {
-        alert(caughtError.message);
-      } else {
-        alert("Không thể cập nhật quyền người dùng.");
-      }
-    } finally {
-      setActionLoadingId(null);
-    }
+    setPendingAction({
+      title: newRole === "admin" ? "Nâng quyền Admin" : "Hạ quyền xuống User",
+      confirmLabel: newRole === "admin" ? "Nâng quyền" : "Hạ quyền",
+      tone: newRole === "admin" ? "primary" : "danger",
+      message: confirmText,
+      run: async () => {
+        setActionError(null);
+        setActionLoadingId(user.id);
+        setActionMessage(null);
+        try {
+          await updateAdminUserRole(user.id, newRole);
+          setActionMessage(`Đã cập nhật quyền của ${user.email} thành ${newRole.toUpperCase()}.`);
+          fetchUsers();
+        } catch (caughtError) {
+          if (caughtError instanceof ApiError) {
+            setActionError(caughtError.message);
+          } else {
+            setActionError("Không thể cập nhật quyền người dùng.");
+          }
+        } finally {
+          setActionLoadingId(null);
+        }
+      },
+    });
   }
 
-  async function handleToggleStatus(user: AdminUserListItem) {
+  function handleToggleStatus(user: AdminUserListItem) {
     const newStatus = !user.is_active;
     const confirmText = newStatus
       ? `Bạn có chắc muốn kích hoạt lại tài khoản ${user.email}?`
       : `Bạn có chắc muốn vô hiệu hóa tài khoản ${user.email}? Người dùng sẽ không thể đăng nhập hoặc thao tác.`;
 
-    if (!window.confirm(confirmText)) return;
-
-    setActionLoadingId(user.id);
-    setActionMessage(null);
-    try {
-      await updateAdminUserStatus(user.id, newStatus);
-      setActionMessage(
-        `Đã ${newStatus ? "kích hoạt" : "vô hiệu hóa"} tài khoản ${user.email}.`,
-      );
-      fetchUsers();
-    } catch (caughtError) {
-      if (caughtError instanceof ApiError) {
-        alert(caughtError.message);
-      } else {
-        alert("Không thể cập nhật trạng thái người dùng.");
-      }
-    } finally {
-      setActionLoadingId(null);
-    }
+    setPendingAction({
+      title: newStatus ? "Kích hoạt lại tài khoản" : "Vô hiệu hóa tài khoản",
+      confirmLabel: newStatus ? "Kích hoạt" : "Vô hiệu hóa",
+      tone: newStatus ? "primary" : "danger",
+      message: confirmText,
+      run: async () => {
+        setActionError(null);
+        setActionLoadingId(user.id);
+        setActionMessage(null);
+        try {
+          await updateAdminUserStatus(user.id, newStatus);
+          setActionMessage(
+            `Đã ${newStatus ? "kích hoạt" : "vô hiệu hóa"} tài khoản ${user.email}.`,
+          );
+          fetchUsers();
+        } catch (caughtError) {
+          if (caughtError instanceof ApiError) {
+            setActionError(caughtError.message);
+          } else {
+            setActionError("Không thể cập nhật trạng thái người dùng.");
+          }
+        } finally {
+          setActionLoadingId(null);
+        }
+      },
+    });
   }
 
   function formatDate(iso: string | null): string {
@@ -165,6 +188,19 @@ export function AdminUsersPage() {
           <span>{actionMessage}</span>
         </div>
       )}
+
+      {actionError && (
+        <div className="admin-error-box" role="alert">
+          <AlertCircle size={20} />
+          <span>{actionError}</span>
+        </div>
+      )}
+
+      <ConfirmDialog
+        request={pendingAction}
+        onConfirm={() => void confirmPendingAction()}
+        onCancel={() => setPendingAction(null)}
+      />
 
       {error && (
         <div className="admin-error-box" role="alert">

@@ -31,6 +31,7 @@ import {
 } from "../api/client";
 import { LearningIllustration } from "../components/LearningIllustration";
 import { PageHeader } from "../components/PageHeader";
+import { MascotTip, PageDoodles } from "../components/PageDoodles";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { PenguinMark } from "../components/PenguinMark";
 import {
@@ -241,6 +242,8 @@ export function ReviewPage() {
             description="Ôn từ đến hạn theo lịch ngắt quãng hoặc chủ động chọn nhóm từ cá nhân bạn muốn củng cố."
             titleId="review-heading"
             aside={<LearningIllustration variant="review" />}
+            decoration={<PageDoodles variant="review" languageCode={activeTrack?.language.code} />}
+            tip={<MascotTip tone="review">Trả lời thật lòng nhé. Từ nào chưa nhớ, mình sẽ hẹn bạn ôn lại sớm hơn.</MascotTip>}
           />
 
           {error && <div className="form-error" role="alert">{error}</div>}

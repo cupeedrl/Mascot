@@ -14,6 +14,9 @@ os.environ.setdefault("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30")
 os.environ.setdefault("JWT_ISSUER", "mascot-api")
 os.environ.setdefault("JWT_AUDIENCE", "mascot-frontend")
 os.environ["EMAIL_PROVIDER"] = "test"
+# Legacy tests sign up and log in directly; tests/test_auth_verification.py
+# switches verification back on to cover that flow.
+os.environ["REQUIRE_EMAIL_VERIFICATION"] = "false"
 
 from collections.abc import Generator
 

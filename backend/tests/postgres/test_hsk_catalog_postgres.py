@@ -53,7 +53,7 @@ pytestmark = pytest.mark.skipif(
     reason="needs a disposable PostgreSQL 16 server (MASCOT_PG_TEST_ADMIN_URL)",
 )
 BACKEND_DIR = Path(__file__).resolve().parents[2]
-HEAD = "20261111_0016"
+HEAD = "20261111_0017"
 HSK_BASE = "20261110_0015"
 BEFORE = "20260908_0014"
 CATALOG_MODELS = (
@@ -146,7 +146,8 @@ def test_single_linear_head() -> None:
 
     script = ScriptDirectory.from_config(Config(str(BACKEND_DIR / "alembic.ini")))
     assert script.get_heads() == [HEAD]
-    assert script.get_revision(HEAD).down_revision == HSK_BASE
+    assert script.get_revision(HEAD).down_revision == "20261111_0016"  # usernames + email codes
+    assert script.get_revision("20261111_0016").down_revision == HSK_BASE
     assert script.get_revision(HSK_BASE).down_revision == BEFORE
 
 

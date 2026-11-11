@@ -41,3 +41,21 @@ test("clearing the access token removes the persisted session", () => {
   assert.equal(sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY), null);
   assert.equal(readAccessToken(), null);
 });
+
+test("remember me keeps the token in localStorage and sign-out clears both stores", () => {
+  const sessionStorage = new MemorySessionStorage();
+  const localStorage = new MemorySessionStorage();
+  Object.assign(globalThis, { window: { sessionStorage, localStorage } });
+
+  persistAccessToken("long-token", true);
+  assert.equal(localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY), "long-token");
+  assert.equal(sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY), null);
+  assert.equal(readAccessToken(), "long-token");
+
+  persistAccessToken("short-token");
+  assert.equal(localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY), null);
+  assert.equal(readAccessToken(), "short-token");
+
+  persistAccessToken(null);
+  assert.equal(readAccessToken(), null);
+});

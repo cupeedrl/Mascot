@@ -45,15 +45,42 @@ function NavigationLinks({ mobile = false }: { mobile?: boolean }) {
 
 export function AppLayout() {
   const { user, logout } = useAuth();
+  // Show the learner's own name; older accounts may only have an email.
+  const accountName = user?.display_name || user?.username || user?.email?.split("@")[0] || "Mascot";
+  const accountHandle = user?.username ? `@${user.username}` : user?.email;
   const location = useLocation();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const [isAccountBarHidden, setIsAccountBarHidden] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
   const { activeTrack } = useActiveLearningTrack();
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [location.pathname]);
+
+  // The floating account bar slides away while scrolling down so it never
+  // covers page cards, and comes back on scroll up or near the top.
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const y = window.scrollY;
+        if (y < 60) setIsAccountBarHidden(false);
+        else if (y > lastY + 4) setIsAccountBarHidden(true);
+        else if (y < lastY - 4) setIsAccountBarHidden(false);
+        lastY = y;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isAccountMenuOpen) return;
@@ -104,7 +131,10 @@ export function AppLayout() {
 
       </aside>
 
-      <header className="desktop-account-bar" aria-label="Tài khoản người dùng">
+      <header
+        className={`desktop-account-bar${isAccountBarHidden && !isAccountMenuOpen ? " is-hidden" : ""}`}
+        aria-label="Tài khoản người dùng"
+      >
         <div className="desktop-account-menu" ref={accountMenuRef}>
           <button
             className="desktop-account-trigger"
@@ -114,18 +144,18 @@ export function AppLayout() {
             onClick={() => setIsAccountMenuOpen((isOpen) => !isOpen)}
           >
             <span className="account-avatar" aria-hidden="true">
-              {user?.email?.charAt(0).toUpperCase() ?? "M"}
+              {accountName.charAt(0).toUpperCase()}
             </span>
             <span className="desktop-account-copy">
-              <strong>Mascoter</strong>
-              <small>{user?.email}</small>
+              <strong>{accountName}</strong>
+              <small>{accountHandle}</small>
             </span>
             <ChevronDown size={16} aria-hidden="true" />
           </button>
           {isAccountMenuOpen && (
             <div className="desktop-account-dropdown" role="menu">
               <div>
-                <strong>Mascoter</strong>
+                <strong>{accountName}</strong>
                 <span title={user?.email}>{user?.email}</span>
               </div>
               <button type="button" role="menuitem" onClick={handleLogout} disabled={isLoggingOut}>

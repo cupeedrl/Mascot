@@ -27,6 +27,9 @@ let unauthorizedHandler: (() => void) | null = null;
 export interface User {
   id: string;
   email: string;
+  username?: string | null;
+  display_name?: string | null;
+  email_verified_at?: string | null;
   role: "user" | "admin";
   is_active: boolean;
   created_at: string;
@@ -43,6 +46,8 @@ interface ApiErrorDetail {
   message?: string;
   code?: string;
   existing_vocabulary_id?: string;
+  email?: string;
+  remaining_attempts?: number | null;
 }
 
 interface ApiErrorBody {
@@ -71,9 +76,9 @@ export class ApiError extends Error {
 }
 
 
-export function setAccessToken(token: string | null): void {
+export function setAccessToken(token: string | null, remember = false): void {
   accessToken = token;
-  persistAccessToken(token);
+  persistAccessToken(token, remember);
 }
 
 export function hasAccessToken(): boolean {
@@ -312,26 +317,68 @@ async function requestAfterBackendWarmup<T>(
   }
 }
 
+export interface RegisterProfile {
+  display_name?: string;
+  username?: string;
+}
+
+export interface RegisterResponse extends User {
+  verification_required: boolean;
+}
+
 export function register(
   email: string,
   password: string,
   warmupOptions: BackendWarmupOptions = {},
-): Promise<User> {
-  return requestAfterBackendWarmup<User>("/auth/register", {
+  profile: RegisterProfile = {},
+): Promise<RegisterResponse> {
+  return requestAfterBackendWarmup<RegisterResponse>("/auth/register", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, ...profile }),
   }, warmupOptions, false);
 }
 
+/** Sign in with an email address or a username. */
 export function login(
-  email: string,
+  identifier: string,
   password: string,
   warmupOptions: BackendWarmupOptions = {},
+  rememberMe = false,
 ): Promise<TokenResponse> {
   return requestAfterBackendWarmup<TokenResponse>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ identifier, password, remember_me: rememberMe }),
   }, warmupOptions, true);
+}
+
+export function verifyEmail(email: string, code: string, rememberMe = false): Promise<TokenResponse> {
+  return request<TokenResponse>("/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify({ email, code, remember_me: rememberMe }),
+  });
+}
+
+export function resendVerification(
+  email: string,
+): Promise<{ message: string; resend_after_seconds: number }> {
+  return request("/auth/resend-verification", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export interface UsernameAvailability {
+  username: string;
+  available: boolean;
+  reason: "invalid" | "reserved" | "taken" | null;
+  message: string | null;
+}
+
+export function checkUsername(username: string, signal?: AbortSignal): Promise<UsernameAvailability> {
+  return request<UsernameAvailability>(
+    `/auth/username-available?username=${encodeURIComponent(username)}`,
+    { signal },
+  );
 }
 
 export function getCurrentUser(

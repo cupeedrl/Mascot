@@ -1,15 +1,71 @@
+import { useState } from "react";
 import {
+  BookmarkPlus,
+  Bot,
+  CalendarDays,
   Compass,
+  Dumbbell,
+  Info,
+  Languages,
   Library,
   RefreshCw,
-  Dumbbell,
-  Flame,
+  Search,
   Sparkles,
-  Info,
-  ExternalLink,
 } from "lucide-react";
+import { MascotTip, PageDoodles } from "../components/PageDoodles";
 import { PageHeader } from "../components/PageHeader";
 import { PenguinMark } from "../components/PenguinMark";
+
+const FEATURES = [
+  {
+    icon: Compass,
+    tone: "cefr",
+    title: "Tiếng Anh theo CEFR",
+    body: "Thư viện từ A1 đến C2, chia theo chủ đề gần gũi như gia đình, trường học, công việc. Mỗi từ có phiên âm IPA, nghĩa tiếng Việt và câu ví dụ.",
+  },
+  {
+    icon: Languages,
+    tone: "hsk",
+    title: "Tiếng Trung theo HSK 3.0",
+    body: "10.999 từ từ HSK 1 đến HSK 7–9, xếp vào 652 chủ đề và chia thành từng phần tối đa 50 từ. Có pinyin, từ loại và nghĩa tiếng Việt.",
+  },
+  {
+    icon: Library,
+    tone: "personal",
+    title: "Từ vựng của tôi",
+    body: "Sổ từ của riêng bạn: lưu từ trong thư viện chỉ với một lần bấm, tự thêm từ mới, gắn chủ đề, lọc theo trạng thái và trình độ.",
+  },
+  {
+    icon: RefreshCw,
+    tone: "review",
+    title: "Ôn tập ngắt quãng",
+    body: "Thẻ ghi nhớ lật mặt. Bạn tự chấm mức nhớ, Mascot hẹn ngày ôn tiếp theo để từ mới dần thành từ thành thạo.",
+  },
+  {
+    icon: Dumbbell,
+    tone: "practice",
+    title: "Luyện tập cùng AI",
+    body: "AI soạn câu hỏi trắc nghiệm và điền từ từ chính sổ từ của bạn. Đáp án luôn được chấm theo quy tắc cố định, kèm giải thích tiếng Việt.",
+  },
+  {
+    icon: Bot,
+    tone: "ai",
+    title: "Trợ lý Mascot AI",
+    body: "Hỏi nghĩa, cách dùng hay xin gợi ý học ngay trong ứng dụng. Mascot chỉ thêm từ vào sổ khi bạn bấm xác nhận.",
+  },
+  {
+    icon: CalendarDays,
+    tone: "streak",
+    title: "Lịch học và chuỗi ngày",
+    body: "Lịch hoạt động theo tháng, chuỗi ngày học liên tiếp, gợi ý việc nên làm mỗi ngày và một “Từ của hôm nay” đúng trình độ.",
+  },
+] as const;
+
+const STEPS = [
+  { icon: Search, title: "Chọn chủ đề", body: "Chọn ngôn ngữ, trình độ và một chủ đề bạn thích." },
+  { icon: BookmarkPlus, title: "Lưu từ", body: "Lưu vài từ vào sổ, 5–10 từ mỗi ngày là vừa sức." },
+  { icon: Sparkles, title: "Ôn và luyện", body: "Ôn đúng lúc Mascot nhắc, luyện tập để nhớ chắc." },
+] as const;
 
 function GitHubIcon({ size = 18 }: { size?: number }) {
   return (
@@ -30,20 +86,43 @@ function LinkedInIcon({ size = 18 }: { size?: number }) {
   );
 }
 
+/** Author photo (public/images/author.jpg); falls back to initials if missing. */
+function AuthorAvatar() {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <div className="author-avatar">
+        <span>DQ</span>
+      </div>
+    );
+  }
+  return (
+    <img
+      className="author-photo"
+      src="/images/author.jpg"
+      alt="Ảnh chân dung Dat Chu Quoc"
+      width={96}
+      height={96}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export function AboutPage() {
   return (
     <section className="about-page" aria-labelledby="about-heading">
       <PageHeader
         className="about-header"
         icon={Info}
-        eyebrow="GIỚI THIỆU SẢN PHẨM"
+        eyebrow="GIỚI THIỆU MASCOT"
         title={<>Học thông minh hơn, <em>từng từ một.</em></>}
-        description="Mascot là ứng dụng quản lý và học từ vựng tiếng Anh hiện đại, kết hợp lộ trình chuẩn CEFR, ôn tập ngắt quãng và bài tập sinh bởi AI."
+        description="Mascot là ứng dụng học từ vựng tiếng Anh theo CEFR và tiếng Trung theo HSK 3.0: lưu từ theo chủ đề, ôn đúng lúc và luyện tập cùng AI."
         titleId="about-heading"
+        decoration={<PageDoodles variant="about" />}
+        tip={<MascotTip tone="about">Mình là chim cánh cụt Mascot, rất vui được học cùng bạn mỗi ngày!</MascotTip>}
       />
 
       <div className="about-content-layout">
-        {/* Section A: Mascot là gì */}
         <section className="about-section about-intro-card" aria-labelledby="what-is-mascot">
           <div className="about-intro-copy">
             <div className="about-section-badge">
@@ -52,26 +131,51 @@ export function AboutPage() {
             </div>
             <h2 id="what-is-mascot">Mascot là gì?</h2>
             <p>
-              <strong>Mascot</strong> là nền tảng học từ vựng tiếng Anh tinh gọn, được thiết kế chuyên biệt
-              cho sinh viên và người đi làm. Thay vì học thuộc lòng dàn trải, Mascot giúp bạn tập trung vào
-              những từ vựng cốt lõi theo từng trình độ CEFR & HSK, chủ động xây dựng kho từ cá nhân và ghi nhớ bền vững
-              thông qua cơ chế ôn tập ngắt quãng có định hướng.
+              <strong>Mascot</strong> là người bạn học từ vựng dành cho sinh viên và người đi làm. Thay vì học
+              thuộc lòng dàn trải, bạn học theo từng trình độ CEFR hoặc HSK, lưu những từ mình cần vào sổ từ cá
+              nhân và ôn lại đúng lúc sắp quên.
             </p>
             <p>
-              Giao diện được thiết kế hiện đại, trang nhã, không gây quá tải thông tin, giúp người học luôn duy trì được
-              sự tập trung và hứng khởi mỗi ngày.
+              Chú chim cánh cụt đội mũ tốt nghiệp sẽ gợi ý việc nên làm mỗi ngày, nhắc bạn giữ chuỗi ngày học và
+              luôn sẵn sàng trả lời khi bạn hỏi. Giao diện gọn gàng để bạn tập trung vào điều quan trọng nhất:
+              nhớ được từ.
             </p>
+            <ul className="about-facts" aria-label="Mascot trong vài con số">
+              <li><b>2</b><span>ngôn ngữ</span></li>
+              <li><b>6</b><span>cấp CEFR</span></li>
+              <li><b>10.999</b><span>từ HSK</span></li>
+              <li><b>652</b><span>chủ đề HSK</span></li>
+            </ul>
           </div>
           <div className="about-intro-mascot" aria-hidden="true">
             <div className="about-mascot-stage">
               <span className="hero-sparkle hero-sparkle-one">✦</span>
               <span className="hero-sparkle hero-sparkle-two">✦</span>
+              <span className="about-mascot-bubble">你好! Hello!</span>
               <PenguinMark size={140} variant="scholar" />
             </div>
           </div>
         </section>
 
-        {/* Section B: Mascot có gì */}
+        <section className="about-section" aria-labelledby="how-heading">
+          <div className="section-heading-row">
+            <div>
+              <p className="eyebrow">CÁCH HỌC CÙNG MASCOT</p>
+              <h2 id="how-heading">Ba bước mỗi ngày</h2>
+            </div>
+          </div>
+          <ol className="about-steps">
+            {STEPS.map((step, index) => (
+              <li key={step.title}>
+                <span className="about-step-number">{index + 1}</span>
+                <span className="about-step-icon"><step.icon size={20} aria-hidden="true" /></span>
+                <strong>{step.title}</strong>
+                <p>{step.body}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
         <section className="about-section" aria-labelledby="features-heading">
           <div className="section-heading-row">
             <div>
@@ -81,65 +185,17 @@ export function AboutPage() {
           </div>
 
           <div className="about-features-grid">
-            <article className="about-feature-card">
-              <div className="feature-card-icon feature-icon-cefr">
-                <Compass size={22} />
-              </div>
-              <div className="feature-card-body">
-                <h3>Thư viện chuẩn CEFR</h3>
-                <p>Lộ trình từ vựng phong phú từ A1 đến C2, sắp xếp khoa học theo các chủ đề thiết thực trong đời sống và công việc.</p>
-              </div>
-            </article>
-
-            <article className="about-feature-card">
-              <div className="feature-card-icon feature-icon-personal">
-                <Library size={22} />
-              </div>
-              <div className="feature-card-body">
-                <h3>Từ vựng của tôi</h3>
-                <p>Kho từ vựng cá nhân hoá hoàn toàn. Tự do thêm từ mới, phân loại theo chủ đề và quản lý nghĩa chuẩn xác.</p>
-              </div>
-            </article>
-
-            <article className="about-feature-card">
-              <div className="feature-card-icon feature-icon-review">
-                <RefreshCw size={22} />
-              </div>
-              <div className="feature-card-body">
-                <h3>Ôn tập thông minh</h3>
-                <p>Cơ chế thẻ ghi nhớ (flashcard) tự đánh giá với thuật toán giãn cách thời gian để chuyển từ mới thành thành thạo.</p>
-              </div>
-            </article>
-
-            <article className="about-feature-card">
-              <div className="feature-card-icon feature-icon-practice">
-                <Dumbbell size={22} />
-              </div>
-              <div className="feature-card-body">
-                <h3>Luyện tập cùng AI</h3>
-                <p>Tự động tạo bài tập trắc nghiệm ngữ cảnh và bài điền đoạn văn từ chính kho từ vựng bạn đang học.</p>
-              </div>
-            </article>
-
-            <article className="about-feature-card">
-              <div className="feature-card-icon feature-icon-streak">
-                <Flame size={22} />
-              </div>
-              <div className="feature-card-body">
-                <h3>Tiến độ & Streak</h3>
-                <p>Theo dõi chuỗi ngày học liên tục, tỷ lệ làm bài chính xác và bảng thống kê từ vựng trực quan, thực tế.</p>
-              </div>
-            </article>
-
-            <article className="about-feature-card">
-              <div className="feature-card-icon feature-icon-ai">
-                <Sparkles size={22} />
-              </div>
-              <div className="feature-card-body">
-                <h3>Trợ lý từ vựng AI</h3>
-                <p>Nhập một từ bất kỳ để nhận bản nháp gợi ý định nghĩa, nghĩa tiếng Việt, ước tính CEFR và câu ví dụ chuẩn mực.</p>
-              </div>
-            </article>
+            {FEATURES.map((feature) => (
+              <article className="about-feature-card" key={feature.title}>
+                <div className={`feature-card-icon feature-icon-${feature.tone}`}>
+                  <feature.icon size={22} />
+                </div>
+                <div className="feature-card-body">
+                  <h3>{feature.title}</h3>
+                  <p>{feature.body}</p>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
 
@@ -154,9 +210,7 @@ export function AboutPage() {
 
           <div className="about-author-card">
             <div className="author-avatar-wrap">
-              <div className="author-avatar">
-                <span>DQ</span>
-              </div>
+              <AuthorAvatar />
             </div>
             <div className="author-details">
               <div className="author-title-group">

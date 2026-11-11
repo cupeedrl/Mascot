@@ -192,7 +192,7 @@ Navigation:
 
 Bottom/sidebar secondary area:
 
-- account information
+- account information: the learner's display name, with `@username` (or the email for older accounts without a username) underneath; never a placeholder name
 - logout
 
 Use a spacious main content area.
@@ -233,20 +233,32 @@ The user should immediately understand:
 
 Structure:
 
-- welcome header
-- dominant learning journey hero
-- current General English / CEFR journey
-- current topic or vocabulary set
-- learning progress
-- Continue Learning CTA
-- vocabulary learned
-- due-for-review count
-- exercise accuracy
-- Review CTA
-- Practice CTA
+- hero: greeting by given name ("Chào Thư"), the title "Hôm nay mình học gì?", one warm supporting sentence, the scholar penguin with friendly decorations, and the track/level selector
+- "Gợi ý từ Mascot" card: Mascot's avatar, one first-person speech bubble explaining the task, the task title with chips (time estimate, level, "Đã học hôm nay"), and one button carrying the task icon
+- the monthly study calendar ("Hoạt động học tập") with one plain-language streak sentence
+- "Từ của hôm nay": one catalog word at the learner's level with a "Lưu từ" button
+- three progress numbers: total vocabulary, mastered words, exercise accuracy
+- "Khi bạn còn thời gian": three secondary actions that never repeat the main task
 - recent vocabulary
 
-The learner-home hierarchy is intentionally limited to one dominant journey hero, three actionable next-step cards (Review, Practice, Add vocabulary), three lightweight progress numbers, and six recent vocabulary items in a balanced two-column layout. The hero keeps the penguin but removes any separate vocabulary-mastery box. Detailed status and attempt breakdown panels must not compete with the next action.
+Today's main task is chosen in this order: words due for review → a short practice session → saving the first words from a topic. The estimate comes from the work itself (about 20 seconds per review word, 40 seconds per practice question), rounded up to whole minutes; never show a fixed number such as "10 phút". When more than 30 words are due, suggest a first batch of 30 and say how many remain. The logic lives in `frontend/src/features/home/homeSummary.ts`.
+
+The hero decorations are light and decorative only (`aria-hidden`): outlined clouds, a star, a music note, a dot grid, a greeting bubble and a cheer bubble around the penguin in the language being learned ("你好!"/"加油" or "Hello!"/"ABC"), a heart, and three tilted word stickers under the copy. Motion is a slow float or bob and stops under `prefers-reduced-motion`. On wide screens the illustration column grows so the hero matches the right column instead of leaving an empty band; on mobile the stickers and some doodles are hidden.
+
+The empty-library task is "Mở sổ từ đầu tiên", not a bare "Lưu những từ đầu tiên".
+
+Each fact appears once on the page. In particular, the due-word count belongs to the main task only; do not repeat it in metrics, motivation cards or action cards. Do not add marketing tiles ("Học đúng trọng tâm", …) or status badges that are always true ("Sẵn sàng").
+
+Activity is shown as a month calendar that can page back through earlier months and years; it never pages past the current month, and "Về tháng này" appears when another month is shown. The streak line is a sentence ("Học hôm nay để giữ chuỗi 4 ngày") rather than a bare counter, and the record streak is a small secondary note shown only when it is above zero.
+
+"Từ của hôm nay" fills the right column under the calendar so both columns end level. The word is picked deterministically from the date, the track and the learner's current level (the first level when none is chosen), so it stays the same all day; HSK 7–9 share one pool. It is a compact row: the headword in a tinted tile, then pronunciation (pinyin or IPA), the Vietnamese meaning and part of speech, and a small "Lưu"/"Đã lưu" pill on the right. It saves through the existing catalog save APIs. The card is hidden when no word with a Vietnamese meaning is available. The logic lives in `frontend/src/features/home/wordOfTheDay.ts`.
+
+Write numbers and dates the way a person would say them:
+
+- accuracy is "—" with "Chưa làm bài nào" until the learner has completed an exercise; never "0%"
+- recent dates are "Hôm nay", "Hôm qua", "N ngày trước", then "dd/MM" (with the year only when it differs)
+- the long form of today is "Thứ Tư, 11 tháng 11"
+- all dates use the learner time zone Asia/Ho_Chi_Minh, the same as the backend streak calculation
 
 Do not let metric cards dominate the page.
 
@@ -487,24 +499,46 @@ Gamification should be light.
 
 ## 17. Authentication
 
-Login and Register should feel polished and modern.
+Login, Register and email confirmation share one split-screen layout: a dark purple brand panel on the left and a white form card on the right. On mobile the brand panel shrinks to a short header and the word card and facts are hidden.
 
-May use:
-- split-screen layout
-- subtle Mascot illustration / abstract motif
-- branded background treatment
+Brand panel:
 
-Include:
+- the Mascot wordmark
+- the slogan "Học thông minh hơn, từng từ một." with one line naming both tracks (English by CEFR, Chinese by HSK 3.0)
+- one sample word card (学习 · xuéxí · học tập) instead of a large illustration
+- real facts only: 10.999 HSK words, 6 CEFR levels, AI practice
 
-Mascot
+Register (step 1 of 2):
 
-"Learn smarter, one word at a time."
+- display name (Vietnamese with diacritics allowed, up to 80 characters)
+- username: 3–30 characters, starts with a letter, only a–z, 0–9, "." and "_", no "..", not ending with "." or "_", case-insensitive and unique; availability is checked while typing and the field says "Tên này còn trống", "đã có người dùng" or "đã được hệ thống giữ lại"
+- email
+- password (minimum 12 characters) with a four-step strength bar; there is no confirm-password field because show/hide is available
+
+Email confirmation (step 2 of 2):
+
+- six separate digit boxes that accept paste and fast typing and submit by themselves when full
+- the code is valid for 10 minutes; after 5 wrong tries the code is locked and a new one must be requested
+- "Gửi lại mã" is available again after 60 seconds, with a visible countdown
+- a way back to change the email
+
+Login:
+
+- one field for "Email hoặc tên người dùng"
+- password with show/hide and a Caps Lock warning
+- "Quên mật khẩu?" next to the password label
+- "Ghi nhớ đăng nhập trong 30 ngày" (off by default): when ticked the session survives closing the browser for 30 days; otherwise it ends with the browser tab, as before. Mascot never stores passwords itself; saving passwords is left to the browser's password manager, so inputs keep correct `autocomplete` values
+- an account that has not confirmed its email goes straight to the code step, and a new code is sent
+
+Error messages are Vietnamese and never reveal whether an email exists (wrong email and wrong password give the same message; resending a code always gives the same answer).
 
 Do not add unsupported features such as social login.
 
 ---
 
 ## 18. System States
+
+Destructive actions confirm inside the page: deleting a saved word asks on the card itself, and admin role/status changes use the shared `ConfirmDialog` (`frontend/src/components/ConfirmDialog.tsx`); errors are shown inline instead of `alert()`. Do not use `window.confirm`, `alert` or `prompt`: embedded browsers can block them, which silently cancels the action.
 
 Every important screen should support:
 
@@ -557,9 +591,25 @@ The visual should support the brand, not dominate it.
 
 ---
 
+### Page header themes
+
+Học từ vựng, Từ vựng của tôi, Ôn tập, Luyện tập and Giới thiệu share one framed header: 1px border, 24px radius, 38px × 42px padding (24px × 20px on mobile), the same 1200px maximum page width, and 24px between the header and the first content block. Each page adds its own playful theme through `PageDoodles` (`frontend/src/components/PageDoodles.tsx`), built on the page's existing accent colour:
+
+- Học từ vựng (blue): exploring, with a dashed route, paper plane, compass, map pin and a greeting bubble in the language being learned
+- Từ vựng của tôi (yellow): stationery, with washi tape, sticky notes, a pencil and a paperclip
+- Ôn tập (purple): remembering, with a glowing lightbulb, flipping mini flashcards and a spinning refresh ring
+- Luyện tập (green): playing, with a trophy, target, medal, lightning and confetti
+- Giới thiệu (pink): saying hello, with a waving hand, balloons, hearts and an envelope
+
+Decorations stay in the header's padding bands and around the illustration, never over text or controls; they are `aria-hidden`, move slowly, stop under `prefers-reduced-motion`, and are hidden on mobile. Each header also carries one practical "Mascot mách nhỏ" tip (`MascotTip`) tinted in the page colour.
+
+---
+
 ## 21. Development Rules
 
-UI redesign must NOT change:
+A UI-only redesign must NOT change the items below. Changing them is a product decision that must be requested explicitly and recorded here, as was done for usernames, email confirmation and "Ghi nhớ đăng nhập" (§17, migration `20261111_0017`).
+
+A UI-only redesign must NOT change:
 
 - backend APIs
 - database schema

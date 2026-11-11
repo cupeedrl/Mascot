@@ -2,12 +2,18 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ArrowRight,
   BookOpen,
-  CalendarDays,
+  Check,
   CheckCircle2,
+  Clock3,
+  Cloud,
   Dumbbell,
+  GraduationCap,
+  Heart,
+  Music2,
   Plus,
   RefreshCw,
   Sparkles,
+  Star,
   Target,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -21,9 +27,20 @@ import {
   StudyCalendarResponse,
   updateLearningPreference,
 } from "../api/client";
+import { useAuth } from "../auth/AuthContext";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { PenguinMark } from "../components/PenguinMark";
 import { StudyActivityCalendar } from "../components/StudyActivityCalendar";
+import { DEFAULT_QUESTION_COUNT } from "../features/exercises/practiceSetup";
+import {
+  accuracyText,
+  greetingName,
+  longToday,
+  relativeDay,
+  todayIso,
+  todayPlan,
+} from "../features/home/homeSummary";
+import { loadWordOfTheDay, type WordOfTheDay } from "../features/home/wordOfTheDay";
 import { useActiveLearningTrack } from "../learning/ActiveLearningTrackContext";
 
 const statusLabels = {
@@ -48,52 +65,39 @@ function errorMessage(error: unknown): string {
     : "Không thể tải trang chủ. Vui lòng thử lại.";
 }
 
-function accuracyLabel(value: number): string {
-  return `${Number.isInteger(value) ? value : value.toFixed(1)}%`;
+function currentMonthCursor() {
+  const [year, month] = todayIso().split("-").map(Number);
+  return { year, month };
 }
 
-function vietnamTodayUtc(): Date {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Ho_Chi_Minh",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
-  const value = (type: string) => parts.find((part) => part.type === type)?.value ?? "";
-  return new Date(Date.UTC(Number(value("year")), Number(value("month")) - 1, Number(value("day"))));
+// Decorative word stickers in the hero, in the language being learned.
+function heroStickers(languageCode: string) {
+  return languageCode === "zh"
+    ? [{ emoji: "🍎", word: "苹果" }, { emoji: "🐼", word: "熊猫" }, { emoji: "📚", word: "书" }]
+    : [{ emoji: "🍎", word: "apple" }, { emoji: "🐼", word: "panda" }, { emoji: "📚", word: "book" }];
 }
 
-function vietnamDateParts() {
-  const now = new Date();
-  const weekday = new Intl.DateTimeFormat("vi-VN", {
-    timeZone: "Asia/Ho_Chi_Minh",
-    weekday: "long",
-  }).format(now);
-  const dayAndMonth = new Intl.DateTimeFormat("vi-VN", {
-    timeZone: "Asia/Ho_Chi_Minh",
-    day: "numeric",
-    month: "long",
-  }).format(now);
-  return {
-    weekday: weekday.charAt(0).toUpperCase() + weekday.slice(1),
-    dayAndMonth,
-  };
-}
+const planIcons = {
+  review: RefreshCw,
+  practice: Dumbbell,
+  start: BookOpen,
+};
 
 export function AppHomePage() {
+  const { user } = useAuth();
   const { tracks, activeTrack, setActiveTrackId, isLoading: isTrackLoading } = useActiveLearningTrack();
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [currentLevel, setCurrentLevel] = useState<string | null>(null);
   const [isLevelLoading, setIsLevelLoading] = useState(false);
   const [isLevelSaving, setIsLevelSaving] = useState(false);
   const [levelError, setLevelError] = useState<string | null>(null);
-  const [calendarCursor, setCalendarCursor] = useState(() => {
-    const today = vietnamTodayUtc();
-    return { year: today.getUTCFullYear(), month: today.getUTCMonth() + 1 };
-  });
+  const [calendarCursor, setCalendarCursor] = useState(currentMonthCursor);
   const [studyCalendar, setStudyCalendar] = useState<StudyCalendarResponse | null>(null);
   const [isCalendarLoading, setIsCalendarLoading] = useState(false);
   const [calendarError, setCalendarError] = useState<string | null>(null);
+  const [word, setWord] = useState<WordOfTheDay | null>(null);
+  const [wordSaving, setWordSaving] = useState(false);
+  const [wordError, setWordError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -153,12 +157,44 @@ export function AppHomePage() {
     return () => { active = false; };
   }, [activeTrack, calendarCursor]);
 
+  // One catalog word per day at the learner's level; hidden if none is available.
+  useEffect(() => {
+    let active = true;
+    setWord(null);
+    setWordError(null);
+    if (!activeTrack || isLevelLoading) return () => { active = false; };
+    loadWordOfTheDay(activeTrack, currentLevel, todayIso())
+      .then((result) => {
+        if (active) setWord(result);
+      })
+      .catch(() => {
+        if (active) setWord(null);
+      });
+    return () => { active = false; };
+  }, [activeTrack, currentLevel, isLevelLoading]);
+
+  const saveWord = async () => {
+    if (!word || word.saved) return;
+    setWordSaving(true);
+    setWordError(null);
+    try {
+      await word.save();
+      setWord({ ...word, saved: true });
+    } catch (saveError) {
+      setWordError(errorMessage(saveError));
+    } finally {
+      setWordSaving(false);
+    }
+  };
+
   const moveCalendarMonth = (offset: number) => {
     setCalendarCursor((current) => {
       const next = new Date(Date.UTC(current.year, current.month - 1 + offset, 1));
       const year = next.getUTCFullYear();
-      if (year < 2000 || year > 2100) return current;
-      return { year, month: next.getUTCMonth() + 1 };
+      const month = next.getUTCMonth() + 1;
+      const now = currentMonthCursor();
+      if (year < 2000 || year > now.year || (year === now.year && month > now.month)) return current;
+      return { year, month };
     });
   };
 
@@ -195,14 +231,16 @@ export function AppHomePage() {
     );
   }
 
-  const today = vietnamDateParts();
-  const todayIsoDate = vietnamTodayUtc().toISOString().slice(0, 10);
-  const todayFocus = dashboard.words_due_for_review > 0
-    ? "Ôn lại từ đến hạn"
-    : dashboard.total_vocabulary > 0
-      ? "Luyện tập để củng cố"
-      : "Bắt đầu từ đầu tiên";
-  const hasStudiedToday = studyCalendar?.active_dates.includes(studyCalendar.today) ?? false;
+  const today = todayIso();
+  const plan = todayPlan({
+    wordsDue: dashboard.words_due_for_review,
+    totalVocabulary: dashboard.total_vocabulary,
+    practiceQuestions: DEFAULT_QUESTION_COUNT,
+  });
+  const PlanIcon = planIcons[plan.kind];
+  const hasStudiedToday = dashboard.recent_active_dates.some((day) => day.slice(0, 10) === today);
+  const firstName = greetingName(user?.display_name, user?.username);
+  const accuracy = accuracyText(dashboard.exercise_accuracy, dashboard.exercises_completed);
   const currentLevelIndex = currentLevel ? activeTrack.level_codes.indexOf(currentLevel) : -1;
   const nextLevel = currentLevelIndex >= 0
     ? activeTrack.level_codes[currentLevelIndex + 1] ?? "Hoàn thành"
@@ -213,23 +251,35 @@ export function AppHomePage() {
       <section className="dashboard-top-grid">
         <section className="dashboard-learning-hero" aria-labelledby="journey-heading">
           <div className="dashboard-hero-copy">
-            <p className="eyebrow">CHÀO MỪNG TRỞ LẠI</p>
+            <p className="eyebrow">{firstName ? `Chào ${firstName}` : "Chào bạn"}</p>
             <h1 id="journey-heading">Hôm nay mình <em>học gì?</em></h1>
-            <p className="dashboard-hero-description">
-              Mascot đã sắp xếp những bước quan trọng nhất để bạn tiếp tục tiến bộ.
-            </p>
-            <div className="hero-journey-badge">
-              <BookOpen size={16} />
-              <span>{activeTrack.language.name.toUpperCase()} · {activeTrack.level_framework}</span>
-            </div>
+            <p className="dashboard-hero-description">Mỗi ngày vài phút là đủ. Mascot sẽ gợi ý việc nên làm và nhắc bạn ôn đúng lúc.</p>
             <div className="journey-actions">
-              <Link className="primary-link" to="/app/learn">
-                Tiếp tục học <ArrowRight size={17} />
+              <Link className="secondary-link" to="/app/vocabulary">
+                <BookOpen size={16} aria-hidden="true" /> Từ vựng của tôi · {dashboard.total_vocabulary} từ
               </Link>
-              <Link className="hero-text-link" to="/app/vocabulary">Xem từ vựng của tôi</Link>
             </div>
+            <ul className="hero-stickers" aria-hidden="true">
+              {heroStickers(activeTrack.language.code).map((sticker) => (
+                <li key={sticker.word}><span>{sticker.emoji}</span><b lang={activeTrack.language.code}>{sticker.word}</b></li>
+              ))}
+            </ul>
+          </div>
+          <div className="hero-doodles" aria-hidden="true">
+            <Cloud className="hero-doodle hero-doodle-cloud-a" size={46} />
+            <Cloud className="hero-doodle hero-doodle-cloud-b" size={32} />
+            <Star className="hero-doodle hero-doodle-star" size={20} />
+            <Music2 className="hero-doodle hero-doodle-note" size={18} />
+            <span className="hero-doodle hero-doodle-dots" />
           </div>
           <div className="journey-visual dashboard-mascot-visual" aria-label="Linh vật chim cánh cụt Mascot">
+            <span className="hero-bubble hero-bubble-hello" aria-hidden="true" lang={activeTrack.language.code}>
+              {activeTrack.language.code === "zh" ? "你好!" : "Hello!"}
+            </span>
+            <span className="hero-bubble hero-bubble-word" aria-hidden="true" lang={activeTrack.language.code}>
+              {activeTrack.language.code === "zh" ? "加油" : "ABC"}
+            </span>
+            <Heart className="hero-doodle hero-doodle-heart" size={22} aria-hidden="true" />
             <div className="bee-hero-stage" aria-hidden="true">
               <span className="hero-sparkle hero-sparkle-one">✦</span>
               <span className="hero-sparkle hero-sparkle-two">✦</span>
@@ -298,79 +348,77 @@ export function AppHomePage() {
               </label>
             </div>
           </section>
-          <ul className="hero-learning-benefits" aria-label="Lợi ích học tập cùng Mascot">
-            <li>
-              <BookOpen size={18} />
-              <span><strong>Học đúng trọng tâm</strong><small>Theo lộ trình {activeTrack.level_framework}</small></span>
-            </li>
-            <li>
-              <RefreshCw size={18} />
-              <span><strong>Ghi nhớ hiệu quả</strong><small>Ôn tập đúng thời điểm</small></span>
-            </li>
-            <li>
-              <Target size={18} />
-              <span><strong>Tiến bộ mỗi ngày</strong><small>Theo dõi hành trình rõ ràng</small></span>
-            </li>
-          </ul>
         </section>
-        <aside className="dashboard-hero-meta" aria-label="Tổng quan hoạt động hôm nay">
-          <div className="dashboard-date-card">
-            <div className="date-card-heading">
-              <span className="date-icon"><CalendarDays size={19} /></span>
-              <div className="today-date-copy">
-                <span>Hôm nay</span>
-                <strong>{today.weekday}</strong>
-                <time>{today.dayAndMonth}</time>
+
+        <aside className="dashboard-hero-meta" aria-label="Gợi ý từ Mascot">
+          <section className="home-card home-mascot-card" aria-labelledby="mascot-tip-heading">
+            <header className="home-mascot-head">
+              <span className="home-mascot-avatar"><PenguinMark size={38} /></span>
+              <div>
+                <span className="home-mascot-eyebrow"><Sparkles size={13} aria-hidden="true" /> Gợi ý từ Mascot</span>
+                <time dateTime={today}>{longToday()}</time>
               </div>
-              <span className={`today-state-pill ${hasStudiedToday ? "complete" : "pending"}`}>
-                {hasStudiedToday ? "Đã học" : "Sẵn sàng"}
+            </header>
+            <p className="home-mascot-bubble">{plan.detail}</p>
+            <div className="home-mascot-task">
+              <strong id="mascot-tip-heading">{plan.title}</strong>
+              <span className="home-mascot-chips">
+                {plan.minutes ? <small><Clock3 size={12} aria-hidden="true" /> Khoảng {plan.minutes} phút</small> : null}
+                <small><Target size={12} aria-hidden="true" /> {currentLevel ?? activeTrack.level_framework}</small>
+                {hasStudiedToday && <small className="done"><CheckCircle2 size={12} aria-hidden="true" /> Đã học hôm nay</small>}
               </span>
             </div>
-            <div className="today-focus">
-              <span className="today-focus-icon"><Target size={15} aria-hidden="true" /></span>
-              <span>Công việc bây giờ</span>
-              <strong>{todayFocus}</strong>
-              <div className="today-action-row">
-                <span><RefreshCw size={13} /><b>{dashboard.words_due_for_review}</b> từ cần ôn</span>
-                <span><Target size={13} /><b>10</b> phút</span>
-                <Link to={dashboard.words_due_for_review > 0 ? "/app/review" : "/app/learn"}>
-                  {dashboard.words_due_for_review > 0 ? "Ôn ngay" : "Học ngay"} <ArrowRight size={13} />
-                </Link>
-              </div>
-            </div>
-          </div>
+            <Link className="primary-link home-today-cta" to={plan.to}>
+              <PlanIcon size={16} aria-hidden="true" /> {plan.cta} <ArrowRight size={16} />
+            </Link>
+          </section>
+
           <StudyActivityCalendar
             year={calendarCursor.year}
             month={calendarCursor.month}
-            today={studyCalendar?.today ?? todayIsoDate}
+            today={studyCalendar?.today ?? today}
             activeDates={studyCalendar?.active_dates ?? []}
             currentStreak={studyCalendar?.current_streak ?? dashboard.current_streak}
             longestStreak={studyCalendar?.longest_streak ?? dashboard.longest_streak}
+            studiedToday={hasStudiedToday}
             isLoading={isCalendarLoading}
             error={calendarError}
             onPreviousMonth={() => moveCalendarMonth(-1)}
             onNextMonth={() => moveCalendarMonth(1)}
+            onCurrentMonth={() => setCalendarCursor(currentMonthCursor())}
           />
-          <section className="dashboard-motivation-card" aria-label="Gợi ý từ Mascot">
-            <PenguinMark size={44} className="motivation-bee" />
-            <div className="motivation-eyebrow">
-              <Sparkles size={14} />
-              <span>GỢI Ý TỪ MASCOT</span>
-            </div>
-            <strong className="motivation-title">
-              {dashboard.words_due_for_review > 0
-                ? `Bạn còn ${dashboard.words_due_for_review} từ đến hạn.`
-                : "Duy trì nhịp học hôm nay."}
-            </strong>
-            <p className="motivation-body">
-              {dashboard.words_due_for_review > 0
-                ? "Ôn khoảng 10 phút hôm nay để giữ vững tiến độ."
-                : "Dành chút ít thời gian để tiếp tục duy trì nhịp học nhé!"}
-            </p>
-            <Link to="/app/review" className="motivation-cta">
-              Ôn tập ngay <ArrowRight size={13} />
-            </Link>
-          </section>
+          {word && (
+            <section className="home-card home-word-card" aria-labelledby="word-heading">
+              <header className="home-card-heading">
+                <span id="word-heading"><Sparkles size={14} aria-hidden="true" /> Từ của hôm nay</span>
+                <small className="home-word-level">{word.levelCode}</small>
+              </header>
+              <div className="home-word-row">
+                <strong className="home-word-tile" lang={activeTrack.language.code}>{word.headword}</strong>
+                <div className="home-word-text">
+                  {word.pronunciation && <span className="home-word-pron">{word.pronunciation}</span>}
+                  <p>{word.meaning}</p>
+                  {word.partOfSpeech && <small>{word.partOfSpeech}</small>}
+                </div>
+                {word.saved ? (
+                  <span className="home-word-action saved" title="Đã có trong từ vựng của bạn">
+                    <Check size={15} aria-hidden="true" /> Đã lưu
+                  </span>
+                ) : (
+                  <button
+                    className="home-word-action"
+                    type="button"
+                    onClick={() => void saveWord()}
+                    disabled={wordSaving}
+                    title="Lưu vào từ vựng của tôi"
+                  >
+                    <Plus size={15} aria-hidden="true" /> {wordSaving ? "Đang lưu" : "Lưu"}
+                  </button>
+                )}
+              </div>
+              {wordError && <small className="home-word-error" role="alert">{wordError}</small>}
+            </section>
+          )}
         </aside>
       </section>
 
@@ -384,12 +432,16 @@ export function AppHomePage() {
             <div><span>Tổng từ vựng</span><strong>{dashboard.total_vocabulary}</strong></div>
           </article>
           <article className="dashboard-metric">
-            <span className="metric-icon"><RefreshCw size={19} /></span>
-            <div><span>Từ đến hạn ôn</span><strong>{dashboard.words_due_for_review}</strong></div>
+            <span className="metric-icon"><GraduationCap size={19} /></span>
+            <div><span>Đã thành thạo</span><strong>{dashboard.mastered_words}</strong></div>
           </article>
           <article className="dashboard-metric">
             <span className="metric-icon"><CheckCircle2 size={19} /></span>
-            <div><span>Độ chính xác bài tập</span><strong>{accuracyLabel(dashboard.exercise_accuracy)}</strong></div>
+            <div>
+              <span>Độ chính xác bài tập</span>
+              <strong>{accuracy}</strong>
+              {dashboard.exercises_completed === 0 && <small>Chưa làm bài nào</small>}
+            </div>
           </article>
         </div>
       </section>
@@ -397,36 +449,44 @@ export function AppHomePage() {
       <section className="next-actions" aria-labelledby="next-actions-heading">
         <div className="section-heading-row">
           <div>
-            <p className="eyebrow">BƯỚC TIẾP THEO</p>
-            <h2 id="next-actions-heading">Một bước nhỏ cho hôm nay</h2>
+            <p className="eyebrow">LÀM THÊM</p>
+            <h2 id="next-actions-heading">Khi bạn còn thời gian</h2>
           </div>
         </div>
         <div className="next-action-grid">
-          <Link className="next-action-card review-action" to="/app/review">
-            <span className="action-icon"><RefreshCw size={21} /></span>
-            <div><strong>Ôn từ đến hạn</strong><p>Ôn tập để ghi nhớ lâu hơn.</p></div>
-            <b>{dashboard.words_due_for_review}</b>
-            <ArrowRight size={18} />
-          </Link>
-          <Link className="next-action-card practice-action" to="/app/practice">
-            <span className="action-icon"><Dumbbell size={21} /></span>
-            <div><strong>Luyện tập với AI</strong><p>Luyện câu hỏi từ chính vốn từ của bạn.</p></div>
-            <b>{accuracyLabel(dashboard.exercise_accuracy)}</b>
-            <ArrowRight size={18} />
-          </Link>
+          {plan.kind !== "review" && (
+            <Link className="next-action-card review-action" to="/app/review">
+              <span className="action-icon"><RefreshCw size={21} /></span>
+              <div><strong>Ôn tập tự chọn</strong><p>Ôn lại từ mới lưu hoặc theo chủ đề.</p></div>
+              <ArrowRight size={18} />
+            </Link>
+          )}
+          {plan.kind !== "practice" && (
+            <Link className="next-action-card practice-action" to="/app/practice">
+              <span className="action-icon"><Dumbbell size={21} /></span>
+              <div><strong>Luyện tập với AI</strong><p>Câu hỏi tạo từ chính vốn từ của bạn.</p></div>
+              <ArrowRight size={18} />
+            </Link>
+          )}
           <Link className="next-action-card add-action" to="/app/vocabulary/new">
             <span className="action-icon"><Plus size={21} /></span>
-            <div><strong>Thêm từ vựng</strong><p>Thêm thủ công hoặc tạo bản nháp cùng Mascot AI.</p></div>
-            <b>Mới</b>
+            <div><strong>Thêm từ vựng</strong><p>Tự nhập hoặc nhờ Mascot AI soạn giúp.</p></div>
             <ArrowRight size={18} />
           </Link>
+          {plan.kind !== "start" && (
+            <Link className="next-action-card learn-action" to="/app/learn">
+              <span className="action-icon"><BookOpen size={21} /></span>
+              <div><strong>Khám phá chủ đề</strong><p>Tìm thêm từ theo {activeTrack.level_framework}.</p></div>
+              <ArrowRight size={18} />
+            </Link>
+          )}
         </div>
       </section>
 
       <section className="dashboard-panel dashboard-recent" aria-labelledby="recent-heading">
         <div className="dashboard-panel-heading">
           <div><p className="eyebrow">TỪ VỰNG MỚI THÊM</p><h2 id="recent-heading">Gần đây</h2></div>
-          <Link to="/app/vocabulary/new">THÊM TỪ VỰNG <ArrowRight size={15} /></Link>
+          <Link to="/app/vocabulary/new">Thêm từ vựng <ArrowRight size={15} /></Link>
         </div>
 
         {dashboard.recently_added_vocabulary.length === 0 ? (
@@ -444,9 +504,7 @@ export function AppHomePage() {
                 <div className="dashboard-recent-meta">
                   <span>{item.level_code}</span>
                   <span>{statusLabels[item.learning_status]}</span>
-                  <time dateTime={item.created_at}>
-                    {new Intl.DateTimeFormat("vi-VN", { dateStyle: "short" }).format(new Date(item.created_at))}
-                  </time>
+                  <time dateTime={item.created_at}>{relativeDay(item.created_at)}</time>
                 </div>
               </Link>
             ))}

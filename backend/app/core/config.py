@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     jwt_secret_key: SecretStr = Field(min_length=32)
     jwt_algorithm: Literal["HS256"] = "HS256"
     jwt_access_token_expire_minutes: int = Field(default=30, ge=5, le=1440)
+    # Lifetime of the token issued when the learner ticks "Ghi nhớ đăng nhập".
+    jwt_remember_me_expire_days: int = Field(default=30, ge=1, le=90)
     jwt_issuer: str = Field(default="mascot-api", min_length=1)
     jwt_audience: str = Field(default="mascot-frontend", min_length=1)
     ai_provider: Literal["groq", "openai"] = "groq"
@@ -78,6 +80,9 @@ class Settings(BaseSettings):
         default="http://localhost:5173", min_length=1, max_length=500
     )
     password_reset_token_expire_minutes: int = Field(default=20, ge=5, le=120)
+    # New accounts must confirm their email with a 6-digit code before signing in.
+    require_email_verification: bool = True
+    email_verification_code_expire_minutes: int = Field(default=10, ge=5, le=60)
 
     @field_validator("cors_origins", mode="before")
     @classmethod

@@ -52,11 +52,11 @@ class ConsoleEmailProvider(EmailProvider):
         html_content: str,
         text_content: str,
     ) -> bool:
-        logger.info(
-            "[ConsoleEmailProvider] Mock Email Sent | To: %s | Subject: %s\nText:\n%s",
-            to_email,
-            subject,
-            text_content,
+        # Development only: print instead of logging, because the app does not
+        # configure INFO logging and sign-up codes must be readable locally.
+        print(
+            f"[ConsoleEmailProvider] Mock Email Sent | To: {to_email} | Subject: {subject}\nText:\n{text_content}",
+            flush=True,
         )
         return True
 
@@ -424,4 +424,59 @@ def send_password_reset_email(to_email: str, raw_token: str) -> bool:
         subject="Đặt lại mật khẩu Mascot",
         html_content=html_content,
         text_content=text_content,
+    )
+
+
+def build_verification_code_email_html(code: str, expire_minutes: int, name: str | None) -> str:
+    greeting = f"Chào {name}," if name else "Chào bạn,"
+    return f"""<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Mã xác nhận Mascot</title>
+  <style>
+    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 24px; }}
+    .container {{ max-width: 540px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 32px; }}
+    .brand {{ font-size: 20px; font-weight: 800; color: #4f46e5; margin-bottom: 20px; }}
+    h1 {{ font-size: 22px; font-weight: 700; color: #0f172a; margin-top: 0; }}
+    p {{ font-size: 15px; line-height: 1.6; color: #475569; margin: 16px 0; }}
+    .code {{ font-size: 34px; letter-spacing: 10px; font-weight: 800; color: #0f172a; background: #f1f0ff; border-radius: 12px; padding: 16px 20px; text-align: center; margin: 24px 0; }}
+    .note {{ font-size: 13.5px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 18px; margin-top: 28px; }}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="brand">Mascot</div>
+    <h1>Xác nhận email của bạn</h1>
+    <p>{greeting}</p>
+    <p>Nhập mã dưới đây vào Mascot để hoàn tất tạo tài khoản:</p>
+    <div class="code">{code}</div>
+    <p>Mã có hiệu lực trong <strong>{expire_minutes} phút</strong>. Đừng chia sẻ mã này với ai.</p>
+    <div class="note"><p>Nếu bạn không tạo tài khoản Mascot, hãy bỏ qua email này.</p></div>
+  </div>
+</body>
+</html>"""
+
+
+def build_verification_code_email_text(code: str, expire_minutes: int, name: str | None) -> str:
+    greeting = f"Chào {name}," if name else "Chào bạn,"
+    return f"""Mascot - Mã xác nhận email
+
+{greeting}
+
+Mã xác nhận của bạn: {code}
+Mã có hiệu lực trong {expire_minutes} phút. Đừng chia sẻ mã này với ai.
+
+Nếu bạn không tạo tài khoản Mascot, hãy bỏ qua email này.
+"""
+
+
+def send_verification_code_email(to_email: str, code: str, name: str | None = None) -> bool:
+    expire_minutes = get_settings().email_verification_code_expire_minutes
+    provider = get_email_provider()
+    return provider.send_email(
+        to_email=to_email,
+        subject=f"{code} là mã xác nhận Mascot của bạn",
+        html_content=build_verification_code_email_html(code, expire_minutes, name),
+        text_content=build_verification_code_email_text(code, expire_minutes, name),
     )

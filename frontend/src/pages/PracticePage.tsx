@@ -31,6 +31,7 @@ import {
 } from "../api/client";
 import { LearningIllustration } from "../components/LearningIllustration";
 import { PageHeader } from "../components/PageHeader";
+import { MascotTip, PageDoodles } from "../components/PageDoodles";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { PenguinMark } from "../components/PenguinMark";
 import { TopicCombobox } from "../components/TopicCombobox";
@@ -362,6 +363,8 @@ export function PracticePage() {
         title="Luyện tập có mục tiêu."
         description="Chọn từ trong Từ vựng của tôi để Mascot AI soạn câu hỏi; backend luôn chấm đáp án theo quy tắc xác định."
         aside={<LearningIllustration variant="practice" />}
+        decoration={<PageDoodles variant="practice" languageCode={activeTrack?.language.code} />}
+        tip={<MascotTip tone="practice">Sai cũng không sao! Đọc phần giải thích sau mỗi câu là nhớ lâu hơn nhiều.</MascotTip>}
       />
 
       <section className="ai-exercise-generator" aria-labelledby="ai-generator-title">

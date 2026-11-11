@@ -14,6 +14,7 @@ import {
 import { PageSkeleton } from "../components/PageSkeleton";
 import { LearningIllustration } from "../components/LearningIllustration";
 import { PageHeader } from "../components/PageHeader";
+import { MascotTip, PageDoodles } from "../components/PageDoodles";
 import { PenguinMark } from "../components/PenguinMark";
 import { ManageTopicsModal } from "../components/ManageTopicsModal";
 import { TopicCombobox } from "../components/TopicCombobox";
@@ -51,6 +52,8 @@ export function VocabularyPage() {
   );
   const [refreshKey, setRefreshKey] = useState(0);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  // In-app confirmation: native confirm() is blocked in some embedded browsers.
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [isManagingTopics, setIsManagingTopics] = useState(false);
 
   useEffect(() => {
@@ -100,7 +103,7 @@ export function VocabularyPage() {
   );
 
   async function handleDelete(item: Vocabulary) {
-    if (!window.confirm(`Xóa “${item.word}” khỏi kho từ vựng?`)) return;
+    setConfirmingId(null);
     setDeletingId(item.id);
     setPageError("");
     setSuccess("");
@@ -145,6 +148,8 @@ export function VocabularyPage() {
         title="Từ vựng của tôi"
         description={"Tất cả từ bạn tự thêm và từ đã lưu từ thư viện Mascot đều nằm ở đây. Lọc theo trạng thái, trình độ CEFR hoặc chủ đề để tập trung vào đúng nhóm từ bạn muốn học."}
         titleId="vocabulary-heading"
+        decoration={<PageDoodles variant="vocabulary" languageCode={activeTrack?.language.code} />}
+        tip={<MascotTip tone="vocabulary">Lọc trạng thái “Mới” để xem những từ bạn vừa lưu, rồi ôn chúng ngay hôm nay.</MascotTip>}
         aside={(
           <div className="vocabulary-hero-aside">
             <LearningIllustration variant="vocabulary" />
@@ -247,19 +252,31 @@ export function VocabularyPage() {
                 <span>{item.learning_track.name}</span>
                 {item.topic && <span>#{item.topic}</span>}
               </div>
-              <div className="card-actions">
-                <Link className="text-button" to={`/app/vocabulary/${item.id}/edit`}>
-                  <Pencil size={15} /> Chỉnh sửa
-                </Link>
-                <button
-                  className="danger-button"
-                  type="button"
-                  onClick={() => handleDelete(item)}
-                  disabled={deletingId === item.id}
-                >
-                  <Trash2 size={15} /> {deletingId === item.id ? "Đang xóa…" : "Xóa"}
-                </button>
-              </div>
+              {confirmingId === item.id ? (
+                <div className="card-actions card-confirm" role="group" aria-label={`Xác nhận xóa ${item.word}`}>
+                  <span>Xóa “{item.word}” khỏi kho từ vựng?</span>
+                  <button className="text-button" type="button" onClick={() => setConfirmingId(null)} autoFocus>
+                    Hủy
+                  </button>
+                  <button className="danger-button" type="button" onClick={() => void handleDelete(item)}>
+                    <Trash2 size={15} /> Xóa
+                  </button>
+                </div>
+              ) : (
+                <div className="card-actions">
+                  <Link className="text-button" to={`/app/vocabulary/${item.id}/edit`}>
+                    <Pencil size={15} /> Chỉnh sửa
+                  </Link>
+                  <button
+                    className="danger-button"
+                    type="button"
+                    onClick={() => setConfirmingId(item.id)}
+                    disabled={deletingId === item.id}
+                  >
+                    <Trash2 size={15} /> {deletingId === item.id ? "Đang xóa…" : "Xóa"}
+                  </button>
+                </div>
+              )}
             </article>
           ))}
         </div>

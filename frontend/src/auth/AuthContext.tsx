@@ -13,6 +13,8 @@ import {
   getCurrentUser,
   hasAccessToken,
   login as loginRequest,
+  verifyEmail as verifyEmailRequest,
+  type RegisterProfile,
   logout as logoutRequest,
   register as registerRequest,
   setAccessToken,
@@ -36,12 +38,15 @@ interface AuthContextValue {
     email: string,
     password: string,
     warmupOptions?: BackendWarmupOptions,
+    rememberMe?: boolean,
   ) => Promise<void>;
   register: (
     email: string,
     password: string,
     warmupOptions?: BackendWarmupOptions,
-  ) => Promise<void>;
+    profile?: RegisterProfile,
+  ) => Promise<{ verificationRequired: boolean; email: string }>;
+  verifyEmail: (email: string, code: string, rememberMe?: boolean) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -110,9 +115,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string,
     warmupOptions: BackendWarmupOptions = {},
+    rememberMe = false,
   ) => {
-    const token = await loginRequest(email, password, warmupOptions);
-    setAccessToken(token.access_token);
+    const token = await loginRequest(email, password, warmupOptions, rememberMe);
+    setAccessToken(token.access_token, rememberMe);
     try {
       const currentUser = await getCurrentUser(warmupOptions);
       setUser(currentUser);
@@ -127,12 +133,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: string,
       password: string,
       warmupOptions: BackendWarmupOptions = {},
-    ) => {
-      await registerRequest(email, password, warmupOptions);
+      profile: RegisterProfile = {},
+    ): Promise<{ verificationRequired: boolean; email: string }> => {
+      const created = await registerRequest(email, password, warmupOptions, profile);
+      if (created.verification_required) {
+        return { verificationRequired: true, email: created.email };
+      }
       await authenticate(email, password, warmupOptions);
+      return { verificationRequired: false, email: created.email };
     },
     [authenticate],
   );
+
+  const verifyEmail = useCallback(async (email: string, code: string, rememberMe = false) => {
+    const token = await verifyEmailRequest(email, code, rememberMe);
+    setAccessToken(token.access_token, rememberMe);
+    try {
+      setUser(await getCurrentUser());
+    } catch (error) {
+      if (shouldClearAuthenticationOnRestoreFailure(error)) setAccessToken(null);
+      throw error;
+    }
+  }, []);
 
   const logout = useCallback(async () => {
     try {
@@ -153,9 +175,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       retryRestore: restoreAuthentication,
       login: authenticate,
       register,
+      verifyEmail,
       logout,
     }),
     [
+      verifyEmail,
       authenticate,
       isInitializing,
       logout,

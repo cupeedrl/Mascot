@@ -26,7 +26,7 @@ This document provides complete instructions for deploying Mascot to production 
    ```
 
 ### Step 2: Execute Database Migrations
-Run Alembic against Neon to apply all migrations up to the current head (`20260908_0014`):
+Run Alembic against Neon to apply all migrations up to the current head (`20261111_0017`). With the Start Command below, Render does this automatically on every deploy, so the manual command is only needed for a first setup or a rescue:
 
 ```bash
 cd backend
@@ -40,7 +40,8 @@ python -m alembic upgrade head
    - **Root Directory**: `backend`
    - **Runtime**: `Python 3`
    - **Build Command**: `pip install -e .`
-   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Start Command**: `python -m alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+     (migrations run before the API starts; if a migration fails the deploy fails and the previous version keeps serving)
 3. Add Backend Environment Variables (see table below).
 
 ### Step 4: Deploy Frontend on Vercel
@@ -57,6 +58,20 @@ python -m alembic upgrade head
 ### Step 5: Configure CORS & Run Smoke Test
 1. Set `CORS_ORIGINS` on Render to your Vercel domain (e.g. `["https://mascot-ai-learn.vercel.app"]`).
 2. Run the production smoke-test checklist.
+
+### Step 5b: Load the HSK 1–9 catalog (once per release)
+The Chinese track reads only a published HSK release. After the migrations above, import and publish it from a machine that has the derived dataset (kept outside the repository) and Docker:
+
+```powershell
+# PowerShell; paste the Neon URL only into your own terminal
+$env:DATABASE_URL = "postgresql+psycopg://<user>:<password>@<ep-xyz>.region.aws.neon.tech/<dbname>?sslmode=require"
+docker run --rm -e DATABASE_URL `
+  -v "D:/IERP/Projects/Mascot/_recovery/Mascot-feature-ai-chatbot/backend:/src:ro" `
+  -v "D:/IERP/Projects/Mascot/_recovery/sources:/sources:ro" `
+  mascot-hsk-test:local sh -c 'mkdir /work && tar -C /src --exclude=.venv -cf - . | tar -C /work -xf - && cd /work && python -m scripts.import_hsk_release import /sources/derived/hsk-2025/release-hsk1-9 --database-url "$DATABASE_URL" && python -m scripts.import_hsk_release publish --track general-chinese --release hsk-2025-hsk1-9 --database-url "$DATABASE_URL"'
+```
+
+The import is idempotent and never touches personal vocabulary; publishing makes the release the one learners see.
 
 ### Step 6: Keep the Render Backend Awake (Free Tier)
 Render spins down a free web service after **15 minutes without inbound traffic**, and the next request waits about a minute while it starts again ([Render docs](https://render.com/docs/free)). To avoid that cold start:
@@ -98,6 +113,9 @@ Free web services cannot send traffic on ports 25, 465 or 587, so SMTP email (`E
 | `EMAIL_FROM` | Yes | `Mascot <support@mascot.io>` | Sender email address |
 | `FRONTEND_BASE_URL` | Yes | `https://mascot.vercel.app` | Base URL used to construct password reset links |
 | `PASSWORD_RESET_TOKEN_EXPIRE_MINUTES` | No | `20` | Reset token lifetime in minutes |
+| `REQUIRE_EMAIL_VERIFICATION` | No | `true` | New accounts confirm their email with a 6-digit code before signing in. Needs a working `EMAIL_PROVIDER`; set `false` only while email is unavailable |
+| `EMAIL_VERIFICATION_CODE_EXPIRE_MINUTES` | No | `10` | Lifetime of the sign-up code |
+| `JWT_REMEMBER_ME_EXPIRE_DAYS` | No | `30` | Token lifetime when the learner ticks "Ghi nhớ đăng nhập" |
 
 ### Frontend (Vercel)
 

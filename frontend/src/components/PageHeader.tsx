@@ -8,6 +8,10 @@ interface PageHeaderProps {
   aside?: ReactNode;
   className?: string;
   titleId?: string;
+  /** Decorative layer (see PageDoodles); placed behind the content. */
+  decoration?: ReactNode;
+  /** Short helper line under the description (see MascotTip). */
+  tip?: ReactNode;
 }
 
 export function PageHeader({
@@ -18,9 +22,12 @@ export function PageHeader({
   aside,
   className = "",
   titleId,
+  decoration,
+  tip,
 }: PageHeaderProps) {
   return (
-    <header className={`page-header ${className}`.trim()}>
+    <header className={`page-header ${decoration ? "has-doodles " : ""}${className}`.trim()}>
+      {decoration}
       <div className="page-header-copy">
         <div className="page-header-eyebrow">
           {Icon && <span className="page-header-icon"><Icon size={19} strokeWidth={2} /></span>}
@@ -28,6 +35,7 @@ export function PageHeader({
         </div>
         <h1 id={titleId}>{title}</h1>
         <p>{description}</p>
+        {tip}
       </div>
       {aside && <div className="page-header-aside">{aside}</div>}
     </header>

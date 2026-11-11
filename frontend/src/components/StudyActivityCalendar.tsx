@@ -1,5 +1,7 @@
 import { ChevronLeft, ChevronRight, Flame } from "lucide-react";
 
+import { streakSentence } from "../features/home/homeSummary";
+
 interface CalendarDay {
   isoDate: string;
   dayNumber: number;
@@ -17,6 +19,9 @@ interface StudyActivityCalendarProps {
   error?: string | null;
   onPreviousMonth: () => void;
   onNextMonth: () => void;
+  onCurrentMonth?: () => void;
+  /** Whether the learner studied today; the shown month may not contain today. */
+  studiedToday?: boolean;
 }
 
 const weekdayLabels = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
@@ -53,6 +58,8 @@ export function StudyActivityCalendar({
   error,
   onPreviousMonth,
   onNextMonth,
+  onCurrentMonth,
+  studiedToday: studiedTodayProp,
 }: StudyActivityCalendarProps) {
   const days = buildCalendarDays(year, month);
   const active = new Set(activeDates);
@@ -61,6 +68,11 @@ export function StudyActivityCalendar({
     year: "numeric",
     timeZone: "UTC",
   }).format(new Date(Date.UTC(year, month - 1, 1)));
+  // Future months hold no activity, so paging stops at the current month.
+  const [todayYear, todayMonth] = today.split("-").map(Number);
+  const isCurrentMonth = year === todayYear && month === todayMonth;
+  const isFutureOrCurrent = year > todayYear || (year === todayYear && month >= todayMonth);
+  const studiedToday = studiedTodayProp ?? active.has(today);
 
   return (
     <section className={`study-calendar-card${isLoading ? " loading" : ""}`} aria-label="Lịch hoạt động học tập">
@@ -70,18 +82,23 @@ export function StudyActivityCalendar({
           <strong>{monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)}</strong>
         </div>
         <div className="study-calendar-navigation">
+          {!isCurrentMonth && onCurrentMonth && (
+            <button type="button" className="study-calendar-today-button" onClick={onCurrentMonth}>
+              Về tháng này
+            </button>
+          )}
           <button type="button" aria-label="Tháng trước" onClick={onPreviousMonth}>
             <ChevronLeft size={15} />
           </button>
-          <button type="button" aria-label="Tháng sau" onClick={onNextMonth}>
+          <button type="button" aria-label="Tháng sau" onClick={onNextMonth} disabled={isFutureOrCurrent}>
             <ChevronRight size={15} />
           </button>
         </div>
       </header>
 
       <div className="study-calendar-streaks">
-        <span><Flame size={14} /><b>{currentStreak}</b> ngày hiện tại</span>
-        <span>Kỷ lục <b>{longestStreak}</b> ngày</span>
+        <span><Flame size={14} aria-hidden="true" />{streakSentence(currentStreak, studiedToday)}</span>
+        {longestStreak > 0 && <span>Kỷ lục <b>{longestStreak}</b> ngày</span>}
       </div>
 
       <div className="study-calendar-body">

@@ -34,10 +34,13 @@ def verify_password(password: str, password_hash: str) -> bool:
         return False
 
 
-def create_access_token(user_id: uuid.UUID) -> tuple[str, int]:
+def create_access_token(user_id: uuid.UUID, *, remember_me: bool = False) -> tuple[str, int]:
     settings = get_settings()
     now = datetime.now(timezone.utc)
-    expires_in = settings.jwt_access_token_expire_minutes * 60
+    if remember_me:
+        expires_in = settings.jwt_remember_me_expire_days * 24 * 60 * 60
+    else:
+        expires_in = settings.jwt_access_token_expire_minutes * 60
     payload = {
         "sub": str(user_id),
         "type": "access",

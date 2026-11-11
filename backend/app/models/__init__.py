@@ -2,6 +2,7 @@
 
 from app.models.ai_usage_log import AIUsageLog
 from app.models.ai_conversation import AIConversation, AIMessage
+from app.models.email_verification_code import EmailVerificationCode
 from app.models.exercise import Exercise, exercise_vocabularies
 from app.models.exercise_attempt import ExerciseAttempt
 from app.models.hsk_catalog import (
@@ -38,6 +39,7 @@ __all__ = [
     "CatalogSourceEntryLevel",
     "CatalogSourceMapping",
     "CatalogTopic",
+    "EmailVerificationCode",
     "Exercise",
     "ExerciseAttempt",
     "Language",

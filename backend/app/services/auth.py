@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
+import re
 import secrets
 from datetime import datetime, timedelta, timezone
 
@@ -10,6 +12,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.core.config import get_settings
 from app.core.security import DUMMY_PASSWORD_HASH, hash_password, verify_password
+from app.models.email_verification_code import EmailVerificationCode
 from app.models.password_reset_token import PasswordResetToken
 from app.models.user import User
 from app.schemas.auth import RegisterRequest
@@ -25,6 +28,117 @@ class InvalidResetTokenError(Exception):
 
 class AccountDisabledError(Exception):
     """Raised when credentials are valid but account is disabled."""
+
+
+class DuplicateUsernameError(Exception):
+    """Raised when a normalized username is already taken."""
+
+
+class InvalidUsernameError(Exception):
+    def __init__(self, reason: str) -> None:
+        self.reason = reason
+        super().__init__(reason)
+
+
+class EmailNotVerifiedError(Exception):
+    """Raised when credentials are valid but the email is not confirmed yet."""
+
+    def __init__(self, user: User) -> None:
+        self.user = user
+        super().__init__("email not verified")
+
+
+class VerificationCodeError(Exception):
+    """Raised for a wrong, expired or locked email verification code."""
+
+    def __init__(self, code: str, remaining_attempts: int | None = None) -> None:
+        self.code = code
+        self.remaining_attempts = remaining_attempts
+        super().__init__(code)
+
+
+class AlreadyVerifiedError(Exception):
+    """Raised when an account's email is already confirmed."""
+
+
+USERNAME_PATTERN = re.compile(r"^[a-z][a-z0-9._]{2,29}$")
+RESERVED_USERNAMES = frozenset(
+    {"admin", "administrator", "root", "mascot", "support", "system", "api", "help", "null", "undefined", "me"}
+)
+VERIFICATION_MAX_ATTEMPTS = 5
+
+
+def normalize_username(username: str) -> str:
+    return username.strip().lower()
+
+
+def username_problem(db: Session, username: str) -> str | None:
+    """Return why a username cannot be used ("invalid", "reserved", "taken") or None."""
+    normalized = normalize_username(username)
+    if not USERNAME_PATTERN.fullmatch(normalized) or normalized.endswith((".", "_")) or ".." in normalized:
+        return "invalid"
+    if normalized in RESERVED_USERNAMES:
+        return "reserved"
+    if db.scalar(select(User.id).where(User.normalized_username == normalized)) is not None:
+        return "taken"
+    return None
+
+
+def _code_hash(user_id, code: str) -> str:
+    secret = get_settings().jwt_secret_key.get_secret_value().encode("utf-8")
+    return hmac.new(secret, f"{user_id}:{code}".encode("utf-8"), hashlib.sha256).hexdigest()
+
+
+def create_email_verification_code(db: Session, user: User) -> str:
+    """Replace the user's active code with a new 6-digit code and return it."""
+    code = f"{secrets.randbelow(1_000_000):06d}"
+    minutes = get_settings().email_verification_code_expire_minutes
+    db.query(EmailVerificationCode).filter(EmailVerificationCode.user_id == user.id).delete()
+    db.add(
+        EmailVerificationCode(
+            user_id=user.id,
+            code_hash=_code_hash(user.id, code),
+            expires_at=datetime.now(timezone.utc) + timedelta(minutes=minutes),
+            attempts=0,
+        )
+    )
+    db.commit()
+    return code
+
+
+def verify_email_code(db: Session, email: str, code: str) -> User:
+    """Confirm a user's email. Unknown emails fail like a wrong code."""
+    user = db.scalar(select(User).where(User.normalized_email == normalize_email(email)))
+    if user is not None and user.email_verified_at is not None:
+        raise AlreadyVerifiedError
+    record = (
+        db.scalar(select(EmailVerificationCode).where(EmailVerificationCode.user_id == user.id))
+        if user is not None
+        else None
+    )
+    if user is None or record is None:
+        raise VerificationCodeError("INVALID_CODE", 0)
+    if _as_utc(record.expires_at) <= datetime.now(timezone.utc):
+        raise VerificationCodeError("CODE_EXPIRED")
+    if record.attempts >= VERIFICATION_MAX_ATTEMPTS:
+        raise VerificationCodeError("CODE_LOCKED")
+    if not hmac.compare_digest(record.code_hash, _code_hash(user.id, code)):
+        record.attempts += 1
+        db.commit()
+        remaining = VERIFICATION_MAX_ATTEMPTS - record.attempts
+        raise VerificationCodeError("INVALID_CODE" if remaining else "CODE_LOCKED", remaining)
+    user.email_verified_at = datetime.now(timezone.utc)
+    db.delete(record)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def user_needing_verification(db: Session, email: str) -> User | None:
+    user = db.scalar(select(User).where(User.normalized_email == normalize_email(email)))
+    if user is None or user.email_verified_at is not None or not user.is_active:
+        return None
+    return user
 
 
 def normalize_email(email: str) -> str:
@@ -45,10 +159,24 @@ def register_user(db: Session, registration: RegisterRequest) -> User:
     if existing_user is not None:
         raise DuplicateEmailError
 
+    username = None
+    if registration.username is not None:
+        problem = username_problem(db, registration.username)
+        if problem == "taken":
+            raise DuplicateUsernameError
+        if problem is not None:
+            raise InvalidUsernameError(problem)
+        username = normalize_username(registration.username)
+
+    require_verification = get_settings().require_email_verification
     user = User(
         email=email,
         normalized_email=normalized_email,
         password_hash=hash_password(registration.password),
+        username=username,
+        normalized_username=username,
+        display_name=registration.display_name,
+        email_verified_at=None if require_verification else datetime.now(timezone.utc),
     )
     db.add(user)
 
@@ -56,6 +184,8 @@ def register_user(db: Session, registration: RegisterRequest) -> User:
         db.commit()
     except IntegrityError as exc:
         db.rollback()
+        if username and db.scalar(select(User.id).where(User.normalized_username == username)):
+            raise DuplicateUsernameError from exc
         raise DuplicateEmailError from exc
 
     db.refresh(user)
@@ -63,9 +193,13 @@ def register_user(db: Session, registration: RegisterRequest) -> User:
 
 
 def authenticate_user(db: Session, email: str, password: str) -> User | None:
-    user = db.scalar(
-        select(User).where(User.normalized_email == normalize_email(email))
-    )
+    """Check credentials. ``email`` may also be a username (no "@")."""
+    login_name = email.strip()
+    if "@" in login_name:
+        condition = User.normalized_email == normalize_email(login_name)
+    else:
+        condition = User.normalized_username == normalize_username(login_name)
+    user = db.scalar(select(User).where(condition))
 
     password_hash = user.password_hash if user is not None else DUMMY_PASSWORD_HASH
     password_matches = verify_password(password, password_hash)
@@ -75,6 +209,9 @@ def authenticate_user(db: Session, email: str, password: str) -> User | None:
 
     if not user.is_active:
         raise AccountDisabledError
+
+    if get_settings().require_email_verification and user.email_verified_at is None:
+        raise EmailNotVerifiedError(user)
 
     return user
 
